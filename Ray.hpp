@@ -18,6 +18,7 @@
 namespace ray_tracing {
     class Ray {
 
+    private:
         Source source;
         Receiver receiver;
         VelocityModel velocity_model;

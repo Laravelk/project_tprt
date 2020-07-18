@@ -4,6 +4,7 @@
 #include <vector>
 #include <iostream> // TODO: delete
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
+#include "../Derivative.h"
 
 #include "GridHorizon.h"
 
@@ -15,12 +16,18 @@ namespace ray_tracing {
     }
 
     float GridHorizon::getDepth(std::array<float, 2> cord) const {
-        return inter;
+        return interpolator(cord.at(0), cord.at(1));
     }
 
     std::array<float, 3>
     GridHorizon::calcIntersect(const std::array<float, 3> &x0, const std::array<float, 3> &x1) const {
-        return std::array<float, 3>();
+        std::array<float, 3> inter;
+        std::array<float, 3> vector = {x1[0] - x0[0], x1[1] - x0[1], x1[2] - x0[2] }; // vector from x0 to x1
+
+        if ((x0[2] - getDepth(x0[0], x0[1])) * (x1[2] - getDepth(x1[0], x1[1])) > 0) { // if point x1 & x2 in one side from horizon
+            return inter;
+        }
+
     }
 
     /*
@@ -90,33 +97,19 @@ namespace ray_tracing {
                                     doc["Points"][i][2].GetFloat());
         }
 
-        double grid_step = doc["Step"].GetDouble();
-
-        return GridHorizon(anchor, normal, name, points, grid_step);
+        return GridHorizon(anchor, normal, name, points);
     }
 
-    /*
-     * anchor: first point of horizon
-     * normal: vector of normal vectors for all points
-     * name: name of horizon
-     * points: all points after interpolation
-     * step: grid step
-     * */
     GridHorizon::GridHorizon(std::array<float, 3> _anchor, std::vector<std::array<float, 3>> _normal, std::string _name,
-                             std::vector<std::tuple<float, float, float>> _points, double _step) : anchor(_anchor),
+                             std::vector<std::tuple<float, float, float>> _points) : anchor(_anchor),
                              normal(std::move(_normal)), name(std::move(_name)),
-                             points(std::move(_points)), step(_step)
+                             points(std::move(_points))
     {
-        interpolation(points, _step);
+        interpolation(points);
     }
 
-    /*
-     * points: non interpolation points
-     * @return: points array after interpolation
-     */
-    std::vector<std::tuple<float, float, float>>
-    GridHorizon::st_interpolation(const std::vector<std::tuple<float, float, float>>& points_array, double step) {
-        // TODO: interpolation
+    _2D::BicubicInterpolator<float>
+    GridHorizon::st_interpolation(const std::vector<std::tuple<float, float, float>>& points_array) {
         // points -> x, y, z. point<x,y,z> in points
 
         std::vector<std::tuple<float, float, float>> new_points;
@@ -136,42 +129,9 @@ namespace ray_tracing {
             z.push_back(std::get<2>(point));
         }
 
-        std::sort(x.begin(), x.end());
-        std::sort(y.begin(), y.end());
-        std::sort(z.begin(), z.end());
-
         interpolator.setData(x, y, z);
 
-//        if (!checkGrid(x, y, z, step)) { // check regular
-//            return new_points;
-//        }
-
-        double new_step = step / 5.0f; // boost points count in five
-
-        unsigned long size_x = x.size() * 5;
-
-        std::vector<double> new_x;
-        std::vector<double> new_y;
-        std::vector<double> new_z;
-        new_x.reserve(size_x);
-        new_y.reserve(size_x);
-        new_z.reserve(size_x);
-
-        for (unsigned long i = 0; i < size_x; i++) {
-            for (unsigned long j = 0; j < 5; j++) {
-                new_x.push_back(x.at(i) + (double)j * new_step);
-                new_y.push_back(y.at(i) + (double)j * new_step);
-            }
-        }
-
-        for (auto x_value : new_x) {
-            for (auto y_value : new_y) {
-                    std::tuple<float, float, float> point = std::make_tuple(x_value, y_value,
-                                                                               interpolator(x_value, y_value));
-                    new_points.push_back(point);
-            }
-        }
-        return new_points;
+        return interpolator;
     }
 
     /* check grid value */
@@ -212,9 +172,28 @@ namespace ray_tracing {
         return true;
     }
 
-    // change value of points_interpolation
-    bool GridHorizon::interpolation(const std::vector<std::tuple<float, float, float>> & points_array, double step) {
-        points_after_interpolation = st_interpolation(points_array, step);
-        return !points_after_interpolation.empty();
+    bool GridHorizon::interpolation(const std::vector<std::tuple<float, float, float>> & points_array) {
+        this->interpolator = st_interpolation(points_array);
+        return true;
+    }
+
+    double GridHorizon::operator()(float x, float y) const {
+        return interpolator(x, y);
+    }
+
+    float GridHorizon::getDepth(float x, float y) const {
+        return interpolator(x, y);
+    }
+
+    std::array<float, 2> GridHorizon::calculateGradientInPoint(float x, float y) const {
+        std::array<float, 2> gradient = {Derivative::derivative_x(x, y, interpolator),
+                                         Derivative::derivative_y(x,y,interpolator)};
+        return gradient;
+    }
+
+    std::array<float, 3> GridHorizon::normalAtPoint(float x, float y, float z) const {
+        std::array<float, 2> gradient = calculateGradientInPoint(x, y); // [dz/dx, dz/dy]
+        float norm = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1] + 1);
+        return {gradient[0] / norm, gradient[1] / norm, 1}; // [dz/dx, dy/dz, 1], unit normal
     }
 }

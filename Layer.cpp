@@ -1,6 +1,4 @@
-//
 // Created by Алексей Матвеев on 10.06.2018.
-//
 
 #include <vector>
 #include "Layer.hpp"

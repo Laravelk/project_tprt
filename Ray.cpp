@@ -10,7 +10,6 @@
 
 namespace ray_tracing {
     void Ray::computeSegments() {
-
         std::vector<std::tuple<float, std::array<float, 3>, Layer>> intersections;
 
         auto source_location = source.getLocation();

@@ -58,7 +58,7 @@ namespace ray_tracing {
          * @return: true if ray_code is correct
          * @return: false if ray_code is incorrect
          */
-        bool checkRayCode(const std::vector<std::tuple<int, float, int>> &ray_code) const;
+        //bool checkRayCode(const std::vector<std::tuple<int, float, int>> &ray_code) const;
 
     public:
         /*
@@ -67,7 +67,7 @@ namespace ray_tracing {
          * velocity_model: object of type VelocityModel
          * ray_code: for each Segment of Ray is [+1 (down) or -1 (up), depth of Layer, WaveType: 0 (WaveP) or 1 (WaveS)]
          */
-        Ray(Source source, Receiver receiver, VelocityModel velocity_model ,const std::vector<std::tuple<int, float, int>>& ray_code) : source(std::move(source)),
+        /*Ray(Source source, Receiver receiver, VelocityModel velocity_model ,const std::vector<std::tuple<int, float, int>>& ray_code) : source(std::move(source)),
         receiver(std::move(receiver)), velocity_model(std::move(velocity_model)) {
             timeP = INFINITY;
             timeS = INFINITY;
@@ -81,7 +81,7 @@ namespace ray_tracing {
             }
             amplitudeP = 1;
             amplitudeS = 1;
-        }
+        }*/
 
         Ray(Source source, Receiver receiver, VelocityModel velocity_model) : source(std::move(source)),
                                                                               receiver(receiver),

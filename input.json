@@ -1,8 +1,8 @@
 {
     "Receiver":    {
         "Location": [
-            100.0,
-            100.0,
+            0.0,
+            3.0,
             90.0
         ],
         "Nc": 3,
@@ -29,42 +29,63 @@
     },
 
     "Source":    {
-	    "Location": [
-	        0.0,
-	        0.0,
-	        0.0
-	    ],
-	    "Moment": [
-	        [
-	            1.0,
-	            0.0,
-	            0.0
-	        ],
-	        [
-	            0.0,
-	            1.0,
-	            0.0
-	        ],
-	        [
-	            0.0,
-	            0.0,
-	            1.0
-	        ]
-	    ],
-	    "Cardinal": "END",
-	    "Magnitude": 1.0,
-	    "T0": 0.0,
-	    "SType": "event"
-	},
+        "Location": [
+            0.0,
+            3.0,
+            -90.0
+        ],
+        "Moment": [
+            [
+                1.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                1.0
+            ]
+        ],
+        "Cardinal": "END",
+        "Magnitude": 1.0,
+        "T0": 0.0,
+        "SType": "event"
+    },
 
     "Velocity model": [
         {
             "LType": "ISO",
             "Vp": 1000.0,
             "Vs": 700.0,
-            "top": {
+            "HType": "grid",
+            "Top": {
+                "Points": [[0,0,0], [100,0,0], [0,100,0], [100,100,0]],
+                "Step": 0.05,
+                "Dip": 0.0,
+                "Azimuth": 0.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Cardinal": "END",
+                "Name": "Us-1"
+            },
+            "Name": "Us-1"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 1000.0,
+            "Vs": 700.0,
+            "HType": "flat",
+            "Top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
+                "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
                 "Depth": 20.0,
@@ -82,9 +103,10 @@
             "LType": "ISO",
             "Vp": 3300.0,
             "Vs": 2550.0,
-            "top": {
+            "HType": "flat",
+            "Top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
+                "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
                 "Depth": 70.0,
@@ -102,10 +124,11 @@
             "LType": "ISO",
             "Vp": 2800.0,
             "Vs": 2150.0,
+            "HType": "flat",
             "Points": [[1,2,3], [3,4,5], [6,7,8]],
-            "top": {
+            "Top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
+                "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
                 "Depth": 120.0,
@@ -123,9 +146,10 @@
             "LType": "ISO",
             "Vp": 3300.0,
             "Vs": 2550.0,
-            "top": {
+            "HType": "flat",
+            "Top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
+                "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
                 "Depth": 180.0,
@@ -143,9 +167,10 @@
             "LType": "ISO",
             "Vp": 2800.0,
             "Vs": 2150.0,
-            "top": {
+            "HType": "flat",
+            "Top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
+                "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
                 "Depth": 250.0,

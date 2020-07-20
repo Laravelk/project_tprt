@@ -33,40 +33,41 @@ namespace ray_tracing {
 
     Layer Layer::fromJSON(const rapidjson::Value &doc) {
         if (!doc.IsObject())
-            throw std::runtime_error("FlatHorizon::fromJSON() - document should be an object");
+            throw std::runtime_error("Layer::fromJSON() - document should be an object");
 
-        std::vector<std::string> required_fields = {"LType", "Vp", "Vs", "top", "Name"};
+        std::vector<std::string> required_fields = {"LType", "Vp", "Vs", "Top", "Name", "HType"};
 
         for (const auto &field: required_fields) {
             if (!doc.HasMember(field.c_str()))
-                throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, missing field " + field);
+                throw std::runtime_error("Layer::fromJSON() - invalid JSON, missing field " + field);
         }
 
         if (!doc["LType"].IsString())
-            throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, `HType` should be a string");
+            throw std::runtime_error("Layer::fromJSON() - invalid JSON, `HType` should be a string");
 
         if (!doc["Vp"].IsFloat())
-            throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, `Dip` should be a float");
+            throw std::runtime_error("Layer::fromJSON() - invalid JSON, `Dip` should be a float");
 
         if (!doc["Vs"].IsFloat())
-            throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, `Azimuth` should be a float");
+            throw std::runtime_error("Layer::fromJSON() - invalid JSON, `Azimuth` should be a float");
 
         if (!doc["Name"].IsString())
-            throw std::runtime_error("Receiver::fromJSON() - invalid JSON, `Name` should be a string");
+            throw std::runtime_error("Layer::fromJSON() - invalid JSON, `Name` should be a string");
 
         std::string ltype = doc["LType"].GetString();
 
         if (ltype != "ISO")
-            throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, `LType` should be equal 'ISO'");
+            throw std::runtime_error("Layer::fromJSON() - invalid JSON, `LType` should be equal 'ISO'");
 
         float vp = doc["Vp"].GetFloat();
         float vs = doc["Vs"].GetFloat();
 
-        FlatHorizon hor = FlatHorizon::fromJSON(doc["top"]);
-        GridHorizon gor = GridHorizon::fromJSON(doc["top"]);
-
         std::string name = doc["Name"].GetString();
+        std::string htype = doc["HType"].GetString();
 
-        return Layer(vp, vs, hor, name);
+        if ("grid" == htype) {
+            GridHorizon gor = GridHorizon::fromJSON(doc["Top"]);
+            return Layer(vp, vs, gor, name);
+        }
     }
 }

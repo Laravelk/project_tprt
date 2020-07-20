@@ -5,6 +5,7 @@
 #include <string>
 #include "rapidjson/document.h"
 #include "Horizon/FlatHorizon.hpp"
+#include "Horizon/GridHorizon.h"
 
 
 /*
@@ -17,15 +18,12 @@ namespace ray_tracing {
         float Vp;
         float Vs;
 
-        FlatHorizon top;
+        GridHorizon top;
         std::string name;
 
-        Layer(float Vp, float Vs, FlatHorizon &top, std::string name = "") : Vp(Vp), Vs(Vs), top(top), name(name) {
-
-        }
+        Layer(float Vp, float Vs, GridHorizon &top, std::string name = "") : Vp(Vp), Vs(Vs), top(top), name(name) {}
 
         Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), top(rhs.top), name(rhs.name) {}
-
         Layer &operator=(const Layer &rhs) {
             Vp = rhs.Vp;
             Vs = rhs.Vs;
@@ -42,7 +40,7 @@ namespace ray_tracing {
             return Vs;
         }
 
-        const FlatHorizon &getTop() const {
+        const GridHorizon &getTop() const {
             return top;
         }
 

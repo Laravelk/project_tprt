@@ -62,9 +62,9 @@
             "LType": "ISO",
             "Vp": 1000.0,
             "Vs": 700.0,
+            "HType": "flat",
             "top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
                 "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
@@ -81,11 +81,31 @@
         },
         {
             "LType": "ISO",
-            "Vp": 3300.0,
-            "Vs": 2550.0,
+            "Vp": 1000.0,
+            "Vs": 700.0,
+            "HType": "grid",
             "top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
+                "Step": 0.05,
+                "Dip": 0.0,
+                "Azimuth": 0.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Cardinal": "END",
+                "Name": "Us-1"
+            },
+            "Name": "Us-1"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 3300.0,
+            "Vs": 2550.0,
+            "HType": "flat",
+            "top": {
+                "Points": [[1,2,3], [3,4,5], [6,7,8]],
                 "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
@@ -104,10 +124,10 @@
             "LType": "ISO",
             "Vp": 2800.0,
             "Vs": 2150.0,
+            "HType": "flat",
             "Points": [[1,2,3], [3,4,5], [6,7,8]],
             "top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
                 "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,
@@ -126,10 +146,10 @@
             "LType": "ISO",
             "Vp": 3300.0,
             "Vs": 2550.0,
+            "HType": "flat",
             "top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
                 "Step": 0.05,
-                "HType": "flat",
                 "Dip": 0.0,
                 "Azimuth": 0.0,
                 "Depth": 180.0,
@@ -147,9 +167,9 @@
             "LType": "ISO",
             "Vp": 2800.0,
             "Vs": 2150.0,
+            "HType": "flat",
             "top": {
                 "Points": [[1,2,3], [3,4,5], [6,7,8]],
-                "HType": "flat",
                 "Step": 0.05,
                 "Dip": 0.0,
                 "Azimuth": 0.0,

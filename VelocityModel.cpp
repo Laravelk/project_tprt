@@ -29,10 +29,9 @@ namespace ray_tracing {
             throw std::runtime_error("Velocity model::fromJSON() - document should be an array");
 
         uint64_t layer_number = doc.Size();
-
         std::vector<Layer> layers;
 
-        for (uint64_t i = 0; i < layer_number; i++) {
+        for (uint64_t i = 0; i < 1; i++) { // TODO: 1 -> layer_number
             layers.push_back(Layer::fromJSON(doc[i]));
         }
 

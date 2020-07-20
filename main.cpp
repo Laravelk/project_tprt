@@ -42,6 +42,8 @@ int main(int argc, char * argv[]) {
     if(!doc.HasMember("Velocity model"))
         throw std::runtime_error("Invalid JSON, missing field Source");
 
+    //auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
+
     // source
     auto source = ray_tracing::Source::fromJSON(doc["Source"].GetObject());
     // get info about receiver
@@ -50,9 +52,6 @@ int main(int argc, char * argv[]) {
     auto velocity_model = ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
 
     ray_tracing::Ray ray(source, receiver, velocity_model);
-
-    auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
-
     ray.computePath();
 
     std::ofstream ofs(argv[2]);

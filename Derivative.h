@@ -8,7 +8,7 @@
 
 class Derivative {
 private:
-    constexpr static double EPS = 0.0001;
+    constexpr static float EPS = 0.001f;
     Derivative() {}
 
 public:
@@ -19,7 +19,7 @@ public:
      * @return first derivative (dz/dx) */
     static float derivative_x(float x, float y,
             const _2D::BicubicInterpolator<float>& interpolator) {
-        return (interpolator(x + EPS, y) - interpolator(x, y)) / EPS;
+        return (interpolator(x + EPS, y) - interpolator(x - EPS, y)) / ( 2 * EPS);
     }
 
     /*
@@ -29,7 +29,7 @@ public:
      * @return first derivative (dz/dy) */
     static float derivative_y(float x, float y,
             const _2D::BicubicInterpolator<float>& interpolator) {
-        return (interpolator(x, y + EPS) - interpolator(x,y)) / EPS;
+        return (interpolator(x, y + EPS) - interpolator(x,y - EPS)) / (2 * EPS);
     }
 };
 

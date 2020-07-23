@@ -7,36 +7,37 @@
 #include <vnl/vnl_cost_function.h>
 
 namespace ray_tracing {
+/* compute ray in layer and create segments */
 void Ray::computeSegments() {
   std::vector<std::tuple<float, std::array<float, 3>, Layer>> intersections;
 
   auto source_location = source.getLocation();
   auto receiver_location = receiver.getLocation();
-  std::cerr << "Ray::ComputeSegments::Intersect" << std::endl; // TODO: delete
+}
 
+/*
   for (const Layer &l : velocity_model.getLayers()) {
 
-    auto intersect =
-        l.getTop().calcIntersect(source_location, receiver_location);
-    std::cerr << intersect.at(0) << " " << intersect.at(1) << " "
-              << intersect.at(2); // TODO: delete
-    if (!isnan(intersect[0])) {
-      auto dist = sqrt(pow(intersect[0] - source_location[0], 2.0f) +
-                       pow(intersect[1] - source_location[1], 2.0f) +
-                       pow(intersect[2] - source_location[2], 2.0f));
-      intersections.emplace_back(dist, intersect, l);
-    }
-  }
+auto intersect =
+    l.getTop().get()->calcIntersect(source_location, receiver_location);
+//    std::cerr << intersect.at(0) << " " << intersect.at(1) << " "
+//              << intersect.at(2); // TODO: delete
+if (!isnan(intersect[0])) {
+    auto dist = sqrt(pow(intersect[0] - source_location[0], 2.0f) +
+                     pow(intersect[1] - source_location[1], 2.0f) +
+                     pow(intersect[2] - source_location[2], 2.0f));
+    intersections.emplace_back(dist, intersect, l);
+}
+}
 
-  /* */
-  std::sort(intersections.begin(), intersections.end(),
-            [](const std::tuple<float, std::array<float, 3>, Layer> &a,
-               const std::tuple<float, std::array<float, 3>, Layer> &b) {
-              return (std::get<0>(a) < std::get<0>(b));
-            });
+//  std::sort(intersections.begin(), intersections.end(),
+//            [](const std::tuple<float, std::array<float, 3>, Layer> &a,
+//               const std::tuple<float, std::array<float, 3>, Layer> &b) {
+//              return (std::get<0>(a) < std::get<0>(b));
+//            });
 
-  auto loc_source_location = source.getLocation();
-  for (auto &inter : intersections) {
+auto loc_source_location = source.getLocation();
+for (auto &inter : intersections) {
     auto loc_receiver_location = std::get<1>(inter);
 
     std::array<float, 3> vec{
@@ -57,28 +58,28 @@ void Ray::computeSegments() {
     segmentsP.emplace_back(loc_source_location, loc_receiver_location, layer,
                            std::get<2>(inter).getTop());
     loc_source_location = loc_receiver_location;
-  }
-
-  auto layer = getLocationLayer(receiver_location);
-  segmentsP.emplace_back(loc_source_location, receiver_location, layer,
-                         layer.getTop());
-  segmentsS = segmentsP;
 }
 
-Layer Ray::getLocationLayer(std::array<float, 3> location) {
+auto layer = getLocationLayer(receiver_location);
+segmentsP.emplace_back(loc_source_location, receiver_location, layer,
+                       layer.getTop());
+segmentsS = segmentsP;
+*/
 
+/* @return min layer's position */
+Layer Ray::getLocationLayer(std::array<float, 3> location) {
   std::vector<Layer> higher;
-  std::copy_if(velocity_model.getLayers().begin(),
-               velocity_model.getLayers().end(), std::back_inserter(higher),
-               [&location](Layer layer) {
-                 auto loc = layer.getTop().getDepth({location[0], location[1]});
-                 auto result = loc > location[2];
-                 return result;
-               });
+  std::copy_if(
+      velocity_model.getLayers().begin(), velocity_model.getLayers().end(),
+      std::back_inserter(higher), [&location](Layer layer) {
+        auto loc = layer.getTop()->getDepth({location[0], location[1]});
+        auto result = loc > location[2];
+        return result;
+      });
   auto it = std::min_element(
       higher.begin(), higher.end(), [&location](Layer &a, Layer &b) {
-        return a.getTop().getDepth({location[0], location[1]}) - location[3] >
-               a.getTop().getDepth({location[0], location[1]}) - location[3];
+        return a.getTop()->getDepth({location[0], location[1]}) - location[3] >
+               a.getTop()->getDepth({location[0], location[1]}) - location[3];
       });
   return *it;
 }
@@ -126,7 +127,7 @@ void Ray::optimizeTrajectory() {
   for (int i = 0; i < number_of_unknowns / 2; i++) {
     segmentsP[i].setReceiver_location(
         {{static_cast<float>(x[2 * i]), static_cast<float>(x[2 * i + 1]),
-          segmentsP[i].getHorizon().getDepth(
+          segmentsP[i].getHorizon()->getDepth(
               {static_cast<float>(x[2 * i]),
                static_cast<float>(x[2 * i + 1])})}});
   }
@@ -146,7 +147,7 @@ void Ray::optimizeTrajectory() {
   for (int i = 0; i < number_of_unknowns / 2; i++) {
     segmentsS[i].setReceiver_location(
         {{static_cast<float>(x[2 * i]), static_cast<float>(x[2 * i + 1]),
-          segmentsS[i].getHorizon().getDepth(
+          segmentsS[i].getHorizon()->getDepth(
               {static_cast<float>(x[2 * i]),
                static_cast<float>(x[2 * i + 1])})}});
   }
@@ -248,7 +249,7 @@ double Ray::cost_function::f(const vnl_vector<double> &x) {
     for (int i = 0; i < n / 2; i++) {
       trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
                             static_cast<float>(x[2 * i + 1]),
-                            ray->segmentsP[i].getHorizon().getDepth(
+                            ray->segmentsP[i].getHorizon()->getDepth(
                                 {static_cast<float>(x[2 * i]),
                                  static_cast<float>(x[2 * i + 1])})}};
     }
@@ -276,7 +277,7 @@ double Ray::cost_function::f(const vnl_vector<double> &x) {
     for (int i = 0; i < n / 2; i++) {
       trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
                             static_cast<float>(x[2 * i + 1]),
-                            ray->segmentsS[i].getHorizon().getDepth(
+                            ray->segmentsS[i].getHorizon()->getDepth(
                                 {static_cast<float>(x[2 * i]),
                                  static_cast<float>(x[2 * i + 1])})}};
     }

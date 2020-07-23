@@ -1,53 +1,49 @@
 #ifndef TPRT_LAYER_HPP
 #define TPRT_LAYER_HPP
 
-
-#include <string>
-#include "rapidjson/document.h"
 #include "Horizon/FlatHorizon.hpp"
 #include "Horizon/GridHorizon.h"
-
+#include "rapidjson/document.h"
+#include <memory>
+#include <string>
 
 /*
  * Среда
  * */
 namespace ray_tracing {
-    class Layer {
+class Layer {
 
-    public:
-        float Vp;
-        float Vs;
+public:
+  float Vp;
+  float Vs;
 
-        GridHorizon top;
-        std::string name;
+  std::unique_ptr<Horizon> top;
+  std::string name;
 
-        Layer(float Vp, float Vs, GridHorizon &top, std::string name = "") : Vp(Vp), Vs(Vs), top(top), name(name) {}
+  Layer(float Vp, float Vs, std::unique_ptr<Horizon> top, std::string name = "")
+      : Vp(Vp), Vs(Vs), top(std::move(top)), name(name) {}
 
-        Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), top(rhs.top), name(rhs.name) {}
-        Layer &operator=(const Layer &rhs) {
-            Vp = rhs.Vp;
-            Vs = rhs.Vs;
-            top = rhs.top;
-            name = rhs.name;
-            return *this;
-        }
+  Layer(const Layer &rhs)
+      : Vp(rhs.Vp), Vs(rhs.Vs), top(std::move(rhs.top.get())), name(rhs.name) {}
 
-        float getVp() const {
-            return Vp;
-        }
+  //  Layer &operator=(const Layer &rhs) {
+  //    Vp = rhs.Vp;
+  //    Vs = rhs.Vs;
+  //    std::top = std::move(rhs.top);
+  //    name = rhs.name;
+  //    return *this;
+  //  }
 
-        float getVs() const {
-            return Vs;
-        }
+  float getVp() const { return Vp; }
 
-        const GridHorizon &getTop() const {
-            return top;
-        }
+  float getVs() const { return Vs; }
 
-        rapidjson::Document toJSON();
+  std::unique_ptr<Horizon> &getTop() { return top; }
 
-        static Layer fromJSON(const rapidjson::Value &doc);
-    };
+  rapidjson::Document toJSON();
 
-}
-#endif //TPRT_LAYER_HPP
+  static Layer fromJSON(const rapidjson::Value &doc);
+};
+
+} // namespace ray_tracing
+#endif // TPRT_LAYER_HPP

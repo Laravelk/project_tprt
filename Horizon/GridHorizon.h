@@ -43,8 +43,9 @@ public:
    * name: name of horizon
    * points: all points after interpolation
    */
-  GridHorizon(std::array<float, 3>, std::vector<std::array<float, 3>>,
-              std::string, std::vector<std::tuple<float, float, float>>);
+  explicit GridHorizon(std::array<float, 3>, std::vector<std::array<float, 3>>,
+                       std::string,
+                       std::vector<std::tuple<float, float, float>>);
 
   // static method
   // points: vector of points
@@ -80,7 +81,7 @@ public:
                 const std::array<float, 3> &x1) const override;
 
   /* get GridHorizon from JSON file */
-  static GridHorizon fromJSON(const rapidjson::Value &doc);
+  static std::unique_ptr<GridHorizon> fromJSON(const rapidjson::Value &doc);
 
   /* @return z value for x, y */
   double operator()(float x, float y) const;

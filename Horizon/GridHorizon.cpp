@@ -2,7 +2,7 @@
 
 #include "../Derivative.h"
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
-#include <iostream> // TODO: delete
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -73,7 +73,8 @@ GridHorizon::calcIntersect(const std::array<float, 3> &x0,
  * doc: "top" in json file
  * @return: GridHorizon object
  * */
-GridHorizon GridHorizon::fromJSON(const rapidjson::Value &doc) {
+std::unique_ptr<GridHorizon>
+GridHorizon::fromJSON(const rapidjson::Value &doc) {
   if (!doc.IsObject()) {
     throw std::runtime_error(
         "GridHorizon::fromJSON() - document should be an object");
@@ -126,6 +127,8 @@ GridHorizon GridHorizon::fromJSON(const rapidjson::Value &doc) {
 
   std::vector<std::tuple<float, float, float>> points;
   std::vector<std::array<float, 3>> normal;
+  std::array<float, 3> norm = {3, 3, 3};
+  normal.push_back(norm);
 
   for (SizeType i = 0; i < doc["Points"].Size(); i++) {
     points.emplace_back(doc["Points"][i][0].GetFloat(),
@@ -133,15 +136,14 @@ GridHorizon GridHorizon::fromJSON(const rapidjson::Value &doc) {
                         doc["Points"][i][2].GetFloat());
   }
 
-  return GridHorizon(anchor, normal, name, points);
+  return std::make_unique<GridHorizon>(anchor, normal, name, points);
 }
 
 GridHorizon::GridHorizon(std::array<float, 3> _anchor,
                          std::vector<std::array<float, 3>> _normal,
                          std::string _name,
                          std::vector<std::tuple<float, float, float>> _points)
-    : anchor(_anchor), normal(std::move(_normal)), name(std::move(_name)),
-      points(std::move(_points)) {
+    : anchor(_anchor), normal(_normal), name(_name), points(_points) {
   interpolation(points);
 }
 
@@ -212,7 +214,6 @@ bool GridHorizon::checkGrid(std::vector<double> &x, std::vector<double> &y,
 
 bool GridHorizon::interpolation(
     const std::vector<std::tuple<float, float, float>> &points_array) {
-  std::cerr << points_array.size() << std::endl;
   std::vector<float> x;
   std::vector<float> y;
   std::vector<float> z;
@@ -225,8 +226,8 @@ bool GridHorizon::interpolation(
     x.push_back(std::get<0>(point));
     y.push_back(std::get<1>(point));
     z.push_back(std::get<2>(point));
-    std::cerr << std::get<0>(point) << " " << std::get<1>(point) << " "
-              << std::get<2>(point) << std::endl;
+    //    std::cerr << std::get<0>(point) << " " << std::get<1>(point) << " "
+    //              << std::get<2>(point) << std::endl;
   }
 
   interpolator.setData(x, y, z);

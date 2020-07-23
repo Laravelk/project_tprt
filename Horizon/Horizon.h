@@ -6,16 +6,18 @@
 #include "../rapidjson/pointer.h"
 
 namespace ray_tracing {
-    class Horizon {
-    public:
-        virtual rapidjson::Document toJSON() = 0;
+class Horizon {
+public:
+  Horizon() = default;
+  ~Horizon() = default;
+  virtual rapidjson::Document toJSON() = 0;
 
-        virtual float getDepth(std::array<float, 2> x) const = 0;
+  virtual float getDepth(std::array<float, 2> x) const = 0;
 
-        virtual std::array<float, 3> calcIntersect(const std::array<float, 3> &x0,
-                                                   const std::array<float, 3> &x1) const = 0;
-    };
-}
+  virtual std::array<float, 3>
+  calcIntersect(const std::array<float, 3> &x0,
+                const std::array<float, 3> &x1) const = 0;
+};
+} // namespace ray_tracing
 
-
-#endif //TPRT_HORIZON_H
+#endif // TPRT_HORIZON_H

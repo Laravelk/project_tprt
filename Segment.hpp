@@ -1,35 +1,36 @@
 #ifndef TPRT_SEGMENT_HPP
 #define TPRT_SEGMENT_HPP
 
-
-#include <array>
 #include "Layer.hpp"
+#include <array>
 
 /*
- * часть луча от источника до границы, от границы до границы, от границы до приемника
+ * часть луча от источника до границы, от границы до границы, от границы до
+ * приемника
  * */
 namespace ray_tracing {
-    class Segment {
-        std::array<float, 3> source_location;
-        std::array<float, 3> receiver_location;
-        Layer layer;
-        GridHorizon horizon;
+class Segment {
+  std::array<float, 3> source_location;
+  std::array<float, 3> receiver_location;
+  Layer layer;
+  std::unique_ptr<Horizon> horizon;
 
-    public:
-        const Layer &getLayer() const;
+public:
+  const Layer &getLayer() const;
 
-        const GridHorizon &getHorizon() const;
+  const std::unique_ptr<Horizon> &getHorizon() const;
 
-        const std::array<float, 3> &getSource_location() const;
+  const std::array<float, 3> &getSource_location() const;
 
-        const std::array<float, 3> &getReceiver_location() const;
+  const std::array<float, 3> &getReceiver_location() const;
 
-    public:
-        Segment(const std::array<float, 3> &source_location, const std::array<float, 3> &receiver_location,
-                const Layer &layer, const GridHorizon &horizon);
+public:
+  Segment(const std::array<float, 3> &source_location,
+          const std::array<float, 3> &receiver_location, const Layer &layer,
+          std::shared_ptr<Horizon> &horizon);
 
-        void setReceiver_location(const std::array<float, 3> &receiver_location);
-    };
-}
+  void setReceiver_location(const std::array<float, 3> &receiver_location);
+};
+} // namespace ray_tracing
 
-#endif //TPRT_SEGMENT_HPP
+#endif // TPRT_SEGMENT_HPP

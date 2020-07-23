@@ -28,6 +28,7 @@ void Ray::computeSegments() {
     }
   }
 
+  /* */
   std::sort(intersections.begin(), intersections.end(),
             [](const std::tuple<float, std::array<float, 3>, Layer> &a,
                const std::tuple<float, std::array<float, 3>, Layer> &b) {

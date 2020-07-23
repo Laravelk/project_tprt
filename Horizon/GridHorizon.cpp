@@ -11,7 +11,43 @@
 using namespace rapidjson;
 
 namespace ray_tracing {
-rapidjson::Document GridHorizon::toJSON() { return rapidjson::Document(); }
+rapidjson::Document GridHorizon::toJSON() {
+  rapidjson::Document doc;
+  rapidjson::Value json_val;
+  rapidjson::Value tmp_json_val;
+  doc.SetObject();
+
+  auto &allocator = doc.GetAllocator();
+
+  json_val.SetString("grid", allocator);
+  doc.AddMember("HType", json_val, allocator);
+
+  json_val.SetFloat(azimuth);
+  doc.AddMember("Azimuth", json_val, allocator);
+
+  json_val.SetArray();
+  json_val.PushBack(anchor[0], allocator).PushBack(anchor[1], allocator);
+  doc.AddMember("Anchor", json_val, allocator);
+
+  // array of arrays? TODO: do
+  for (auto &point : points) {
+    json_val.SetArray();
+    tmp_json_val.SetArray();
+    tmp_json_val.PushBack(std::get<0>(point), allocator)
+        .PushBack(std::get<1>(point), allocator)
+        .PushBack(std::get<2>(point), allocator);
+    json_val.PushBack(tmp_json_val, allocator);
+  }
+  doc.AddMember("Points", json_val, allocator);
+
+  json_val.SetString("END", allocator);
+  doc.AddMember("Cardinal", json_val, allocator);
+
+  json_val.SetString(name.c_str(), allocator);
+  doc.AddMember("Name", json_val, allocator);
+
+  return doc;
+}
 
 float GridHorizon::getDepth(std::array<float, 2> cord) const {
   return interpolator(cord.at(0), cord.at(1));

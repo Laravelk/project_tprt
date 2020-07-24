@@ -81,7 +81,7 @@ public:
                 const std::array<float, 3> &x1) const override;
 
   /* get GridHorizon from JSON file */
-  static std::unique_ptr<GridHorizon> fromJSON(const rapidjson::Value &doc);
+  static std::shared_ptr<GridHorizon> fromJSON(const rapidjson::Value &doc);
 
   /* @return z value for x, y */
   double operator()(float x, float y) const;

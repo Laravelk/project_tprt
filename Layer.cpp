@@ -76,10 +76,10 @@ Layer Layer::fromJSON(const rapidjson::Value &doc) {
 
   if ("grid" == htype) {
     //    GridHorizon gor = GridHorizon::fromJSON(doc["Top"]);
-    std::unique_ptr<Horizon> horizon = GridHorizon::fromJSON(doc["Top"]);
+    auto horizon = GridHorizon::fromJSON(doc["Top"]);
     return Layer(vp, vs, std::move(horizon), name);
   } else {
-    std::unique_ptr<Horizon> horizon = FlatHorizon::fromJSON(doc["Top"]);
+    auto horizon = FlatHorizon::fromJSON(doc["Top"]);
     return Layer(vp, vs, std::move(horizon), name);
   }
 }

@@ -17,28 +17,29 @@ public:
   float Vp;
   float Vs;
 
-  std::unique_ptr<Horizon> top;
+  std::shared_ptr<Horizon> top;
   std::string name;
 
-  Layer(float Vp, float Vs, std::unique_ptr<Horizon> top, std::string name = "")
-      : Vp(Vp), Vs(Vs), top(std::move(top)), name(name) {}
+  Layer(float Vp, float Vs, std::shared_ptr<Horizon> itop,
+        std::string name = "")
+      : Vp(Vp), Vs(Vs), top(itop), name(name) {}
 
   Layer(const Layer &rhs)
-      : Vp(rhs.Vp), Vs(rhs.Vs), top(std::move(rhs.top.get())), name(rhs.name) {}
+      : Vp(rhs.Vp), Vs(rhs.Vs), top(rhs.top), name(rhs.name) {}
 
-  //  Layer &operator=(const Layer &rhs) {
-  //    Vp = rhs.Vp;
-  //    Vs = rhs.Vs;
-  //    std::top = std::move(rhs.top);
-  //    name = rhs.name;
-  //    return *this;
-  //  }
+  Layer &operator=(const Layer &rhs) {
+    Vp = rhs.Vp;
+    Vs = rhs.Vs;
+    top = rhs.top;
+    name = rhs.name;
+    return *this;
+  }
 
   float getVp() const { return Vp; }
 
   float getVs() const { return Vs; }
 
-  std::unique_ptr<Horizon> &getTop() { return top; }
+  std::shared_ptr<Horizon> &getTop() { return top; }
 
   rapidjson::Document toJSON();
 

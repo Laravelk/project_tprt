@@ -97,18 +97,14 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - document should be an object");
 
-  std::vector<std::string> required_fields = {
-      "HType", "Dip", "Azimuth", "Depth", "Anchor", "Cardinal", "Name"};
+  std::vector<std::string> required_fields = {"Dip",    "Azimuth",  "Depth",
+                                              "Anchor", "Cardinal", "Name"};
 
   for (const auto &field : required_fields) {
     if (!doc.HasMember(field.c_str()))
       throw std::runtime_error(
           "FlatHorizon::fromJSON() - invalid JSON, missing field " + field);
   }
-
-  if (!doc["HType"].IsString())
-    throw std::runtime_error(
-        "FlatHorizon::fromJSON() - invalid JSON, `HType` should be a string");
 
   if (!doc["Dip"].IsFloat())
     throw std::runtime_error(
@@ -138,12 +134,6 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   if (!doc["Name"].IsString())
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Name` should be a string");
-
-  std::string htype = doc["HType"].GetString();
-
-  if (htype != "flat")
-    throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, `HType` "
-                             "should be equal 'flat'");
 
   float dip = doc["Dip"].GetFloat();
   float azimuth = doc["Azimuth"].GetFloat();

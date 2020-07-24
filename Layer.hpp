@@ -24,8 +24,9 @@ public:
         std::string name = "")
       : Vp(Vp), Vs(Vs), top(itop), name(name) {}
 
-  Layer(const Layer &rhs)
-      : Vp(rhs.Vp), Vs(rhs.Vs), top(rhs.top), name(rhs.name) {}
+  Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), name(rhs.name) {
+    top = rhs.top;
+  }
 
   Layer &operator=(const Layer &rhs) {
     Vp = rhs.Vp;

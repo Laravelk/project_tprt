@@ -31,7 +31,7 @@ VelocityModel VelocityModel::fromJSON(const rapidjson::Value &doc) {
   uint64_t layer_number = doc.Size();
   std::vector<Layer> layers;
 
-  for (uint64_t i = 0; i < 1; i++) { // TODO: 1 -> layer_number
+  for (uint64_t i = 0; i < layer_number; i++) { // TODO: 1 -> layer_number
     layers.push_back(Layer::fromJSON(doc[i]));
   }
 

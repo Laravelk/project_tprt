@@ -44,8 +44,11 @@ private:
   };
 
   void optimizeTrajectory();
-
   void computeSegments();
+
+  void computeSegmentsRay();
+
+  const std::vector<std::array<int, 3>> ray_code;
 
   /*
    * ray_code: for each Segment of Ray is [+1 (down) or -1 (up), depth of Layer,
@@ -56,7 +59,6 @@ private:
   // bool checkRayCode(const std::vector<std::tuple<int, float, int>> &ray_code)
   // const;
 
-public:
   /*
    * source: object of type Source
    * receiver: object of type Receiver
@@ -64,19 +66,16 @@ public:
    * ray_code: for each Segment of Ray is [+1 (down) or -1 (up), depth of Layer,
    * WaveType: 0 (WaveP) or 1 (WaveS)]
    */
-  /*Ray(Source source, Receiver receiver, VelocityModel velocity_model ,const
-  std::vector<std::tuple<int, float, int>>& ray_code) :
-  source(std::move(source)), receiver(std::move(receiver)),
-  velocity_model(std::move(velocity_model)) { timeP = INFINITY; timeS =
-  INFINITY; if (!ray_code.empty()) { bool check = checkRayCode(ray_code); if
-  (!check) { throw std::runtime_error("Ray::Ray: ray_code is incorrect"); } else
-  {
-
-          }
-      }
-      amplitudeP = 1;
-      amplitudeS = 1;
-  }*/
+public:
+  Ray(Source source, Receiver receiver, VelocityModel velocity_model,
+      const std::vector<std::array<int, 3>> iray_code)
+      : source(std::move(source)), receiver(std::move(receiver)),
+        velocity_model(std::move(velocity_model)), ray_code(iray_code) {
+    timeP = INFINITY;
+    timeS = INFINITY;
+    amplitudeP = 1;
+    amplitudeS = 1;
+  }
 
   Ray(Source source, Receiver receiver, VelocityModel velocity_model)
       : source(std::move(source)), receiver(receiver),
@@ -90,6 +89,7 @@ public:
   std::vector<std::array<float, 3>> getTrajectoryP();
   std::vector<std::array<float, 3>> getTrajectoryS();
   void computePath();
+  void computePathWithRayCode(); // test function for raycode
 
   rapidjson::Document toJSON();
 };

@@ -12,12 +12,13 @@ typedef unsigned long ulong;
 namespace ray_tracing {
 /* compute ray in layer and create segments */
 void Ray::computeSegments() {
-  //  std::vector<std::tuple<float, std::array<float, 3>, Layer>> intersections;
   std::vector<std::array<float, 3>> intersections;
 
   auto source_location = source.getLocation();
   auto receiver_location = receiver.getLocation();
 
+  /* count the step */
+  /* try create optimal tractory */
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
   float layers_count = velocity_model.getLayers().size();
@@ -39,6 +40,7 @@ void Ray::computeSegments() {
 
   auto loc_source_location = source.getLocation();
   ulong layer_number = 0;
+  /* create segments */
   for (auto &loc_receiver_location : intersections) {
     std::array<float, 3> vec{loc_receiver_location[0] - loc_source_location[0],
                              loc_receiver_location[1] - loc_source_location[1],
@@ -60,62 +62,66 @@ void Ray::computeSegments() {
     layer_number++;
     loc_source_location = loc_receiver_location;
   }
-  //  auto layer = getLocationLayer(receiver_location);
-  //  segmentsP.emplace_back(loc_source_location, receiver_location, layer,
-  //                         layer.getTop());
-  //  segmentsS.emplace_back(loc_source_location, receiver_location, layer,
-  //                         layer.getTop());
-}
-/*
-auto layer = getLocationLayer(receiver_location);
-segmentsP.emplace_back(loc_source_location, receiver_location, layer,
-                       layer.getTop());
-segmentsS = segmentsP;
-*/
-
-/*
-  for (const Layer &l : velocity_model.getLayers()) {
-
-auto intersect =
-    l.getTop().get()->calcIntersect(source_location, receiver_location);
-//    std::cerr << intersect.at(0) << " " << intersect.at(1) << " "
-//              << intersect.at(2); // TODO: delete
-if (!isnan(intersect[0])) {
-    auto dist = sqrt(pow(intersect[0] - source_location[0], 2.0f) +
-                     pow(intersect[1] - source_location[1], 2.0f) +
-                     pow(intersect[2] - source_location[2], 2.0f));
-    intersections.emplace_back(dist, intersect, l);
-auto loc_source_location = source.getLocation();
-for (auto &inter : intersections) {
-    auto loc_receiver_location = std::get<1>(inter);
-
-std::array<float, 3> vec{
-    {loc_receiver_location[0] - loc_source_location[0],
-     loc_receiver_location[1] - loc_source_location[1],
-     loc_receiver_location[2] - loc_source_location[2]}};
-
-float norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-
-vec[0] /= norm_vec;
-vec[1] /= norm_vec;
-vec[2] /= norm_vec;
-}
-    auto layer = getLocationLayer({loc_source_location[0] + vec[0],
-                                   loc_source_location[1] + vec[1],
-                                   loc_source_location[2] + vec[2]});
-
-segmentsP.emplace_back(loc_source_location, loc_receiver_location, layer,
-                       std::get<2>(inter).getTop());
-loc_source_location = loc_receiver_location;
-}
 }
 
-//  std::sort(intersections.begin(), intersections.end(),
-//            [](const std::tuple<float, std::array<float, 3>, Layer> &a,
-//               const std::tuple<float, std::array<float, 3>, Layer> &b) {
-//              return (std::get<0>(a) < std::get<0>(b));
-//            });
-*/
+void Ray::computeSegmentsRay() {
+  std::vector<std::array<float, 3>> intersections;
+  auto source_location = source.getLocation();
+  auto receiver_location = receiver.getLocation();
+
+  float diff_x = receiver_location[0] - source_location[0];
+  float diff_y = receiver_location[1] - source_location[1];
+  float part_count = ray_code.size();
+  float step_x = diff_x / part_count;
+  float step_y = diff_y / part_count;
+
+  float x = 0, y = 0, z = 0;
+  x = source_location[0];
+  y = source_location[1];
+  auto layers = velocity_model.getLayers();
+  ulong number_of_layers = layers.size();
+  for (ulong i = 0; i < ray_code.size() - 1; i++) {
+    auto code_part = ray_code[i];
+    x += step_x;
+    y += step_y;
+    std::array<float, 2> cord = {x, y};
+    number_of_layers += (ulong)code_part[1];
+    z = layers.at(number_of_layers).getTop().get()->getDepth(cord);
+    std::array<float, 3> intersect = {x, y, z};
+    intersections.push_back(intersect);
+  }
+
+  auto loc_source_location = source.getLocation();
+  ulong layer_number = layers.size();
+  for (auto &loc_receiver_location : intersections) {
+    if (loc_receiver_location[2] - loc_source_location[2] < 0) {
+      layer_number -= 1;
+    } else {
+      layer_number += 1;
+    }
+
+    std::array<float, 3> vec{loc_receiver_location[0] - loc_source_location[0],
+                             loc_receiver_location[1] - loc_source_location[1],
+                             loc_receiver_location[2] - loc_source_location[2]};
+    float norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+    vec[0] /= norm_vec;
+    vec[1] /= norm_vec;
+    vec[2] /= norm_vec;
+
+    auto layer = layers.at(layer_number);
+    segmentsP.emplace_back(loc_source_location, loc_receiver_location, layer,
+                           layer.getTop());
+    segmentsS.emplace_back(loc_source_location, loc_receiver_location, layer,
+                           layer.getTop());
+    loc_source_location = loc_receiver_location;
+  }
+
+  auto layer = getLocationLayer(receiver_location);
+  segmentsP.emplace_back(loc_source_location, receiver_location, layer,
+                         layer.getTop());
+  segmentsS.emplace_back(loc_source_location, receiver_location, layer,
+                         layer.getTop());
+}
 
 /* @return min layer's position */
 Layer Ray::getLocationLayer(std::array<float, 3> location) {
@@ -156,6 +162,11 @@ std::vector<std::array<float, 3>> Ray::getTrajectoryS() {
 void Ray::computePath() {
   // std::cerr << "Ray::computePath()" << std::endl; // TODO: delete
   computeSegments();
+  optimizeTrajectory();
+}
+
+void Ray::computePathWithRayCode() {
+  computeSegmentsRay();
   optimizeTrajectory();
 }
 

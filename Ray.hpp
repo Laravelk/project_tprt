@@ -41,6 +41,12 @@ private:
     cost_function(Ray *ray, int number_of_unknowns, enum WaveType type);
 
     double f(vnl_vector<double> const &x) override;
+
+    /*
+        @return ray_code: [layer_number; up or down (-1 or 1); ]
+    */
+    static std::vector<std::array<int, 3>>
+    fromJSON(const rapidjson::Value &doc);
   };
 
   void optimizeTrajectory();

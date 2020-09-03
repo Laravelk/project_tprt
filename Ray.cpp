@@ -335,7 +335,8 @@ double Ray::cost_function::f(const vnl_vector<double> &x) {
     break;
 
   case WaveType::WaveS:
-    trajectory = ray->getTrajectoryS();
+    trajectory = ray->getTrajectoryS(); // вместо траектории, просто изменять ее
+                                        // середину, без копирования
     for (int i = 0; i < n / 2; i++) {
       trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
                             static_cast<float>(x[2 * i + 1]),
@@ -363,6 +364,19 @@ double Ray::cost_function::f(const vnl_vector<double> &x) {
   }
 
   return time;
+}
+
+std::vector<std::array<int, 3>>
+Ray::cost_function::fromJSON(const rapidjson::Value &doc) {
+  if (!doc.IsObject())
+    throw std::runtime_error("Ray::fromJSON() - document should be an object");
+
+  std::vector<std::string> required_fields = {"Ray_Code"};
+
+  if (!doc["Ray_Code"].IsArray()) {
+    throw std::runtime_error(
+        "Ray::fromJSON() - invalid JSON, 'Array' should be a array");
+  }
 }
 
 Ray::cost_function::cost_function(Ray *ray, int number_of_unknowns,

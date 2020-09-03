@@ -15,9 +15,9 @@ float FlatHorizon::getDepth(std::array<float, 2> x) const {
 }
 
 FlatHorizon::FlatHorizon(float depth, float dip, float azimuth,
-                         std::array<float, 2> anchor, std::string name)
-    : dip(dip), azimuth(azimuth), depth(depth), anchor(anchor),
-      name(std::move(name)) {
+                         std::array<float, 2> anchor, std::string _name)
+    : dip(dip), azimuth(azimuth), depth(depth), anchor(anchor) {
+  name = _name;
   normal[0] = sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180);
   normal[1] = sin(dip * M_PI / 180) * sin(azimuth * M_PI / 180);
   normal[2] = cos(dip * M_PI / 180);
@@ -84,7 +84,7 @@ rapidjson::Document FlatHorizon::toJSON() {
   json_val.SetString("END", allocator);
   doc.AddMember("Cardinal", json_val, allocator);
 
-  json_val.SetString(name.c_str(), allocator);
+  json_val.SetString(this->getName().c_str(), allocator);
   doc.AddMember("Name", json_val, allocator);
 
   return doc;

@@ -22,13 +22,6 @@ rapidjson::Document GridHorizon::toJSON() {
   json_val.SetString("grid", allocator);
   doc.AddMember("HType", json_val, allocator);
 
-  json_val.SetFloat(azimuth);
-  doc.AddMember("Azimuth", json_val, allocator);
-
-  json_val.SetArray();
-  json_val.PushBack(anchor[0], allocator).PushBack(anchor[1], allocator);
-  doc.AddMember("Anchor", json_val, allocator);
-
   // array of arrays? TODO: do
   for (auto &point : points) {
     json_val.SetArray();
@@ -43,7 +36,7 @@ rapidjson::Document GridHorizon::toJSON() {
   json_val.SetString("END", allocator);
   doc.AddMember("Cardinal", json_val, allocator);
 
-  json_val.SetString(name.c_str(), allocator);
+  json_val.SetString(this->getName().c_str(), allocator);
   doc.AddMember("Name", json_val, allocator);
 
   return doc;
@@ -80,16 +73,12 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - document should be an object");
   }
 
-  std::vector<std::string> required_fields = {"Dip",    "Azimuth",  "Points",
-                                              "Anchor", "Cardinal", "Name"};
+  std::vector<std::string> required_fields = {"Dip", "Points", "Anchor",
+                                              "Cardinal", "Name"};
 
   if (!doc["Dip"].IsFloat())
     throw std::runtime_error(
         "GridHorizon::fromJSON() - invalid JSON, `Dip` should be a float");
-
-  if (!doc["Azimuth"].IsFloat())
-    throw std::runtime_error(
-        "GridHorizon::fromJSON() - invalid JSON, `Azimuth` should be a float");
 
   if (!doc["Anchor"].IsArray())
     throw std::runtime_error(
@@ -112,8 +101,6 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - invalid JSON, 'Array' should be a array");
   }
 
-  float dip = doc["Dip"].GetFloat();
-  float azimuth = doc["Azimuth"].GetFloat();
   std::string cardinal = doc["Cardinal"].GetString();
 
   if (cardinal != "END")
@@ -136,14 +123,13 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
                         doc["Points"][i][2].GetFloat());
   }
 
-  return std::make_shared<GridHorizon>(anchor, normal, name, points);
+  return std::make_shared<GridHorizon>(name, points);
 }
 
-GridHorizon::GridHorizon(std::array<float, 3> _anchor,
-                         std::vector<std::array<float, 3>> _normal,
-                         std::string _name,
+GridHorizon::GridHorizon(std::string _name,
                          std::vector<std::tuple<float, float, float>> _points)
-    : anchor(_anchor), normal(_normal), name(_name), points(_points) {
+    : points(_points) {
+  name = _name;
   interpolation(points);
 }
 

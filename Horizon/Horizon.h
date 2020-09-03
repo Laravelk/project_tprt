@@ -4,12 +4,13 @@
 // Created by Иван Морозов on 2020-06-17.
 
 #include "../rapidjson/pointer.h"
+#include <string>
 
 namespace ray_tracing {
 class Horizon {
 public:
   Horizon() = default;
-  ~Horizon() = default;
+  virtual ~Horizon() = default;
   virtual rapidjson::Document toJSON() = 0;
 
   virtual float getDepth(std::array<float, 2> x) const = 0;
@@ -17,6 +18,12 @@ public:
   virtual std::array<float, 3>
   calcIntersect(const std::array<float, 3> &x0,
                 const std::array<float, 3> &x1) const = 0;
+
+  const std::string getName() const { return name; }
+  void setName(std::string new_name) { name = new_name; }
+
+protected:
+  std::string name;
 };
 } // namespace ray_tracing
 

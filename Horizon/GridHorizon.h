@@ -11,13 +11,7 @@
 namespace ray_tracing {
 class GridHorizon : public Horizon {
 private:
-  float azimuth;
-
   _2D::BicubicInterpolator<float> interpolator;
-  std::array<float, 3> anchor;
-  std::vector<std::array<float, 3>> normal;
-  std::string name;
-
   std::vector<std::tuple<float, float, float>> points;
 
   static bool checkGrid(std::vector<double> &, std::vector<double> &,
@@ -43,9 +37,11 @@ public:
    * name: name of horizon
    * points: all points after interpolation
    */
-  explicit GridHorizon(std::array<float, 3>, std::vector<std::array<float, 3>>,
-                       std::string,
+  explicit GridHorizon(std::string,
                        std::vector<std::tuple<float, float, float>>);
+
+  /* destructor */
+  ~GridHorizon() override {}
 
   // static method
   // points: vector of points

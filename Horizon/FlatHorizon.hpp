@@ -19,10 +19,12 @@ public:
 
   std::array<float, 2> anchor;
   std::array<float, 3> normal;
-  std::string name;
 
-  FlatHorizon(float depth, float dip, float azimuth,
-              std::array<float, 2> anchor = {{0, 0}}, std::string name = "");
+  explicit FlatHorizon(float depth, float dip, float azimuth,
+                       std::array<float, 2> anchor = {{0, 0}},
+                       std::string name = "");
+
+  ~FlatHorizon() override {}
 
   virtual float getDepth(std::array<float, 2> x) const override;
 

@@ -74,7 +74,6 @@ int main(int argc, char *argv[]) {
   ray_code.push_back(f8);
 
   ray_tracing::Ray ray(source, receiver, velocity_model, ray_code);
-  // ray_tracing::Ray ray(source, receiver, velocity_model);
   ray.computePathWithRayCode();
 
   std::ofstream ofs(argv[2]);

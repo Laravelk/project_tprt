@@ -34,7 +34,7 @@ public:
 
   virtual rapidjson::Document toJSON() override;
 
-  static std::shared_ptr<FlatHorizon> fromJSON(const rapidjson::Value &doc);
+  static FlatHorizon *fromJSON(const rapidjson::Value &doc);
 };
 
 } // namespace ray_tracing

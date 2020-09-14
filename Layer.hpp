@@ -17,15 +17,17 @@ public:
   float Vp;
   float Vs;
 
-  std::shared_ptr<Horizon> top;
+  Horizon *top;
   std::string name;
 
-  Layer(float Vp, float Vs, std::shared_ptr<Horizon> itop,
-        std::string name = "")
+  Layer(float Vp, float Vs, Horizon *itop, std::string name = "")
       : Vp(Vp), Vs(Vs), top(itop), name(name) {}
 
   Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), name(rhs.name) {
     top = rhs.top;
+  }
+
+  ~Layer() { // delete top;
   }
 
   Layer &operator=(const Layer &rhs) {
@@ -40,7 +42,7 @@ public:
 
   float getVs() const { return Vs; }
 
-  std::shared_ptr<Horizon> &getTop() { return top; }
+  Horizon *getTop() { return top; }
 
   rapidjson::Document toJSON();
 

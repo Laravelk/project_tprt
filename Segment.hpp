@@ -13,12 +13,12 @@ class Segment {
   std::array<float, 3> source_location;
   std::array<float, 3> receiver_location;
   Layer layer;
-  std::unique_ptr<Horizon> horizon;
+  Horizon *horizon;
 
 public:
   const Layer &getLayer() const;
 
-  const std::unique_ptr<Horizon> &getHorizon() const;
+  const Horizon *getHorizon() const;
 
   const std::array<float, 3> &getSource_location() const;
 
@@ -27,7 +27,7 @@ public:
 public:
   Segment(const std::array<float, 3> &source_location,
           const std::array<float, 3> &receiver_location, const Layer &layer,
-          std::shared_ptr<Horizon> &horizon);
+          Horizon *horizon);
 
   void setReceiver_location(const std::array<float, 3> &receiver_location);
 };

@@ -33,7 +33,7 @@ void Ray::computeSegments() {
     x += step_x;
     y += step_y;
     std::array<float, 2> coordinates = {x, y};
-    z = layers.at(layers_count - i - 1).getTop().get()->getDepth(coordinates);
+    z = layers.at(layers_count - i - 1).getTop()->getDepth(coordinates);
     std::array<float, 3> intersect = {x, y, z};
     intersections.push_back(intersect);
   }
@@ -86,7 +86,7 @@ void Ray::computeSegmentsRay() {
     y += step_y;
     std::array<float, 2> cord = {x, y};
     number_of_layers += (ulong)code_part[1];
-    z = layers.at(number_of_layers).getTop().get()->getDepth(cord);
+    z = layers.at(number_of_layers).getTop()->getDepth(cord);
     std::array<float, 3> intersect = {x, y, z};
     intersections.push_back(intersect);
   }

@@ -66,8 +66,7 @@ GridHorizon::calcIntersect(const std::array<float, 3> &x0,
  * doc: "top" in json file
  * @return: GridHorizon object
  * */
-std::shared_ptr<GridHorizon>
-GridHorizon::fromJSON(const rapidjson::Value &doc) {
+GridHorizon *GridHorizon::fromJSON(const rapidjson::Value &doc) {
   if (!doc.IsObject()) {
     throw std::runtime_error(
         "GridHorizon::fromJSON() - document should be an object");
@@ -123,7 +122,7 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
                         doc["Points"][i][2].GetFloat());
   }
 
-  return std::make_shared<GridHorizon>(name, points);
+  return new GridHorizon(name, points);
 }
 
 GridHorizon::GridHorizon(std::string _name,

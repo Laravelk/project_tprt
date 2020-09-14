@@ -90,8 +90,7 @@ rapidjson::Document FlatHorizon::toJSON() {
   return doc;
 }
 
-std::shared_ptr<FlatHorizon>
-FlatHorizon::fromJSON(const rapidjson::Value &doc) {
+FlatHorizon *FlatHorizon::fromJSON(const rapidjson::Value &doc) {
 
   if (!doc.IsObject())
     throw std::runtime_error(
@@ -150,6 +149,6 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   std::array<float, 2> anchor{doc["Anchor"][0].GetFloat(),
                               doc["Anchor"][1].GetFloat()};
 
-  return std::make_shared<FlatHorizon>(depth, dip, azimuth, anchor, name);
+  return new FlatHorizon(depth, dip, azimuth, anchor, name);
 }
 } // namespace ray_tracing

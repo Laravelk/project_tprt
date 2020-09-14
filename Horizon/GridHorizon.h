@@ -22,11 +22,11 @@ private:
    * y: y cord
    * @return gradient in (x,y)
    * */
-  std::array<float, 2> calculateGradientInPoint(float x, float y) const;
-  std::array<float, 3> normalAtPoint(float x, float y, float z) const;
-  std::array<float, 3> minimize(const std::array<float, 3> &x0,
-                                const std::array<float, 3> &x1,
-                                const std::array<float, 3> &vector) const;
+  std::vector<float> calculateGradientInPoint(float x, float y) const;
+  std::vector<float> normalAtPoint(float x, float y, float z) const;
+  std::vector<float> minimize(const std::array<float, 3> &x0,
+                              const std::array<float, 3> &x1,
+                              const std::array<float, 3> &vector) const;
 
   constexpr static double EPS = 0.000001;
 
@@ -37,8 +37,13 @@ public:
    * name: name of horizon
    * points: all points after interpolation
    */
-  explicit GridHorizon(std::string,
-                       std::vector<std::tuple<float, float, float>>);
+  GridHorizon(std::string, std::vector<std::tuple<float, float, float>>);
+
+  /* copy constructor */
+  GridHorizon(GridHorizon &hor)
+      : interpolator(hor.getInterpolator()), points(hor.getPoints()) {
+    name = hor.getName();
+  }
 
   /* destructor */
   ~GridHorizon() override {}
@@ -63,16 +68,11 @@ public:
   float getDepth(std::array<float, 2> cord) const override;
   float getDepth(float x, float y) const;
 
-  /* return source points */
-  std::vector<std::tuple<float, float, float>> get_points() const {
-    return points;
-  }
-
   /* calculate intersect
    * x0: first point (source)
    * x1: second point (receiver)
    * @return interest point */
-  std::array<float, 3>
+  std::vector<float>
   calcIntersect(const std::array<float, 3> &x0,
                 const std::array<float, 3> &x1) const override;
 
@@ -81,6 +81,14 @@ public:
 
   /* @return z value for x, y */
   double operator()(float x, float y) const;
+
+  virtual Horizon *clone() override;
+
+  std::string getName() const { return name; }
+  _2D::BicubicInterpolator<float> getInterpolator() const;
+  void setInterpolator(const _2D::BicubicInterpolator<float> &value);
+  std::vector<std::tuple<float, float, float>> getPoints() const;
+  void setPoints(const std::vector<std::tuple<float, float, float>> &value);
 };
 } // namespace ray_tracing
 

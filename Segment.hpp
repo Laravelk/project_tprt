@@ -27,7 +27,10 @@ public:
 public:
   Segment(const std::array<float, 3> &source_location,
           const std::array<float, 3> &receiver_location, const Layer &layer,
-          Horizon *horizon);
+          FlatHorizon *horizon);
+  Segment(const std::array<float, 3> &source_location,
+          const std::array<float, 3> &receiver_location, const Layer &layer,
+          GridHorizon *horizon);
 
   void setReceiver_location(const std::array<float, 3> &receiver_location);
 };

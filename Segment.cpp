@@ -4,9 +4,15 @@ namespace ray_tracing {
 
 Segment::Segment(const std::array<float, 3> &source_location,
                  const std::array<float, 3> &receiver_location,
-                 const Layer &layer, Horizon *ihorizon)
+                 const Layer &layer, GridHorizon *ihorizon)
     : source_location(source_location), receiver_location(receiver_location),
-      layer(layer), horizon(std::move(ihorizon)) {}
+      layer(layer), horizon(ihorizon) {}
+
+Segment::Segment(const std::array<float, 3> &source_location,
+                 const std::array<float, 3> &receiver_location,
+                 const Layer &layer, FlatHorizon *ihorizon)
+    : source_location(source_location), receiver_location(receiver_location),
+      layer(layer), horizon(ihorizon) {}
 
 const std::array<float, 3> &Segment::getSource_location() const {
   return source_location;

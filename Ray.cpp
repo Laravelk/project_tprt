@@ -86,7 +86,8 @@ void Ray::computeSegmentsRay() {
     y += step_y;
     std::array<float, 2> cord = {x, y};
     number_of_layers += (ulong)code_part[1];
-    z = layers.at(number_of_layers).getTop()->getDepth(cord);
+    auto t = layers.at(number_of_layers).getTop();
+    z = t->getDepth(cord);
     std::array<float, 3> intersect = {x, y, z};
     intersections.push_back(intersect);
   }
@@ -167,6 +168,8 @@ void Ray::computePath() {
 
 void Ray::computePathWithRayCode() {
   computeSegmentsRay();
+  std::cerr << "after compute segments"
+            << "\n";
   optimizeTrajectory();
 }
 
@@ -181,11 +184,16 @@ void Ray::optimizeTrajectory() {
     x[2 * i + 1] = trajectory[i + 1][1];
   }
 
+  std::cerr << "function" << std::endl;
   cost_function function(this, static_cast<int>(number_of_unknowns),
                          WaveType::WaveP);
+  std::cerr << "after" << std::endl;
 
   vnl_amoeba solver(function);
+  std::cerr << "solver" << std::endl;
   solver.minimize(x);
+  std::cerr << "after solver" << std::endl;
+
   for (int i = 0; i < number_of_unknowns / 2; i++) {
     segmentsP[i].setReceiver_location(
         {{static_cast<float>(x[2 * i]), static_cast<float>(x[2 * i + 1]),
@@ -193,7 +201,6 @@ void Ray::optimizeTrajectory() {
               {static_cast<float>(x[2 * i]),
                static_cast<float>(x[2 * i + 1])})}});
   }
-
   timeP = static_cast<float>(function.f(x));
 
   trajectory = getTrajectoryS();
@@ -309,6 +316,10 @@ double Ray::cost_function::f(const vnl_vector<double> &x) {
   case WaveType::WaveP:
     trajectory = ray->getTrajectoryP();
     for (int i = 0; i < n / 2; i++) {
+      std::array<float, 2> cord = {static_cast<float>(x[2 * i]),
+                                   static_cast<float>(x[2 * i + 1])};
+      auto t = ray->segmentsP[i].getHorizon(); // TODO: test
+      float tt = t->getDepth(cord);
       trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
                             static_cast<float>(x[2 * i + 1]),
                             ray->segmentsP[i].getHorizon()->getDepth(

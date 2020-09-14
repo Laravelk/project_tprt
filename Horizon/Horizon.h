@@ -10,12 +10,15 @@ namespace ray_tracing {
 class Horizon {
 public:
   Horizon() = default;
+  Horizon(Horizon &hor) = default;
   virtual ~Horizon() = default;
   virtual rapidjson::Document toJSON() = 0;
 
   virtual float getDepth(std::array<float, 2> x) const = 0;
 
-  virtual std::array<float, 3>
+  virtual Horizon *clone() = 0;
+
+  virtual std::vector<float>
   calcIntersect(const std::array<float, 3> &x0,
                 const std::array<float, 3> &x1) const = 0;
 

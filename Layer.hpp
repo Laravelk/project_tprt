@@ -24,16 +24,15 @@ public:
       : Vp(Vp), Vs(Vs), top(itop), name(name) {}
 
   Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), name(rhs.name) {
-    top = rhs.top;
+    this->top = rhs.top->clone();
   }
 
-  ~Layer() { // delete top;
-  }
+  ~Layer() { delete top; }
 
   Layer &operator=(const Layer &rhs) {
     Vp = rhs.Vp;
     Vs = rhs.Vs;
-    top = rhs.top;
+    this->top = top->clone();
     name = rhs.name;
     return *this;
   }

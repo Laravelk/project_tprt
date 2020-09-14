@@ -75,12 +75,11 @@ Layer Layer::fromJSON(const rapidjson::Value &doc) {
   std::string htype = doc["HType"].GetString();
 
   if ("grid" == htype) {
-    //    GridHorizon gor = GridHorizon::fromJSON(doc["Top"]);
     auto horizon = GridHorizon::fromJSON(doc["Top"]);
-    return Layer(vp, vs, std::move(horizon), name);
+    return Layer(vp, vs, horizon, name);
   } else {
     auto horizon = FlatHorizon::fromJSON(doc["Top"]);
-    return Layer(vp, vs, std::move(horizon), name);
+    return Layer(vp, vs, horizon, name);
   }
 }
 } // namespace ray_tracing

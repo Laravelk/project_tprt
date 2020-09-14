@@ -14,18 +14,41 @@ float FlatHorizon::getDepth(std::array<float, 2> x) const {
   return z;
 }
 
+Horizon *FlatHorizon::clone() {
+  FlatHorizon *new_horizon = new FlatHorizon(*this);
+  return new_horizon;
+}
+
+void FlatHorizon::setDepth(float value) { depth = value; }
+
+float FlatHorizon::getDip() const { return dip; }
+
+void FlatHorizon::setDip(float value) { dip = value; }
+
+float FlatHorizon::getAzimuth() const { return azimuth; }
+
+void FlatHorizon::setAzimuth(float value) { azimuth = value; }
+
+std::vector<float> FlatHorizon::getAnchor() const { return anchor; }
+
+void FlatHorizon::setAnchor(const std::vector<float> &value) { anchor = value; }
+
+std::vector<float> FlatHorizon::getNormal() const { return normal; }
+
+void FlatHorizon::setNormal(const std::vector<float> &value) { normal = value; }
+
 FlatHorizon::FlatHorizon(float depth, float dip, float azimuth,
-                         std::array<float, 2> anchor, std::string _name)
+                         std::vector<float> anchor, std::string _name)
     : dip(dip), azimuth(azimuth), depth(depth), anchor(anchor) {
   name = _name;
-  normal[0] = sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180);
-  normal[1] = sin(dip * M_PI / 180) * sin(azimuth * M_PI / 180);
-  normal[2] = cos(dip * M_PI / 180);
+  normal.push_back(sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180));
+  normal.push_back((dip * M_PI / 180) * sin(azimuth * M_PI / 180));
+  normal.push_back(cos(dip * M_PI / 180));
 }
 
 // две точки и пересечение отрезка между ними с плоскостью. @return точка
 // пересечения
-std::array<float, 3>
+std::vector<float>
 FlatHorizon::calcIntersect(const std::array<float, 3> &x0,
                            const std::array<float, 3> &x1) const {
   float d = -depth;
@@ -39,16 +62,16 @@ FlatHorizon::calcIntersect(const std::array<float, 3> &x0,
       (normal[0] * (x1[0] - x0[0]) + normal[1] * (x1[1] - x0[1]) +
        normal[2] * (x1[2] - x0[2]));
 
-  std::array<float, 3> intersect = {{x0[0] + lambda * (x1[0] - x0[0]),
-                                     x0[1] + lambda * (x1[1] - x0[1]),
-                                     x0[2] + lambda * (x1[2] - x0[2])}};
+  std::vector<float> intersect = {{x0[0] + lambda * (x1[0] - x0[0]),
+                                   x0[1] + lambda * (x1[1] - x0[1]),
+                                   x0[2] + lambda * (x1[2] - x0[2])}};
 
   // photo 1
 
-  std::array<float, 3> vec0{x0[0] - intersect[0], x0[1] - intersect[1],
-                            x0[2] - intersect[2]};
-  std::array<float, 3> vec1{x1[0] - intersect[0], x1[1] - intersect[1],
-                            x1[2] - intersect[2]};
+  std::vector<float> vec0{x0[0] - intersect[0], x0[1] - intersect[1],
+                          x0[2] - intersect[2]};
+  std::vector<float> vec1{x1[0] - intersect[0], x1[1] - intersect[1],
+                          x1[2] - intersect[2]};
 
   if (vec0[0] * vec1[0] + vec0[1] * vec1[1] + vec0[2] * vec1[2] <= 0)
     return intersect;
@@ -146,8 +169,8 @@ FlatHorizon *FlatHorizon::fromJSON(const rapidjson::Value &doc) {
 
   std::string name = doc["Name"].GetString();
 
-  std::array<float, 2> anchor{doc["Anchor"][0].GetFloat(),
-                              doc["Anchor"][1].GetFloat()};
+  std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
+                            doc["Anchor"][1].GetFloat()};
 
   return new FlatHorizon(depth, dip, azimuth, anchor, name);
 }

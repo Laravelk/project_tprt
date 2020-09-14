@@ -46,7 +46,7 @@ float GridHorizon::getDepth(std::array<float, 2> cord) const {
   return interpolator(cord.at(0), cord.at(1));
 }
 
-std::array<float, 3>
+std::vector<float>
 GridHorizon::calcIntersect(const std::array<float, 3> &x0,
                            const std::array<float, 3> &x1) const {
   std::array<float, 3> vector = {x1[0] - x0[0], x1[1] - x0[1],
@@ -57,7 +57,7 @@ GridHorizon::calcIntersect(const std::array<float, 3> &x0,
     return {};
   }
 
-  std::array<float, 3> intersect = minimize(x0, x1, vector);
+  std::vector<float> intersect = minimize(x0, x1, vector);
 
   return intersect;
 }
@@ -107,9 +107,9 @@ GridHorizon *GridHorizon::fromJSON(const rapidjson::Value &doc) {
                              "`Cardinal` should be equal 'END'");
 
   std::string name = doc["Name"].GetString();
-  std::array<float, 3> anchor{doc["Anchor"][0].GetFloat(),
-                              doc["Anchor"][1].GetFloat(),
-                              doc["Anchor"][2].GetFloat()};
+  std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
+                            doc["Anchor"][1].GetFloat(),
+                            doc["Anchor"][2].GetFloat()};
 
   std::vector<std::tuple<float, float, float>> points;
   std::vector<std::array<float, 3>> normal;
@@ -160,6 +160,24 @@ GridHorizon::GridHorizon(std::string _name,
 //    }
 
 /* check grid value */
+_2D::BicubicInterpolator<float> GridHorizon::getInterpolator() const {
+  return interpolator;
+}
+
+void GridHorizon::setInterpolator(
+    const _2D::BicubicInterpolator<float> &value) {
+  interpolator = value;
+}
+
+std::vector<std::tuple<float, float, float>> GridHorizon::getPoints() const {
+  return points;
+}
+
+void GridHorizon::setPoints(
+    const std::vector<std::tuple<float, float, float>> &value) {
+  points = value;
+}
+
 bool GridHorizon::checkGrid(std::vector<double> &x, std::vector<double> &y,
                             std::vector<double> &z, const double step) {
   if (x.size() != y.size() && (y.size() != z.size())) {
@@ -223,28 +241,31 @@ double GridHorizon::operator()(float x, float y) const {
   return interpolator(x, y);
 }
 
+Horizon *GridHorizon::clone() {
+  GridHorizon *new_horizon = new GridHorizon(*this);
+  return new_horizon;
+}
+
 float GridHorizon::getDepth(float x, float y) const {
   return interpolator(x, y);
 }
 
-std::array<float, 2> GridHorizon::calculateGradientInPoint(float x,
-                                                           float y) const {
-  std::array<float, 2> gradient = {
-      Derivative::derivative_x(x, y, interpolator),
-      Derivative::derivative_y(x, y, interpolator)};
+std::vector<float> GridHorizon::calculateGradientInPoint(float x,
+                                                         float y) const {
+  std::vector<float> gradient = {Derivative::derivative_x(x, y, interpolator),
+                                 Derivative::derivative_y(x, y, interpolator)};
   return gradient;
 }
 
-std::array<float, 3> GridHorizon::normalAtPoint(float x, float y,
-                                                float z) const {
-  std::array<float, 2> gradient =
+std::vector<float> GridHorizon::normalAtPoint(float x, float y, float z) const {
+  std::vector<float> gradient =
       calculateGradientInPoint(x, y); // [dz/dx, dz/dy]
   float norm = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1] + 1);
   return {gradient[0] / norm, gradient[1] / norm,
           1}; // [dz/dx, dy/dz, 1], unit normal
 }
 
-std::array<float, 3>
+std::vector<float>
 GridHorizon::minimize(const std::array<float, 3> &x0,
                       const std::array<float, 3> &x1,
                       const std::array<float, 3> &vector) const {

@@ -11,117 +11,125 @@ typedef unsigned long ulong;
 
 namespace ray_tracing {
 /* compute ray in layer and create segments */
-void Ray::computeSegments() {
+/*void Ray::computeSegments() {
   std::vector<std::array<float, 3>> intersections;
 
   auto source_location = source.getLocation();
   auto receiver_location = receiver.getLocation();
 
-  /* count the step */
-  /* try create optimal tractory */
+  //count the step
+// try create optimal tractory
+float diff_x = receiver_location[0] - source_location[0];
+float diff_y = receiver_location[1] - source_location[1];
+float layers_count = velocity_model.getLayers().size();
+float step_x = diff_x / layers_count;
+float step_y = diff_y / layers_count;
+float x = 0, y = 0, z = 0;
+x = source_location[0];
+y = source_location[1];
+
+auto layers = velocity_model.getLayers();
+for (ulong i = 0; i < layers_count; i++) {
+  x += step_x;
+  y += step_y;
+  std::array<float, 2> coordinates = {x, y};
+  z = layers.at(layers_count - i - 1).getTop()->getDepth(coordinates);
+  std::array<float, 3> intersect = {x, y, z};
+  intersections.push_back(intersect);
+}
+
+auto loc_source_location = source.getLocation();
+ulong layer_number = 0;
+for (auto &loc_receiver_location : intersections) {
+  std::array<float, 3> vec{loc_receiver_location[0] - loc_source_location[0],
+                           loc_receiver_location[1] - loc_source_location[1],
+                           loc_receiver_location[2] - loc_source_location[2]};
+  float norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+  vec[0] /= norm_vec;
+  vec[1] /= norm_vec;
+  vec[2] /= norm_vec;
+
+  auto layer = getLocationLayer({loc_source_location[0] + vec[0],
+                                 loc_source_location[1] + vec[1],
+                                 loc_source_location[2] + vec[2]});
+  layer_number++;
+  loc_source_location = loc_receiver_location;
+}
+} // namespace ray_tracing */
+
+void Ray::computeSegments() {
+  auto source_location = source.getLocation();
+  auto receiver_location = receiver.getLocation();
+
+  // count the step
+  // try create optimal tractory
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
-  float layers_count = velocity_model.getLayers().size();
-  float step_x = diff_x / layers_count;
-  float step_y = diff_y / layers_count;
+  float trajectory_part_count = ray_code.size();
+  float step_x = diff_x / trajectory_part_count;
+  float step_y = diff_y / trajectory_part_count;
   float x = 0, y = 0, z = 0;
   x = source_location[0];
   y = source_location[1];
 
   auto layers = velocity_model.getLayers();
-  for (ulong i = 0; i < layers_count; i++) {
+  trajectory.push_back({x, y, source_location[2]});
+  for (auto code : ray_code) {
     x += step_x;
     y += step_y;
-    std::array<float, 2> coordinates = {x, y};
-    z = layers.at(layers_count - i - 1).getTop()->getDepth(coordinates);
-    std::array<float, 3> intersect = {x, y, z};
-    intersections.push_back(intersect);
+    z = layers.at(code.layerNumber).getTop()->getDepth({x, y});
+    trajectory.push_back({x, y, z});
   }
-
-  auto loc_source_location = source.getLocation();
-  ulong layer_number = 0;
-  /* create segments */
-  for (auto &loc_receiver_location : intersections) {
-    std::array<float, 3> vec{loc_receiver_location[0] - loc_source_location[0],
-                             loc_receiver_location[1] - loc_source_location[1],
-                             loc_receiver_location[2] - loc_source_location[2]};
-    float norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-    vec[0] /= norm_vec;
-    vec[1] /= norm_vec;
-    vec[2] /= norm_vec;
-
-    auto layer = getLocationLayer({loc_source_location[0] + vec[0],
-                                   loc_source_location[1] + vec[1],
-                                   loc_source_location[2] + vec[2]});
-    segmentsP.emplace_back(
-        loc_source_location, loc_receiver_location, layer,
-        velocity_model.getLayers().at(layer_number).getTop());
-    segmentsS.emplace_back(
-        loc_source_location, loc_receiver_location, layer,
-        velocity_model.getLayers().at(layer_number).getTop());
-    layer_number++;
-    loc_source_location = loc_receiver_location;
-  }
+  trajectory.push_back(
+      {receiver_location[0], receiver_location[1], receiver_location[2]});
 }
 
 void Ray::computeSegmentsRay() {
-  std::vector<std::array<float, 3>> intersections;
   auto source_location = source.getLocation();
   auto receiver_location = receiver.getLocation();
 
+  // count the step
+  // try create optimal tractory
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
-  float part_count = ray_code.size();
-  float step_x = diff_x / part_count;
-  float step_y = diff_y / part_count;
-
+  ulong trajectory_part_count = ray_code.size();
+  float step_x = diff_x / trajectory_part_count;
+  float step_y = diff_y / trajectory_part_count;
   float x = 0, y = 0, z = 0;
   x = source_location[0];
   y = source_location[1];
+
   auto layers = velocity_model.getLayers();
-  ulong number_of_layers = layers.size();
-  for (ulong i = 0; i < ray_code.size() - 1; i++) {
-    auto code_part = ray_code[i];
+  trajectory.push_back({x, y, source_location[2]});
+  // tpc - 1, так как receiver добавляем отдельно
+  for (ulong i = 0; i < trajectory_part_count - 1; i++) {
     x += step_x;
     y += step_y;
-    std::array<float, 2> cord = {x, y};
-    number_of_layers += (ulong)code_part[1];
-    auto t = layers.at(number_of_layers).getTop();
-    z = t->getDepth(cord);
-    std::array<float, 3> intersect = {x, y, z};
-    intersections.push_back(intersect);
+    z = layers.at(ray_code.at(i).layerNumber - 1).getTop()->getDepth({x, y});
+    trajectory.push_back({x, y, z});
   }
+  trajectory.push_back(
+      {receiver_location[0], receiver_location[1], receiver_location[2]});
+}
 
-  auto loc_source_location = source.getLocation();
-  ulong layer_number = layers.size();
-  for (auto &loc_receiver_location : intersections) {
-    if (loc_receiver_location[2] - loc_source_location[2] < 0) {
-      layer_number -= 1;
+// layer_number, up/down, wave_type
+void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
+  for (auto ray_element : rayCode) {
+    Direction direction;
+    WaveType type;
+    if (Direction::DOWN == ray_element[1]) {
+      direction = Direction::DOWN;
     } else {
-      layer_number += 1;
+      direction = Direction::UP;
     }
-
-    std::array<float, 3> vec{loc_receiver_location[0] - loc_source_location[0],
-                             loc_receiver_location[1] - loc_source_location[1],
-                             loc_receiver_location[2] - loc_source_location[2]};
-    float norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-    vec[0] /= norm_vec;
-    vec[1] /= norm_vec;
-    vec[2] /= norm_vec;
-
-    auto layer = layers.at(layer_number);
-    segmentsP.emplace_back(loc_source_location, loc_receiver_location, layer,
-                           layer.getTop());
-    segmentsS.emplace_back(loc_source_location, loc_receiver_location, layer,
-                           layer.getTop());
-    loc_source_location = loc_receiver_location;
+    if (WaveType::SWAVE == ray_element[2]) {
+      type = WaveType::SWAVE;
+    } else {
+      type = WaveType::PWAVE;
+    }
+    Code code(ray_element[0], direction, type);
+    ray_code.push_back(code);
   }
-
-  auto layer = getLocationLayer(receiver_location);
-  segmentsP.emplace_back(loc_source_location, receiver_location, layer,
-                         layer.getTop());
-  segmentsS.emplace_back(loc_source_location, receiver_location, layer,
-                         layer.getTop());
 }
 
 /* @return min layer's position */
@@ -142,38 +150,38 @@ Layer Ray::getLocationLayer(std::array<float, 3> location) {
   return *it;
 }
 
-std::vector<std::array<float, 3>> Ray::getTrajectoryP() {
-  std::vector<std::array<float, 3>> trajectory;
-  trajectory.push_back(source.getLocation());
-  for (auto &seg : segmentsP) {
-    trajectory.push_back(seg.getReceiver_location());
-  }
-  return trajectory;
-}
+// std::vector<std::array<float, 3>> Ray::getTrajectoryP() {
+//  std::vector<std::array<float, 3>> trajectory;
+//  trajectory.push_back(source.getLocation());
+//  for (auto &seg : segmentsP) {
+//    trajectory.push_back(seg.getReceiver_location());
+//  }
+//  return trajectory;
+//}
 
-std::vector<std::array<float, 3>> Ray::getTrajectoryS() {
-  std::vector<std::array<float, 3>> trajectory;
-  trajectory.push_back(source.getLocation());
-  for (auto &seg : segmentsS) {
-    trajectory.push_back(seg.getReceiver_location());
-  }
-  return trajectory;
-}
+// std::vector<std::array<float, 3>> Ray::getTrajectoryS() {
+//  std::vector<std::array<float, 3>> trajectory;
+//  trajectory.push_back(source.getLocation());
+//  for (auto &seg : segmentsS) {
+//    trajectory.push_back(seg.getReceiver_location());
+//  }
+//  return trajectory;
+//}
 
 void Ray::computePath() {
   // std::cerr << "Ray::computePath()" << std::endl; // TODO: delete
   computeSegments();
-  optimizeTrajectory();
+  // optimizeTrajectory();
 }
 
 void Ray::computePathWithRayCode() {
   computeSegmentsRay();
   std::cerr << "after compute segments"
             << "\n";
-  optimizeTrajectory();
+  // optimizeTrajectory();
 }
 
-void Ray::optimizeTrajectory() {
+/*void Ray::optimizeTrajectory() {
   auto trajectory = getTrajectoryP();
 
   auto number_of_unknowns = (trajectory.size() - 2) * 2;
@@ -222,11 +230,11 @@ void Ray::optimizeTrajectory() {
   }
 
   timeS = static_cast<float>(functionS.f(x));
-}
+}*/
 
 rapidjson::Document Ray::toJSON() {
   rapidjson::Document doc;
-  rapidjson::Value json_val;
+  /*rapidjson::Value json_val;
   rapidjson::Value tmp_json_val;
   doc.SetObject();
 
@@ -274,123 +282,97 @@ rapidjson::Document Ray::toJSON() {
 
   json_val.SetString("NONE");
   doc.AddMember("Record", json_val, allocator);
-
+*/
   return doc;
 }
 
-/*bool Ray::checkRayCode(const std::vector<std::tuple<int, float, int>>
-&ray_code) const { for (std::tuple<int, float, int> ray : ray_code) { float
-ray_depth = std::get<1>(ray); // NOTE: or number bool correct = false; // if
-exist layer with number or exist layer on this depth then correct for (auto
-&layer : velocity_model.getLayers()) { float depth = layer.getTop().depth; if
-(ray_depth == depth) { correct = true; break;
-            }
-        }
-        if (!correct) { // if it doesn't exist
-            return false;
-        }
-    }
+// double Ray::cost_function::f(const vnl_vector<double> &x) {
+//  auto n = get_number_of_unknowns();
+//  std::vector<std::array<float, 3>> trajectory;
+//  std::array<float, 3> source_location;
+//  double time = 0;
 
-    const std::array<float, 3> source_layer_location = source.getLocation();
-    float ray_code_depth = std::get<1>(ray_code[0]); // NOTE: or number
-    if (source_layer_location[2] != ray_code_depth) { // if depth source (z
-value) != depth start ray_code return false;
-    }
+//  switch (type) {
+//  case WaveType::WaveP:
+//    trajectory = ray->getTrajectoryP();
+//    for (int i = 0; i < n / 2; i++) {
+//      std::array<float, 2> cord = {static_cast<float>(x[2 * i]),
+//                                   static_cast<float>(x[2 * i + 1])};
+//      auto t = ray->segmentsP[i].getHorizon(); // TODO: test
+//      float tt = t->getDepth(cord);
+//      trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
+//                            static_cast<float>(x[2 * i + 1]),
+//                            ray->segmentsP[i].getHorizon()->getDepth(
+//                                {static_cast<float>(x[2 * i]),
+//                                 static_cast<float>(x[2 * i + 1])})}};
+//    }
+//    source_location = trajectory[0];
+//    for (auto &seg : ray->segmentsP) {
+//      auto receiver_location = trajectory[&seg - &ray->segmentsP[0] + 1];
 
-    const std::array<float, 3> receiver_layer_location = receiver.getLocation();
-    ray_code_depth = std::get<1>(ray_code[ray_code.size()]); // NOTE: or number
-    if (receiver_layer_location[2] != ray_code_depth) { // if depth receiver (z
-value) != depth end ray_code return false;
-    }
+//      std::array<float, 3> vec{receiver_location[0] - source_location[0],
+//                               receiver_location[1] - source_location[1],
+//                               receiver_location[2] - source_location[2]};
 
+//      float norm_vec =
+//          sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
 
-}*/
+//      auto layer = seg.getLayer();
 
-double Ray::cost_function::f(const vnl_vector<double> &x) {
-  auto n = get_number_of_unknowns();
-  std::vector<std::array<float, 3>> trajectory;
-  std::array<float, 3> source_location;
-  double time = 0;
+//      time += norm_vec / layer.getVp();
 
-  switch (type) {
-  case WaveType::WaveP:
-    trajectory = ray->getTrajectoryP();
-    for (int i = 0; i < n / 2; i++) {
-      std::array<float, 2> cord = {static_cast<float>(x[2 * i]),
-                                   static_cast<float>(x[2 * i + 1])};
-      auto t = ray->segmentsP[i].getHorizon(); // TODO: test
-      float tt = t->getDepth(cord);
-      trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
-                            static_cast<float>(x[2 * i + 1]),
-                            ray->segmentsP[i].getHorizon()->getDepth(
-                                {static_cast<float>(x[2 * i]),
-                                 static_cast<float>(x[2 * i + 1])})}};
-    }
-    source_location = trajectory[0];
-    for (auto &seg : ray->segmentsP) {
-      auto receiver_location = trajectory[&seg - &ray->segmentsP[0] + 1];
+//      source_location = receiver_location;
+//    }
+//    break;
 
-      std::array<float, 3> vec{receiver_location[0] - source_location[0],
-                               receiver_location[1] - source_location[1],
-                               receiver_location[2] - source_location[2]};
+//  case WaveType::WaveS:
+//    trajectory = ray->getTrajectoryS(); // вместо траектории, просто изменять
+//    ее
+//                                        // середину, без копирования
+//    for (int i = 0; i < n / 2; i++) {
+//      trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
+//                            static_cast<float>(x[2 * i + 1]),
+//                            ray->segmentsS[i].getHorizon()->getDepth(
+//                                {static_cast<float>(x[2 * i]),
+//                                 static_cast<float>(x[2 * i + 1])})}};
+//    }
+//    source_location = trajectory[0];
+//    for (auto &seg : ray->segmentsS) {
+//      auto receiver_location = trajectory[&seg - &ray->segmentsS[0] + 1];
 
-      float norm_vec =
-          sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+//      std::array<float, 3> vec{receiver_location[0] - source_location[0],
+//                               receiver_location[1] - source_location[1],
+//                               receiver_location[2] - source_location[2]};
 
-      auto layer = seg.getLayer();
+//      float norm_vec =
+//          sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
 
-      time += norm_vec / layer.getVp();
+//      auto layer = seg.getLayer();
 
-      source_location = receiver_location;
-    }
-    break;
+//      time += norm_vec / layer.getVs();
 
-  case WaveType::WaveS:
-    trajectory = ray->getTrajectoryS(); // вместо траектории, просто изменять ее
-                                        // середину, без копирования
-    for (int i = 0; i < n / 2; i++) {
-      trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
-                            static_cast<float>(x[2 * i + 1]),
-                            ray->segmentsS[i].getHorizon()->getDepth(
-                                {static_cast<float>(x[2 * i]),
-                                 static_cast<float>(x[2 * i + 1])})}};
-    }
-    source_location = trajectory[0];
-    for (auto &seg : ray->segmentsS) {
-      auto receiver_location = trajectory[&seg - &ray->segmentsS[0] + 1];
+//      source_location = receiver_location;
+//    }
+//  }
 
-      std::array<float, 3> vec{receiver_location[0] - source_location[0],
-                               receiver_location[1] - source_location[1],
-                               receiver_location[2] - source_location[2]};
+//  return time;
+//}
 
-      float norm_vec =
-          sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+// std::vector<std::array<int, 3>>
+// Ray::cost_function::fromJSON(const rapidjson::Value &doc) {
+//  if (!doc.IsObject())
+//    throw std::runtime_error("Ray::fromJSON() - document should be an
+//    object");
 
-      auto layer = seg.getLayer();
+//  std::vector<std::string> required_fields = {"Ray_Code"};
 
-      time += norm_vec / layer.getVs();
+//  if (!doc["Ray_Code"].IsArray()) {
+//    throw std::runtime_error(
+//        "Ray::fromJSON() - invalid JSON, 'Array' should be a array");
+//  }
+//}
 
-      source_location = receiver_location;
-    }
-  }
-
-  return time;
-}
-
-std::vector<std::array<int, 3>>
-Ray::cost_function::fromJSON(const rapidjson::Value &doc) {
-  if (!doc.IsObject())
-    throw std::runtime_error("Ray::fromJSON() - document should be an object");
-
-  std::vector<std::string> required_fields = {"Ray_Code"};
-
-  if (!doc["Ray_Code"].IsArray()) {
-    throw std::runtime_error(
-        "Ray::fromJSON() - invalid JSON, 'Array' should be a array");
-  }
-}
-
-Ray::cost_function::cost_function(Ray *ray, int number_of_unknowns,
-                                  enum WaveType type)
-    : ray(ray), vnl_cost_function(number_of_unknowns), type(type) {}
+// Ray::cost_function::cost_function(Ray *ray, int number_of_unknowns,
+//                                  enum WaveType type)
+//    : ray(ray), vnl_cost_function(number_of_unknowns), type(type) {}
 } // namespace ray_tracing

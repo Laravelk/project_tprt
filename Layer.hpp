@@ -12,7 +12,6 @@
  * */
 namespace ray_tracing {
 class Layer {
-
 public:
   float Vp;
   float Vs;
@@ -38,13 +37,9 @@ public:
   }
 
   float getVp() const { return Vp; }
-
   float getVs() const { return Vs; }
-
   Horizon *getTop() { return top; }
-
   rapidjson::Document toJSON();
-
   static Layer fromJSON(const rapidjson::Value &doc);
 };
 

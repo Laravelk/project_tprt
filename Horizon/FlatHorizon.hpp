@@ -43,7 +43,7 @@ public:
 
   virtual rapidjson::Document toJSON() override;
 
-  static FlatHorizon *fromJSON(const rapidjson::Value &doc);
+  static std::unique_ptr<FlatHorizon> fromJSON(const rapidjson::Value &doc);
   void setDepth(float value);
   float getDepthValue() { return depth; }
   float getDip() const;

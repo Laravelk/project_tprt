@@ -16,29 +16,32 @@ public:
   float Vp;
   float Vs;
 
-  Horizon *top;
+  std::unique_ptr<Horizon> top;
   std::string name;
 
-  Layer(float Vp, float Vs, Horizon *itop, std::string name = "")
-      : Vp(Vp), Vs(Vs), top(itop), name(name) {}
-
-  Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), name(rhs.name) {
-    this->top = rhs.top->clone();
+  Layer(float Vp, float Vs, std::unique_ptr<Horizon> itop,
+        std::string name = "")
+      : Vp(Vp), Vs(Vs), name(name) {
+    top = std::move(itop);
   }
 
-  ~Layer() { delete top; }
+  Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), name(rhs.name) {
+    std::cerr << "HHHH";
+    // this->top = rhs.top->clone();
+  }
+
+  ~Layer() {}
 
   Layer &operator=(const Layer &rhs) {
     Vp = rhs.Vp;
     Vs = rhs.Vs;
-    this->top = top->clone();
     name = rhs.name;
     return *this;
   }
 
   float getVp() const { return Vp; }
   float getVs() const { return Vs; }
-  Horizon *getTop() { return top; }
+  Horizon *getTop() { return top.get(); }
   rapidjson::Document toJSON();
   static Layer fromJSON(const rapidjson::Value &doc);
 };

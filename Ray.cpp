@@ -65,7 +65,7 @@ void Ray::computeSegments() {
   // try create optimal tractory
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
-  float trajectory_part_count = ray_code.size();
+  ulong trajectory_part_count = ray_code.size();
   float step_x = diff_x / trajectory_part_count;
   float step_y = diff_y / trajectory_part_count;
   float x = 0, y = 0, z = 0;
@@ -74,10 +74,12 @@ void Ray::computeSegments() {
 
   auto layers = velocity_model.getLayers();
   trajectory.push_back({x, y, source_location[2]});
-  for (auto code : ray_code) {
+  // tpc - 1, так как receiver добавляем отдельно
+  for (ulong i = 0; i < trajectory_part_count - 1; i++) {
     x += step_x;
     y += step_y;
-    z = layers.at(code.layerNumber).getTop()->getDepth({x, y});
+    Horizon *hor = layers.at(ray_code.at(i).layerNumber - 1).getTop();
+    z = layers.at(ray_code.at(i).layerNumber - 1).getTop()->getDepth({x, y});
     trajectory.push_back({x, y, z});
   }
   trajectory.push_back(
@@ -105,6 +107,7 @@ void Ray::computeSegmentsRay() {
   for (ulong i = 0; i < trajectory_part_count - 1; i++) {
     x += step_x;
     y += step_y;
+    Horizon *hor = layers.at(ray_code.at(i).layerNumber - 1).getTop();
     z = layers.at(ray_code.at(i).layerNumber - 1).getTop()->getDepth({x, y});
     trajectory.push_back({x, y, z});
   }
@@ -230,7 +233,8 @@ void Ray::computePathWithRayCode() {
   }
 
   timeS = static_cast<float>(functionS.f(x));
-}*/
+}
+*/
 
 rapidjson::Document Ray::toJSON() {
   rapidjson::Document doc;
@@ -284,7 +288,7 @@ rapidjson::Document Ray::toJSON() {
   doc.AddMember("Record", json_val, allocator);
 */
   return doc;
-}
+} // namespace ray_tracing
 
 // double Ray::cost_function::f(const vnl_vector<double> &x) {
 //  auto n = get_number_of_unknowns();

@@ -12,17 +12,25 @@
 #include <vector>
 namespace ray_tracing {
 class VelocityModel {
-  std::vector<Layer> layers;
+private:
+  std::vector<std::unique_ptr<Layer>> layers;
 
 public:
-  VelocityModel(std::vector<Layer> layers) : layers(std::move(layers)) {}
+  Layer *getLayer(int index) {
+    assert(index < layers.size());
+    return layers.at(index).get();
+  }
 
-  const std::vector<Layer> &getLayers() const;
-  std::vector<Layer> &getLayers();
+  VelocityModel(const rapidjson::Value &doc) {
+    uint64_t layer_number = doc.Size();
+    for (uint64_t i = 0; i < layer_number; i++) { // TODO: 1 -> layer_number
+      layers.push_back(Layer::fromJSON(doc[i]));
+    }
+  }
 
   rapidjson::Document toJSON();
 
-  static VelocityModel fromJSON(const rapidjson::Value &doc);
+  static std::unique_ptr<VelocityModel> fromJSON(const rapidjson::Value &doc);
 };
 } // namespace ray_tracing
 

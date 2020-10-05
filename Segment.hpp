@@ -10,7 +10,7 @@
  * */
 namespace ray_tracing {
 class Segment {
-  std::array<float, 3> source_location;
+  /*std::array<float, 3> source_location;
   std::array<float, 3> receiver_location;
   Layer layer;
   Horizon *horizon;
@@ -32,7 +32,7 @@ public:
           const std::array<float, 3> &receiver_location, const Layer &layer,
           GridHorizon *horizon);
 
-  void setReceiver_location(const std::array<float, 3> &receiver_location);
+  void setReceiver_location(const std::array<float, 3> &receiver_location);*/
 };
 } // namespace ray_tracing
 

@@ -25,10 +25,8 @@ public:
     top = std::move(itop);
   }
 
-  Layer(const Layer &rhs) : Vp(rhs.Vp), Vs(rhs.Vs), name(rhs.name) {
-    std::cerr << "HHHH";
-    // this->top = rhs.top->clone();
-  }
+  Layer(std::unique_ptr<Horizon> _top, float _Vp, float _Vs)
+      : top(std::move(_top)), Vp(_Vp), Vs(_Vs) {}
 
   ~Layer() {}
 
@@ -43,7 +41,7 @@ public:
   float getVs() const { return Vs; }
   Horizon *getTop() { return top.get(); }
   rapidjson::Document toJSON();
-  static Layer fromJSON(const rapidjson::Value &doc);
+  static std::unique_ptr<Layer> fromJSON(const rapidjson::Value &doc);
 };
 
 } // namespace ray_tracing

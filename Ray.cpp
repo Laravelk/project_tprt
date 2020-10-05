@@ -1,91 +1,17 @@
 #include "Ray.hpp"
 #include "Eigen/Dense"
 #include "Segment.hpp"
+#include "cppoptlib/meta.h"
+#include "cppoptlib/problem.h"
+#include "cppoptlib/solver/bfgssolver.h"
 #include <algorithm>
 #include <unsupported/Eigen/NumericalDiff>
 #include <utility>
-#include <vnl/algo/vnl_amoeba.h>
-#include <vnl/vnl_cost_function.h>
 
 typedef unsigned long ulong;
 
 namespace ray_tracing {
 /* compute ray in layer and create segments */
-/*void Ray::computeSegments() {
-  std::vector<std::array<float, 3>> intersections;
-
-  auto source_location = source.getLocation();
-  auto receiver_location = receiver.getLocation();
-
-  //count the step
-// try create optimal tractory
-float diff_x = receiver_location[0] - source_location[0];
-float diff_y = receiver_location[1] - source_location[1];
-float layers_count = velocity_model.getLayers().size();
-float step_x = diff_x / layers_count;
-float step_y = diff_y / layers_count;
-float x = 0, y = 0, z = 0;
-x = source_location[0];
-y = source_location[1];
-
-auto layers = velocity_model.getLayers();
-for (ulong i = 0; i < layers_count; i++) {
-  x += step_x;
-  y += step_y;
-  std::array<float, 2> coordinates = {x, y};
-  z = layers.at(layers_count - i - 1).getTop()->getDepth(coordinates);
-  std::array<float, 3> intersect = {x, y, z};
-  intersections.push_back(intersect);
-}
-
-auto loc_source_location = source.getLocation();
-ulong layer_number = 0;
-for (auto &loc_receiver_location : intersections) {
-  std::array<float, 3> vec{loc_receiver_location[0] - loc_source_location[0],
-                           loc_receiver_location[1] - loc_source_location[1],
-                           loc_receiver_location[2] - loc_source_location[2]};
-  float norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-  vec[0] /= norm_vec;
-  vec[1] /= norm_vec;
-  vec[2] /= norm_vec;
-
-  auto layer = getLocationLayer({loc_source_location[0] + vec[0],
-                                 loc_source_location[1] + vec[1],
-                                 loc_source_location[2] + vec[2]});
-  layer_number++;
-  loc_source_location = loc_receiver_location;
-}
-} // namespace ray_tracing */
-
-void Ray::computeSegments() {
-  auto source_location = source.getLocation();
-  auto receiver_location = receiver.getLocation();
-
-  // count the step
-  // try create optimal tractory
-  float diff_x = receiver_location[0] - source_location[0];
-  float diff_y = receiver_location[1] - source_location[1];
-  ulong trajectory_part_count = ray_code.size();
-  float step_x = diff_x / trajectory_part_count;
-  float step_y = diff_y / trajectory_part_count;
-  float x = 0, y = 0, z = 0;
-  x = source_location[0];
-  y = source_location[1];
-
-  auto layers = velocity_model.getLayers();
-  trajectory.push_back({x, y, source_location[2]});
-  // tpc - 1, так как receiver добавляем отдельно
-  for (ulong i = 0; i < trajectory_part_count - 1; i++) {
-    x += step_x;
-    y += step_y;
-    Horizon *hor = layers.at(ray_code.at(i).layerNumber - 1).getTop();
-    z = layers.at(ray_code.at(i).layerNumber - 1).getTop()->getDepth({x, y});
-    trajectory.push_back({x, y, z});
-  }
-  trajectory.push_back(
-      {receiver_location[0], receiver_location[1], receiver_location[2]});
-}
-
 void Ray::computeSegmentsRay() {
   auto source_location = source.getLocation();
   auto receiver_location = receiver.getLocation();
@@ -101,14 +27,14 @@ void Ray::computeSegmentsRay() {
   x = source_location[0];
   y = source_location[1];
 
-  auto layers = velocity_model.getLayers();
   trajectory.push_back({x, y, source_location[2]});
   // tpc - 1, так как receiver добавляем отдельно
   for (ulong i = 0; i < trajectory_part_count - 1; i++) {
     x += step_x;
     y += step_y;
-    Horizon *hor = layers.at(ray_code.at(i).layerNumber - 1).getTop();
-    z = layers.at(ray_code.at(i).layerNumber - 1).getTop()->getDepth({x, y});
+    Horizon *hor =
+        velocity_model->getLayer(ray_code.at(i).layerNumber)->getTop();
+    z = hor->getDepth({x, y});
     trajectory.push_back({x, y, z});
   }
   trajectory.push_back(
@@ -135,47 +61,7 @@ void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
   }
 }
 
-/* @return min layer's position */
-Layer Ray::getLocationLayer(std::array<float, 3> location) {
-  std::vector<Layer> higher = velocity_model.getLayers();
-  std::copy_if(
-      velocity_model.getLayers().begin(), velocity_model.getLayers().end(),
-      std::back_inserter(higher), [&location](Layer layer) {
-        auto loc = layer.getTop()->getDepth({location[0], location[1]});
-        auto result = loc > location[2];
-        return result;
-      });
-  auto it = std::min_element(
-      higher.begin(), higher.end(), [&location](Layer &a, Layer &b) {
-        return a.getTop()->getDepth({location[0], location[1]}) - location[3] >
-               b.getTop()->getDepth({location[0], location[1]}) - location[3];
-      });
-  return *it;
-}
-
-// std::vector<std::array<float, 3>> Ray::getTrajectoryP() {
-//  std::vector<std::array<float, 3>> trajectory;
-//  trajectory.push_back(source.getLocation());
-//  for (auto &seg : segmentsP) {
-//    trajectory.push_back(seg.getReceiver_location());
-//  }
-//  return trajectory;
-//}
-
-// std::vector<std::array<float, 3>> Ray::getTrajectoryS() {
-//  std::vector<std::array<float, 3>> trajectory;
-//  trajectory.push_back(source.getLocation());
-//  for (auto &seg : segmentsS) {
-//    trajectory.push_back(seg.getReceiver_location());
-//  }
-//  return trajectory;
-//}
-
-void Ray::computePath() {
-  // std::cerr << "Ray::computePath()" << std::endl; // TODO: delete
-  computeSegments();
-  // optimizeTrajectory();
-}
+void Ray::computePath() {}
 
 void Ray::computePathWithRayCode() {
   computeSegmentsRay();
@@ -183,58 +69,6 @@ void Ray::computePathWithRayCode() {
             << "\n";
   // optimizeTrajectory();
 }
-
-/*void Ray::optimizeTrajectory() {
-  auto trajectory = getTrajectoryP();
-
-  auto number_of_unknowns = (trajectory.size() - 2) * 2;
-  vnl_vector<double> x(number_of_unknowns);
-
-  for (unsigned long i = 0; i < number_of_unknowns / 2; i++) {
-    x[2 * i] = trajectory[i + 1][0];
-    x[2 * i + 1] = trajectory[i + 1][1];
-  }
-
-  std::cerr << "function" << std::endl;
-  cost_function function(this, static_cast<int>(number_of_unknowns),
-                         WaveType::WaveP);
-  std::cerr << "after" << std::endl;
-
-  vnl_amoeba solver(function);
-  std::cerr << "solver" << std::endl;
-  solver.minimize(x);
-  std::cerr << "after solver" << std::endl;
-
-  for (int i = 0; i < number_of_unknowns / 2; i++) {
-    segmentsP[i].setReceiver_location(
-        {{static_cast<float>(x[2 * i]), static_cast<float>(x[2 * i + 1]),
-          segmentsP[i].getHorizon()->getDepth(
-              {static_cast<float>(x[2 * i]),
-               static_cast<float>(x[2 * i + 1])})}});
-  }
-  timeP = static_cast<float>(function.f(x));
-
-  trajectory = getTrajectoryS();
-  for (unsigned long i = 0; i < number_of_unknowns / 2; i++) {
-    x[2 * i] = trajectory[i + 1][0];
-    x[2 * i + 1] = trajectory[i + 1][1];
-  }
-  cost_function functionS(this, static_cast<int>(number_of_unknowns),
-                          WaveType::WaveS);
-
-  vnl_amoeba solverS(functionS);
-  solverS.minimize(x);
-  for (int i = 0; i < number_of_unknowns / 2; i++) {
-    segmentsS[i].setReceiver_location(
-        {{static_cast<float>(x[2 * i]), static_cast<float>(x[2 * i + 1]),
-          segmentsS[i].getHorizon()->getDepth(
-              {static_cast<float>(x[2 * i]),
-               static_cast<float>(x[2 * i + 1])})}});
-  }
-
-  timeS = static_cast<float>(functionS.f(x));
-}
-*/
 
 rapidjson::Document Ray::toJSON() {
   rapidjson::Document doc;
@@ -286,8 +120,7 @@ rapidjson::Document Ray::toJSON() {
 
   json_val.SetString("NONE");
   doc.AddMember("Record", json_val, allocator);
-*/
-  return doc;
+  * / return doc;
 } // namespace ray_tracing
 
 // double Ray::cost_function::f(const vnl_vector<double> &x) {

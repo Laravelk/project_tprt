@@ -14,7 +14,7 @@ rapidjson::Document VelocityModel::toJSON() {
   doc.SetArray();
 
   for (const auto &layer : layers) {
-    tmp_json_val.CopyFrom(layers[0].toJSON(), allocator);
+    tmp_json_val.CopyFrom(layers[0].get()->toJSON(), allocator);
     doc.PushBack(tmp_json_val, allocator);
   }
 
@@ -23,22 +23,12 @@ rapidjson::Document VelocityModel::toJSON() {
   return doc;
 }
 
-VelocityModel VelocityModel::fromJSON(const rapidjson::Value &doc) {
+std::unique_ptr<VelocityModel>
+VelocityModel::fromJSON(const rapidjson::Value &doc) {
   if (!doc.IsArray())
     throw std::runtime_error(
         "Velocity model::fromJSON() - document should be an array");
 
-  uint64_t layer_number = doc.Size();
-  std::vector<Layer> layers;
-
-  for (uint64_t i = 0; i < layer_number; i++) { // TODO: 1 -> layer_number
-    layers.push_back(Layer::fromJSON(doc[i]));
-  }
-
-  return VelocityModel(layers);
+  return std::make_unique<VelocityModel>(doc);
 }
-
-const std::vector<Layer> &VelocityModel::getLayers() const { return layers; }
-
-std::vector<Layer> &VelocityModel::getLayers() { return layers; }
 } // namespace ray_tracing

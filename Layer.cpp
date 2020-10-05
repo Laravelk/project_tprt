@@ -32,7 +32,7 @@ rapidjson::Document Layer::toJSON() {
   return doc;
 }
 
-Layer Layer::fromJSON(const rapidjson::Value &doc) {
+std::unique_ptr<Layer> Layer::fromJSON(const rapidjson::Value &doc) {
   if (!doc.IsObject())
     throw std::runtime_error(
         "Layer::fromJSON() - document should be an object");
@@ -75,9 +75,11 @@ Layer Layer::fromJSON(const rapidjson::Value &doc) {
   std::string htype = doc["HType"].GetString();
 
   if ("grid" == htype) {
-    return Layer(vp, vs, GridHorizon::fromJSON(doc["Top"]), name);
+    return std::make_unique<Layer>(vp, vs, GridHorizon::fromJSON(doc["Top"]),
+                                   name);
   } else {
-    return Layer(vp, vs, FlatHorizon::fromJSON(doc["Top"]), name);
+    return std::make_unique<Layer>(vp, vs, FlatHorizon::fromJSON(doc["Top"]),
+                                   name);
   }
 }
 } // namespace ray_tracing

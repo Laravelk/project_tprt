@@ -23,6 +23,9 @@ if(VXL_CORE_FOUND)
     include_directories(${VXL_CORE_INCLUDE_DIR})
 endif(VXL_CORE_FOUND)
 
+## lbfg
+include_directories(cppoptlib)
+
 ## rapidjson
 find_package(RapidJSON CONFIG REQUIRED)
 include_directories(${RapidJSON_INCLUDE_DIRS})

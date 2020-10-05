@@ -50,19 +50,19 @@ int main(int argc, char *argv[]) {
   auto receiver = ray_tracing::Receiver::fromJSON(doc["Receiver"].GetObject());
   // get info about velocity model
   auto velocity_model =
-      ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
+      std::move(ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]));
 
   // for ray_code test
   std::vector<std::array<int, 3>> ray_code;
-  std::array<int, 3> f = {6, -1, 0};  // source -> 5 (5)
-  std::array<int, 3> f1 = {5, -1, 0}; // 5 -> 4 (4)
-  std::array<int, 3> f2 = {4, -1, 0}; // 4 -> 3 (3)
-  std::array<int, 3> f3 = {3, -1, 0}; // 3 -> 2 (2)
-  std::array<int, 3> f4 = {2, -1, 0}; // 2 -> 1 (1)
-  std::array<int, 3> f5 = {2, 1, 0};  // 1 -> 2 (2)
-  std::array<int, 3> f6 = {2, -1, 0}; // 2 -> 1 (1)
-  std::array<int, 3> f7 = {1, -1, 0}; // 1 -> 0 (0)
-  std::array<int, 3> f8 = {0, -1, 0}; // 0 -> rec (rec pos)
+  std::array<int, 3> f = {5, 1, 0};   // source -> 5 (5)
+  std::array<int, 3> f1 = {4, 1, 0};  // 5 -> 4 (4)
+  std::array<int, 3> f2 = {3, 1, 0};  // 4 -> 3 (3)
+  std::array<int, 3> f3 = {2, 1, 0};  // 3 -> 2 (2)
+  std::array<int, 3> f4 = {1, 1, 0};  // 2 -> 1 (1)
+  std::array<int, 3> f5 = {2, -1, 0}; // 1 -> 2 (2)
+  std::array<int, 3> f6 = {1, 1, 0};  // 2 -> 1 (1)
+  std::array<int, 3> f7 = {0, 1, 0};  // 1 -> 0 (0)
+  std::array<int, 3> f8 = {-1, 1, 0}; // 0 -> rec (rec pos)
   ray_code.push_back(f);
   ray_code.push_back(f1);
   ray_code.push_back(f2);
@@ -73,7 +73,7 @@ int main(int argc, char *argv[]) {
   ray_code.push_back(f7);
   ray_code.push_back(f8);
 
-  ray_tracing::Ray ray(source, receiver, velocity_model, ray_code);
+  ray_tracing::Ray ray(source, receiver, std::move(velocity_model), ray_code);
   ray.computePathWithRayCode();
 
   std::ofstream ofs(argv[2]);

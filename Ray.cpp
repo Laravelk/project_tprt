@@ -1,17 +1,30 @@
 #include "Ray.hpp"
-#include "Eigen/Dense"
 #include "Segment.hpp"
-#include "cppoptlib/meta.h"
-#include "cppoptlib/problem.h"
-#include "cppoptlib/solver/bfgssolver.h"
+#include <Eigen/Dense>
 #include <algorithm>
 #include <unsupported/Eigen/NumericalDiff>
 #include <utility>
 
 typedef unsigned long ulong;
 
+
+/// this namespace contains classes which worked with ray_code and trajectory
 namespace ray_tracing {
-/* compute ray in layer and create segments */
+void Ray::optimizeTrajectory() {
+  std::vector<double> vector;
+  for (auto part : trajectory) {
+    vector.push_back(part[0]);
+    vector.push_back(part[1]);
+  }
+  Eigen::VectorXd eigenVector
+   = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(vector.data(), vector.size());
+  BfgsSolver<MyProblem> solver;
+  solver.minimize(*problem.get(), eigenVector);
+  std::cerr << solver.status() << std::endl;
+  std::cerr << solver.criteria() << std::endl;
+}
+
+/// compute ray in layer and create segments
 void Ray::computeSegmentsRay() {
   auto source_location = source.getLocation();
   auto receiver_location = receiver.getLocation();
@@ -30,6 +43,7 @@ void Ray::computeSegmentsRay() {
   trajectory.push_back({x, y, source_location[2]});
   // tpc - 1, так как receiver добавляем отдельно
   for (ulong i = 0; i < trajectory_part_count - 1; i++) {
+    std::cerr << "Create trajectory. Iteration: " << i << "\n";
     x += step_x;
     y += step_y;
     Horizon *hor =
@@ -67,7 +81,7 @@ void Ray::computePathWithRayCode() {
   computeSegmentsRay();
   std::cerr << "after compute segments"
             << "\n";
-  // optimizeTrajectory();
+  optimizeTrajectory();
 }
 
 rapidjson::Document Ray::toJSON() {
@@ -120,96 +134,8 @@ rapidjson::Document Ray::toJSON() {
 
   json_val.SetString("NONE");
   doc.AddMember("Record", json_val, allocator);
-  * / return doc;
+  */
+  return doc;
 } // namespace ray_tracing
 
-// double Ray::cost_function::f(const vnl_vector<double> &x) {
-//  auto n = get_number_of_unknowns();
-//  std::vector<std::array<float, 3>> trajectory;
-//  std::array<float, 3> source_location;
-//  double time = 0;
-
-//  switch (type) {
-//  case WaveType::WaveP:
-//    trajectory = ray->getTrajectoryP();
-//    for (int i = 0; i < n / 2; i++) {
-//      std::array<float, 2> cord = {static_cast<float>(x[2 * i]),
-//                                   static_cast<float>(x[2 * i + 1])};
-//      auto t = ray->segmentsP[i].getHorizon(); // TODO: test
-//      float tt = t->getDepth(cord);
-//      trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
-//                            static_cast<float>(x[2 * i + 1]),
-//                            ray->segmentsP[i].getHorizon()->getDepth(
-//                                {static_cast<float>(x[2 * i]),
-//                                 static_cast<float>(x[2 * i + 1])})}};
-//    }
-//    source_location = trajectory[0];
-//    for (auto &seg : ray->segmentsP) {
-//      auto receiver_location = trajectory[&seg - &ray->segmentsP[0] + 1];
-
-//      std::array<float, 3> vec{receiver_location[0] - source_location[0],
-//                               receiver_location[1] - source_location[1],
-//                               receiver_location[2] - source_location[2]};
-
-//      float norm_vec =
-//          sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-
-//      auto layer = seg.getLayer();
-
-//      time += norm_vec / layer.getVp();
-
-//      source_location = receiver_location;
-//    }
-//    break;
-
-//  case WaveType::WaveS:
-//    trajectory = ray->getTrajectoryS(); // вместо траектории, просто изменять
-//    ее
-//                                        // середину, без копирования
-//    for (int i = 0; i < n / 2; i++) {
-//      trajectory[i + 1] = {{static_cast<float>(x[2 * i]),
-//                            static_cast<float>(x[2 * i + 1]),
-//                            ray->segmentsS[i].getHorizon()->getDepth(
-//                                {static_cast<float>(x[2 * i]),
-//                                 static_cast<float>(x[2 * i + 1])})}};
-//    }
-//    source_location = trajectory[0];
-//    for (auto &seg : ray->segmentsS) {
-//      auto receiver_location = trajectory[&seg - &ray->segmentsS[0] + 1];
-
-//      std::array<float, 3> vec{receiver_location[0] - source_location[0],
-//                               receiver_location[1] - source_location[1],
-//                               receiver_location[2] - source_location[2]};
-
-//      float norm_vec =
-//          sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-
-//      auto layer = seg.getLayer();
-
-//      time += norm_vec / layer.getVs();
-
-//      source_location = receiver_location;
-//    }
-//  }
-
-//  return time;
-//}
-
-// std::vector<std::array<int, 3>>
-// Ray::cost_function::fromJSON(const rapidjson::Value &doc) {
-//  if (!doc.IsObject())
-//    throw std::runtime_error("Ray::fromJSON() - document should be an
-//    object");
-
-//  std::vector<std::string> required_fields = {"Ray_Code"};
-
-//  if (!doc["Ray_Code"].IsArray()) {
-//    throw std::runtime_error(
-//        "Ray::fromJSON() - invalid JSON, 'Array' should be a array");
-//  }
-//}
-
-// Ray::cost_function::cost_function(Ray *ray, int number_of_unknowns,
-//                                  enum WaveType type)
-//    : ray(ray), vnl_cost_function(number_of_unknowns), type(type) {}
 } // namespace ray_tracing

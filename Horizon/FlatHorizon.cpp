@@ -1,4 +1,5 @@
 #include "FlatHorizon.hpp"
+#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -169,6 +170,9 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
                              "`Cardinal` should be equal 'END'");
 
   std::string name = doc["Name"].GetString();
+
+  std::cerr << "FlatHorizon::fromJSON:name " << name << " with depth " << depth
+            << "\n"; // TODO: remove or #ifdef
 
   std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
                             doc["Anchor"][1].GetFloat()};

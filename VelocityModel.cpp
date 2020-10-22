@@ -29,6 +29,12 @@ VelocityModel::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "Velocity model::fromJSON() - document should be an array");
 
-  return std::make_unique<VelocityModel>(doc);
+std::vector<std::unique_ptr<Layer>> local_layers;
+ uint64_t layer_number = doc.Size();
+    for (uint64_t i = 0; i < layer_number; i++) { // TODO: 1 -> layer_number
+      local_layers.push_back(Layer::fromJSON(doc[i]));
+    }
+
+  return std::make_unique<VelocityModel>(std::move(local_layers));
 }
 } // namespace ray_tracing

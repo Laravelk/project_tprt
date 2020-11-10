@@ -31,6 +31,10 @@ public:
     this->name = copy.getName();
   }
 
+  std::array<double, 2> getGradientInPoint(double x, double y) const override;
+  std::array<double, 2>
+  getGradientInPoint(std::array<double, 2> cord) const override;
+
   ~FlatHorizon() override {}
 
   virtual float getDepth(std::array<float, 2> x) const override;

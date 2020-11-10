@@ -19,7 +19,7 @@ std::vector<std::array<int, 3>> getRayCode1() {
   std::array<int, 3> f2 = {3, 1, 0};  // 4 -> 3 (3)
   std::array<int, 3> f3 = {2, 1, 0};  // 3 -> 2 (2)
   std::array<int, 3> f4 = {1, 1, 0};  // 2 -> 1 (1)
-  std::array<int, 3> f5 = {2, -1, 0}; // 1 -> 2 (2)
+  std::array<int, 3> f5 = {1, -1, 0}; // 1 -> 2 (2)
   std::array<int, 3> f6 = {1, 1, 0};  // 2 -> 1 (1)
   std::array<int, 3> f7 = {0, 1,
                            0}; // 1 -> rec (rec pos): it's under zero layer

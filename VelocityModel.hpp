@@ -17,15 +17,15 @@ private:
 
 public:
   Layer *getLayer(int index) {
-    std::cerr << "getLayer: " << index << " of " << layers.size() - 1
-              << std::endl; // NOTE: delete
+    /*std::cerr << "getLayer: " << index << " of " << layers.size() - 1
+              << std::endl; // NOTE: delete*/
     assert(index < layers.size());
     return layers.at(index).get();
   }
 
   VelocityModel(std::vector<std::unique_ptr<Layer>> _layers) {
-    std::cerr << "VelocityModelInit: layers size is " << _layers.size()
-              << "\n"; // TODO: delete or #ifdef debug
+    /*std::cerr << "VelocityModelInit: layers size is " << _layers.size()
+              << "\n"; // TODO: delete or #ifdef debug*/
     layers = std::move(_layers);
   }
 

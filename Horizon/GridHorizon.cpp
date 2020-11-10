@@ -63,6 +63,29 @@ GridHorizon::calcIntersect(const std::array<float, 3> &x0,
   return intersect;
 }
 
+std::array<double, 2>
+GridHorizon::getGradientInPoint(std::array<double, 2> cord) const {
+  return getGradientInPoint(cord[0], cord[1]);
+}
+
+std::array<double, 2> GridHorizon::getGradientInPoint(double x,
+                                                      double y) const {
+  double derivative_x = 0, derivative_y = 0;
+  double EPS = gradient_step;
+  double xEPS = x + EPS;
+  double yEPS = y + EPS;
+
+  double t1 = getDepth(xEPS, y);
+  double t2 = getDepth(x, y);
+
+  derivative_x = (getDepth(xEPS, y) - getDepth(x, y)) / EPS;
+  derivative_y = (getDepth(x, yEPS) - getDepth(x, y)) / EPS;
+
+  std::vector<float> d = calculateGradientInPoint(x, y); // TODO: delete
+
+  return {derivative_x, derivative_y};
+}
+
 /*
  * doc: "top" in json file
  * @return: GridHorizon object
@@ -133,35 +156,9 @@ GridHorizon::GridHorizon(std::string _name,
                          std::vector<std::tuple<float, float, float>> _points)
     : points(_points) {
   name = _name;
+  find_corner(); // TODO: delete
   interpolation(points);
 }
-
-//    _2D::BicubicInterpolator<float>
-//    GridHorizon::st_interpolation(const std::vector<std::tuple<float, float,
-//    float>>& points_array) {
-//        // points -> x, y, z. point<x,y,z> in points
-//
-//        std::vector<std::tuple<float, float, float>> new_points;
-//
-//        std::vector<double> x;
-//        std::vector<double> y;
-//        std::vector<double> z;
-//
-//        x.reserve(points_array.size());
-//        y.reserve(points_array.size());
-//        z.reserve(points_array.size());
-//
-//        _2D::BicubicInterpolator<float> inter; // interpolator
-//        for (auto point : points_array) {
-//            x.push_back(std::get<0>(point));
-//            y.push_back(std::get<1>(point));
-//            z.push_back(std::get<2>(point));
-//        }
-//
-//        inter.setData(x, y, z);
-//
-//        return inter;
-//    }
 
 /* check grid value */
 _2D::BicubicInterpolator<float> GridHorizon::getInterpolator() const {
@@ -182,41 +179,44 @@ void GridHorizon::setPoints(
   points = value;
 }
 
-bool GridHorizon::checkGrid(std::vector<double> &x, std::vector<double> &y,
-                            std::vector<double> &z, const double step) {
+bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
+                            std::vector<float> &z) {
   if (x.size() != y.size() && (y.size() != z.size())) {
     return false;
   }
 
-  double prev_x_value = x.at(0);
-  double prev_y_value = y.at(0);
-  double prev_z_value = z.at(0);
+  for (unsigned long i = 0; i < x.size(); i++) {
+    float x_value = x.at(i);
+    float y_value = y.at(i);
 
-  for (unsigned long i = 1; i < x.size(); i++) {
-    double x_value = x.at(i);
-    double y_value = y.at(i);
-    double z_value = z.at(i);
+    float inter = interpolator(x_value, y_value);
+    float test_inter = interpolator(60000, y_value);
 
-    double diff_x = abs(x_value - prev_x_value);
-    double diff_y = abs(y_value - prev_y_value);
-    double diff_z = abs(z_value - prev_z_value);
-
-    if (0 != diff_x || abs(step - diff_x) <= EPS) {
-      return false;
-    }
-
-    if (0 != diff_y || abs(step - diff_y) <= EPS) {
-      return false;
-    }
-    if (0 != diff_z || abs(step - diff_z) <= EPS) {
-      return false;
-    }
-
-    prev_x_value = x_value;
-    prev_y_value = y_value;
-    prev_z_value = z_value;
+    //    std::cerr << x_value << ", " << y_value << ": " << z[i] << " = " <<
+    //    inter
+    //              << " : " << test_inter << std::endl;
   }
   return true;
+}
+
+void GridHorizon::find_corner() {
+  for (auto it : points) {
+    float x = std::get<0>(it);
+    float y = std::get<1>(it);
+    if (x < left_top.at(0) && y > left_top.at(1)) {
+      left_top = {x, y};
+    }
+    if (x > right_top.at(0) && y > right_top.at(1)) {
+      right_top = {x, y};
+    }
+    if (x < left_bottom.at(0) && y < left_bottom.at(1)) {
+      left_bottom = {x, y};
+    }
+    if (x > right_bottom[0] && y < right_bottom[1]) {
+      right_bottom = {x, y};
+    }
+  }
+  return;
 }
 
 bool GridHorizon::interpolation(
@@ -225,19 +225,24 @@ bool GridHorizon::interpolation(
   std::vector<float> y;
   std::vector<float> z;
 
+  const int MIN_POINTS_COUNT = 4;
+
+  assert(points_array.size() >= MIN_POINTS_COUNT); //
+
   x.reserve(points_array.size());
   y.reserve(points_array.size());
   z.reserve(points_array.size());
+
+  gradient_step = abs(x[1] - x[0]);
 
   for (auto point : points_array) {
     x.push_back(std::get<0>(point));
     y.push_back(std::get<1>(point));
     z.push_back(std::get<2>(point));
-    //    std::cerr << std::get<0>(point) << " " << std::get<1>(point) << " "
-    //              << std::get<2>(point) << std::endl;
   }
 
   interpolator.setData(x, y, z);
+  // checkGrid(x, y, z);
   return true;
 }
 
@@ -251,6 +256,8 @@ Horizon *GridHorizon::clone() {
 }
 
 float GridHorizon::getDepth(float x, float y) const {
+  //  std::cerr << "GridHorizon::getDepth: " << x << " " << y << " "
+  //            << interpolator(x, y) << std::endl;
   return interpolator(x, y);
 }
 

@@ -7,21 +7,26 @@
 
 typedef unsigned long ulong;
 
-
 /// this namespace contains classes which worked with ray_code and trajectory
 namespace ray_tracing {
 void Ray::optimizeTrajectory() {
   std::vector<double> vector;
-  for (auto part : trajectory) {
-    vector.push_back(part[0]);
-    vector.push_back(part[1]);
+
+  for (int i = 1; i < trajectory.size(); i++) {
+    std::cerr << trajectory.at(i)[0] << " " << trajectory.at(i)[1] << " ";
+    vector.push_back(trajectory.at(i)[0]);
+    vector.push_back(trajectory.at(i)[1]);
   }
-  Eigen::VectorXd eigenVector
-   = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(vector.data(), vector.size());
+  std::cerr << std::endl;
+
+  Eigen::VectorXd eigenVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(
+      vector.data(), vector.size());
+
+  MyProblem probb(*this);
   BfgsSolver<MyProblem> solver;
-  solver.minimize(*problem.get(), eigenVector);
+  solver.minimize(probb, eigenVector);
   std::cerr << solver.status() << std::endl;
-  std::cerr << solver.criteria() << std::endl;
+  std::cerr << "argmin      " << eigenVector.transpose() << std::endl;
 }
 
 /// compute ray in layer and create segments
@@ -29,8 +34,6 @@ void Ray::computeSegmentsRay() {
   auto source_location = source.getLocation();
   auto receiver_location = receiver.getLocation();
 
-  // count the step
-  // try create optimal tractory
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
   ulong trajectory_part_count = ray_code.size();
@@ -41,9 +44,7 @@ void Ray::computeSegmentsRay() {
   y = source_location[1];
 
   trajectory.push_back({x, y, source_location[2]});
-  // tpc - 1, так как receiver добавляем отдельно
   for (ulong i = 0; i < trajectory_part_count - 1; i++) {
-    std::cerr << "Create trajectory. Iteration: " << i << "\n";
     x += step_x;
     y += step_y;
     Horizon *hor =

@@ -6,6 +6,7 @@
 #include "Horizon.h"
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
 #include <array>
+#include <float.h>
 #include <string>
 
 namespace ray_tracing {
@@ -14,8 +15,17 @@ private:
   _2D::BicubicInterpolator<float> interpolator;
   std::vector<std::tuple<float, float, float>> points;
 
-  static bool checkGrid(std::vector<double> &, std::vector<double> &,
-                        std::vector<double> &, double);
+  std::array<float, 2> right_top = {FLT_MIN, FLT_MIN};
+  std::array<float, 2> left_top = {FLT_MAX, FLT_MIN};
+  std::array<float, 2> right_bottom = {FLT_MIN, FLT_MAX};
+  std::array<float, 2> left_bottom = {FLT_MAX, FLT_MAX};
+
+  float gradient_step = 0.0f;
+
+  bool checkGrid(std::vector<float> &, std::vector<float> &,
+                 std::vector<float> &);
+
+  void find_corner();
 
   /*
    * x: x cord
@@ -41,7 +51,8 @@ public:
 
   /* copy constructor */
   GridHorizon(GridHorizon &hor)
-      : interpolator(hor.getInterpolator()), points(hor.getPoints()) {
+      : interpolator(hor.getInterpolator()), points(hor.getPoints()),
+        gradient_step(hor.gradient_step) {
     name = hor.getName();
   }
 
@@ -75,6 +86,10 @@ public:
   std::vector<float>
   calcIntersect(const std::array<float, 3> &x0,
                 const std::array<float, 3> &x1) const override;
+
+  std::array<double, 2> getGradientInPoint(double x, double y) const override;
+  std::array<double, 2>
+  getGradientInPoint(std::array<double, 2> cord) const override;
 
   /* get GridHorizon from JSON file */
   static std::unique_ptr<GridHorizon> fromJSON(const rapidjson::Value &doc);

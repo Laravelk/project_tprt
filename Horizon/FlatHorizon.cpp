@@ -42,12 +42,15 @@ std::vector<float> FlatHorizon::getNormal() const { return normal; }
 void FlatHorizon::setNormal(const std::vector<float> &value) { normal = value; }
 
 FlatHorizon::FlatHorizon(float depth, float dip, float azimuth,
-                         std::vector<float> anchor, std::string _name)
+                         std::vector<float> anchor,
+                         std::vector<std::array<float, 2>> region,
+                         std::string _name)
     : dip(dip), azimuth(azimuth), depth(depth), anchor(anchor) {
-  name = _name;
-  normal.push_back(sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180));
-  normal.push_back((dip * M_PI / 180) * sin(azimuth * M_PI / 180));
-  normal.push_back(cos(dip * M_PI / 180));
+  this->region = region;
+  this->name = _name;
+  this->normal.push_back(sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180));
+  this->normal.push_back((dip * M_PI / 180) * sin(azimuth * M_PI / 180));
+  this->normal.push_back(cos(dip * M_PI / 180));
 }
 
 std::array<double, 2>
@@ -74,40 +77,6 @@ std::array<double, 2> FlatHorizon::getGradientInPoint(double x,
       EPS;
 
   return {derivative_x, derivative_y};
-}
-
-// две точки и пересечение отрезка между ними с плоскостью. @return точка
-// пересечения
-std::vector<float>
-FlatHorizon::calcIntersect(const std::array<float, 3> &x0,
-                           const std::array<float, 3> &x1) const {
-  float d = -depth;
-
-  if ((normal[0] * (x1[0] - x0[0]) + normal[1] * (x1[1] - x0[1]) +
-       normal[2] * (x1[2] - x0[2])) == 0)
-    return {{NAN, NAN, NAN}};
-
-  float lambda =
-      -(normal[0] * x0[0] + normal[1] * x0[1] + normal[2] * x0[2] + d) /
-      (normal[0] * (x1[0] - x0[0]) + normal[1] * (x1[1] - x0[1]) +
-       normal[2] * (x1[2] - x0[2]));
-
-  std::vector<float> intersect = {{x0[0] + lambda * (x1[0] - x0[0]),
-                                   x0[1] + lambda * (x1[1] - x0[1]),
-                                   x0[2] + lambda * (x1[2] - x0[2])}};
-
-  // photo 1
-
-  std::vector<float> vec0{x0[0] - intersect[0], x0[1] - intersect[1],
-                          x0[2] - intersect[2]};
-  std::vector<float> vec1{x1[0] - intersect[0], x1[1] - intersect[1],
-                          x1[2] - intersect[2]};
-
-  if (vec0[0] * vec1[0] + vec0[1] * vec1[1] + vec0[2] * vec1[2] <= 0)
-    return intersect;
-  else {
-    return {{NAN, NAN, NAN}};
-  }
 }
 
 rapidjson::Document FlatHorizon::toJSON() {
@@ -150,8 +119,8 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - document should be an object");
 
-  std::vector<std::string> required_fields = {"Dip",    "Azimuth",  "Depth",
-                                              "Anchor", "Cardinal", "Name"};
+  std::vector<std::string> required_fields = {
+      "Dip", "Azimuth", "Depth", "Anchor", "Cardinal", "Name" /*, "Region"*/};
 
   for (const auto &field : required_fields) {
     if (!doc.HasMember(field.c_str()))
@@ -159,34 +128,45 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
           "FlatHorizon::fromJSON() - invalid JSON, missing field " + field);
   }
 
-  if (!doc["Dip"].IsFloat())
+  if (!doc["Dip"].IsFloat()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Dip` should be a float");
+  }
 
-  if (!doc["Azimuth"].IsFloat())
+  if (!doc["Azimuth"].IsFloat()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Azimuth` should be a float");
+  }
 
-  if (!doc["Depth"].IsFloat())
+  if (!doc["Depth"].IsFloat()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Depth` should be a float");
+  }
 
-  if (!doc["Anchor"].IsArray())
+  if (!doc["Anchor"].IsArray()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Anchor` should be an array");
+  }
 
-  // TODO: убрать комментарий
-  // if (doc["Anchor"].Size() != 2)
-  //     throw std::runtime_error("FlatHorizon::fromJSON - invalid JSON, wrong
-  //     'Anchor' size (should be equal two)");
+  if (doc["Anchor"].Size() != 3) {
+    throw std::runtime_error("FlatHorizon::fromJSON - invalid JSON, wrong "
+                             "'Anchor' size (should be equal two)");
+  }
 
-  if (!doc["Cardinal"].IsString())
+  if (!doc["Cardinal"].IsString()) {
     throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, "
                              "`Cardinal` should be a string");
+  }
 
-  if (!doc["Name"].IsString())
+  if (!doc["Name"].IsString()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Name` should be a string");
+  }
+
+  if (!doc["Region"].IsArray()) {
+    throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, 'Region' "
+                             "size should be equal two");
+  }
 
   float dip = doc["Dip"].GetFloat();
   float azimuth = doc["Azimuth"].GetFloat();
@@ -200,12 +180,16 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
 
   std::string name = doc["Name"].GetString();
 
-  std::cerr << "FlatHorizon::fromJSON:name " << name << " with depth " << depth
-            << "\n"; // TODO: remove or #ifdef
+  std::vector<std::array<float, 2>> region;
+  region.push_back(
+      {doc["Region"][0][0].GetFloat(), doc["Region"][0][1].GetFloat()});
+  region.push_back(
+      {doc["Region"][1][0].GetFloat(), doc["Region"][1][1].GetFloat()});
 
   std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
                             doc["Anchor"][1].GetFloat()};
 
-  return std::make_unique<FlatHorizon>(depth, dip, azimuth, anchor, name);
+  return std::make_unique<FlatHorizon>(depth, dip, azimuth, anchor, region,
+                                       name);
 }
 } // namespace ray_tracing

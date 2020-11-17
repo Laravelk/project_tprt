@@ -1,0 +1,148 @@
+{
+    "Receiver": {
+        "Location": [
+            608000.0,
+            5990000.0,
+            10.0
+        ],
+        "Nc": 3,
+        "Orientation": [
+            [
+                1.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                1.0
+            ]
+        ],
+        "Cardinal": "END",
+        "Sampling": 0.25,
+        "Name": "STH"
+    },
+
+    "Source": {
+        "Location": [
+            655000.0,
+            6100000.0,
+            270.0
+        ],
+        "Moment": [
+            [
+                1.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                1.0
+            ]
+        ],
+        "Cardinal": "END",
+        "Magnitude": 1.0,
+        "T0": 0.0,
+        "SType": "event"
+    },
+
+    "Velocity model": [{
+            "LType": "ISO",
+            "Vp": 1000.0,
+            "Vs": 700.0,
+            "HType": "flat",
+            "Top": {
+                "Dip": 0.0,
+                "Azimuth": 0.0,
+                "Depth": 0.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Region": [
+                    [0, 0],
+                    [6400000, 6400000]
+                ],
+                "Cardinal": "END",
+                "Name": "Usf-0"
+            },
+            "Name": "Usf-0"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 1000.0,
+            "Vs": 700.0,
+            "HType": "grid",
+            "Top": {
+                "Points": [
+                    [0, 0, 0],
+                    [3, 4, 1],
+                    [1, 2, 3]
+                ],
+                "Step": 0.05,
+                "Cardinal": "END",
+                "Name": "Usg-43"
+            },
+            "Name": "Usg-43"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 1000.0,
+            "Vs": 700.0,
+            "HType": "flat",
+            "Top": {
+                "Dip": 0.0,
+                "Azimuth": 0.0,
+                "Depth": 0.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Region": [
+                    [0, 0],
+                    [6400000, 6400000]
+                ],
+                "Cardinal": "END",
+                "Name": "Usf-0"
+            },
+            "Name": "Usf-0"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 1000.0,
+            "Vs": 700.0,
+            "HType": "flat",
+            "Top": {
+                "Dip": 0.0,
+                "Azimuth": 0.0,
+                "Depth": 0.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Region": [
+                    [0, 0],
+                    [6400000, 6400000]
+                ],
+
+                "Cardinal": "END",
+                "Name": "Usf-0"
+            },
+            "Name": "Usf-0"
+        }
+    ]
+}

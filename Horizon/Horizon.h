@@ -16,9 +16,6 @@ public:
 
   virtual float getDepth(std::array<float, 2> x) const = 0;
   virtual Horizon *clone() = 0;
-  virtual std::vector<float>
-  calcIntersect(const std::array<float, 3> &x0,
-                const std::array<float, 3> &x1) const = 0;
 
   virtual std::array<double, 2> getGradientInPoint(double x,
                                                    double y) const = 0;

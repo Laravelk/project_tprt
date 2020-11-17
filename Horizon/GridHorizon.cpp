@@ -47,22 +47,6 @@ float GridHorizon::getDepth(std::array<float, 2> cord) const {
   return interpolator(cord.at(0), cord.at(1));
 }
 
-std::vector<float>
-GridHorizon::calcIntersect(const std::array<float, 3> &x0,
-                           const std::array<float, 3> &x1) const {
-  std::array<float, 3> vector = {x1[0] - x0[0], x1[1] - x0[1],
-                                 x1[2] - x0[2]}; // vector from x0 to x1
-
-  if ((x0[2] - getDepth(x0[0], x0[1])) * (x1[2] - getDepth(x1[0], x1[1])) >
-      0) { // if point x1 & x2 in one side from horizon
-    return {};
-  }
-
-  std::vector<float> intersect = minimize(x0, x1, vector);
-
-  return intersect;
-}
-
 std::array<double, 2>
 GridHorizon::getGradientInPoint(std::array<double, 2> cord) const {
   return getGradientInPoint(cord[0], cord[1]);
@@ -97,20 +81,7 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - document should be an object");
   }
 
-  std::vector<std::string> required_fields = {"Dip", "Points", "Anchor",
-                                              "Cardinal", "Name"};
-
-  if (!doc["Dip"].IsFloat())
-    throw std::runtime_error(
-        "GridHorizon::fromJSON() - invalid JSON, `Dip` should be a float");
-
-  if (!doc["Anchor"].IsArray())
-    throw std::runtime_error(
-        "GridHorizon::fromJSON() - invalid JSON, `Anchor` should be an array");
-
-  if (doc["Anchor"].Size() != 3)
-    throw std::runtime_error("GridHorizon::fromJSON - invalid JSON, wrong "
-                             "'Anchor' size (should be equal three)");
+  std::vector<std::string> required_fields = {"Points", "Cardinal", "Name"};
 
   if (!doc["Cardinal"].IsString())
     throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, "
@@ -132,16 +103,8 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
                              "`Cardinal` should be equal 'END'");
 
   std::string name = doc["Name"].GetString();
-  std::cerr << "GridHorizon::fromJSON:name " << name
-            << "\n"; // TODO: remove or #ifdef
-  std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
-                            doc["Anchor"][1].GetFloat(),
-                            doc["Anchor"][2].GetFloat()};
 
   std::vector<std::tuple<float, float, float>> points;
-  std::vector<std::array<float, 3>> normal;
-  std::array<float, 3> norm = {3, 3, 3};
-  normal.push_back(norm);
 
   for (SizeType i = 0; i < doc["Points"].Size(); i++) {
     points.emplace_back(doc["Points"][i][0].GetFloat(),
@@ -157,7 +120,7 @@ GridHorizon::GridHorizon(std::string _name,
     : points(_points) {
   name = _name;
   find_corner(); // TODO: delete
-  interpolation(points);
+  // interpolation(points); TODO: add
 }
 
 /* check grid value */
@@ -172,11 +135,6 @@ void GridHorizon::setInterpolator(
 
 std::vector<std::tuple<float, float, float>> GridHorizon::getPoints() const {
   return points;
-}
-
-void GridHorizon::setPoints(
-    const std::vector<std::tuple<float, float, float>> &value) {
-  points = value;
 }
 
 bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
@@ -227,7 +185,7 @@ bool GridHorizon::interpolation(
 
   const int MIN_POINTS_COUNT = 4;
 
-  assert(points_array.size() >= MIN_POINTS_COUNT); //
+  assert(points_array.size() >= MIN_POINTS_COUNT);
 
   x.reserve(points_array.size());
   y.reserve(points_array.size());

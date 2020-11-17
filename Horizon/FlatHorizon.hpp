@@ -17,17 +17,20 @@ private:
   float azimuth;
   float depth;
 
+  std::vector<std::array<float, 2>> region;
   std::vector<float> anchor;
   std::vector<float> normal;
 
 public:
   FlatHorizon(float depth, float dip, float azimuth,
-              std::vector<float> anchor = {0, 0, 0}, std::string name = "");
+              std::vector<float> anchor = {0, 0, 0},
+              std::vector<std::array<float, 2>> region = {{0, 0}, {1, 1}},
+              std::string name = "");
 
   FlatHorizon(FlatHorizon &copy)
       : dip(copy.getDip()), depth(copy.getDepthValue()),
         azimuth(copy.getAzimuth()), anchor(copy.getAnchor()),
-        normal(copy.getNormal()) {
+        normal(copy.getNormal()), region(copy.region) {
     this->name = copy.getName();
   }
 
@@ -41,21 +44,22 @@ public:
 
   virtual Horizon *clone() override;
 
-  virtual std::vector<float>
-  calcIntersect(const std::array<float, 3> &x0,
-                const std::array<float, 3> &x1) const override;
-
   virtual rapidjson::Document toJSON() override;
 
   static std::unique_ptr<FlatHorizon> fromJSON(const rapidjson::Value &doc);
+
   void setDepth(float value);
   float getDepthValue() { return depth; }
+
   float getDip() const;
   void setDip(float value);
+
   float getAzimuth() const;
   void setAzimuth(float value);
+
   std::vector<float> getAnchor() const;
   void setAnchor(const std::vector<float> &value);
+
   std::vector<float> getNormal() const;
   void setNormal(const std::vector<float> &value);
 };

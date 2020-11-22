@@ -18,11 +18,6 @@ float FlatHorizon::getDepth(std::array<float, 2> x) const {
   return z;
 }
 
-Horizon *FlatHorizon::clone() {
-  FlatHorizon *new_horizon = new FlatHorizon(*this);
-  return new_horizon;
-}
-
 void FlatHorizon::setDepth(float value) { depth = value; }
 
 float FlatHorizon::getDip() const { return dip; }
@@ -74,40 +69,6 @@ std::array<double, 2> FlatHorizon::getGradientInPoint(double x,
       EPS;
 
   return {derivative_x, derivative_y};
-}
-
-// две точки и пересечение отрезка между ними с плоскостью. @return точка
-// пересечения
-std::vector<float>
-FlatHorizon::calcIntersect(const std::array<float, 3> &x0,
-                           const std::array<float, 3> &x1) const {
-  float d = -depth;
-
-  if ((normal[0] * (x1[0] - x0[0]) + normal[1] * (x1[1] - x0[1]) +
-       normal[2] * (x1[2] - x0[2])) == 0)
-    return {{NAN, NAN, NAN}};
-
-  float lambda =
-      -(normal[0] * x0[0] + normal[1] * x0[1] + normal[2] * x0[2] + d) /
-      (normal[0] * (x1[0] - x0[0]) + normal[1] * (x1[1] - x0[1]) +
-       normal[2] * (x1[2] - x0[2]));
-
-  std::vector<float> intersect = {{x0[0] + lambda * (x1[0] - x0[0]),
-                                   x0[1] + lambda * (x1[1] - x0[1]),
-                                   x0[2] + lambda * (x1[2] - x0[2])}};
-
-  // photo 1
-
-  std::vector<float> vec0{x0[0] - intersect[0], x0[1] - intersect[1],
-                          x0[2] - intersect[2]};
-  std::vector<float> vec1{x1[0] - intersect[0], x1[1] - intersect[1],
-                          x1[2] - intersect[2]};
-
-  if (vec0[0] * vec1[0] + vec0[1] * vec1[1] + vec0[2] * vec1[2] <= 0)
-    return intersect;
-  else {
-    return {{NAN, NAN, NAN}};
-  }
 }
 
 rapidjson::Document FlatHorizon::toJSON() {

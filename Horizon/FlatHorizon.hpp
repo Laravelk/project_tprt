@@ -39,12 +39,6 @@ public:
 
   virtual float getDepth(std::array<float, 2> x) const override;
 
-  virtual Horizon *clone() override;
-
-  virtual std::vector<float>
-  calcIntersect(const std::array<float, 3> &x0,
-                const std::array<float, 3> &x1) const override;
-
   virtual rapidjson::Document toJSON() override;
 
   static std::unique_ptr<FlatHorizon> fromJSON(const rapidjson::Value &doc);

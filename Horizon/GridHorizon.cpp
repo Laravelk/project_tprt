@@ -47,22 +47,6 @@ float GridHorizon::getDepth(std::array<float, 2> cord) const {
   return interpolator(cord.at(0), cord.at(1));
 }
 
-std::vector<float>
-GridHorizon::calcIntersect(const std::array<float, 3> &x0,
-                           const std::array<float, 3> &x1) const {
-  std::array<float, 3> vector = {x1[0] - x0[0], x1[1] - x0[1],
-                                 x1[2] - x0[2]}; // vector from x0 to x1
-
-  if ((x0[2] - getDepth(x0[0], x0[1])) * (x1[2] - getDepth(x1[0], x1[1])) >
-      0) { // if point x1 & x2 in one side from horizon
-    return {};
-  }
-
-  std::vector<float> intersect = minimize(x0, x1, vector);
-
-  return intersect;
-}
-
 std::array<double, 2>
 GridHorizon::getGradientInPoint(std::array<double, 2> cord) const {
   return getGradientInPoint(cord[0], cord[1]);
@@ -97,20 +81,7 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - document should be an object");
   }
 
-  std::vector<std::string> required_fields = {"Dip", "Points", "Anchor",
-                                              "Cardinal", "Name"};
-
-  if (!doc["Dip"].IsFloat())
-    throw std::runtime_error(
-        "GridHorizon::fromJSON() - invalid JSON, `Dip` should be a float");
-
-  if (!doc["Anchor"].IsArray())
-    throw std::runtime_error(
-        "GridHorizon::fromJSON() - invalid JSON, `Anchor` should be an array");
-
-  if (doc["Anchor"].Size() != 3)
-    throw std::runtime_error("GridHorizon::fromJSON - invalid JSON, wrong "
-                             "'Anchor' size (should be equal three)");
+  std::vector<std::string> required_fields = {"Points", "Cardinal", "Name"};
 
   if (!doc["Cardinal"].IsString())
     throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, "
@@ -132,16 +103,8 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
                              "`Cardinal` should be equal 'END'");
 
   std::string name = doc["Name"].GetString();
-  std::cerr << "GridHorizon::fromJSON:name " << name
-            << "\n"; // TODO: remove or #ifdef
-  std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
-                            doc["Anchor"][1].GetFloat(),
-                            doc["Anchor"][2].GetFloat()};
 
   std::vector<std::tuple<float, float, float>> points;
-  std::vector<std::array<float, 3>> normal;
-  std::array<float, 3> norm = {3, 3, 3};
-  normal.push_back(norm);
 
   for (SizeType i = 0; i < doc["Points"].Size(); i++) {
     points.emplace_back(doc["Points"][i][0].GetFloat(),
@@ -156,11 +119,9 @@ GridHorizon::GridHorizon(std::string _name,
                          std::vector<std::tuple<float, float, float>> _points)
     : points(_points) {
   name = _name;
-  find_corner(); // TODO: delete
   interpolation(points);
 }
 
-/* check grid value */
 _2D::BicubicInterpolator<float> GridHorizon::getInterpolator() const {
   return interpolator;
 }
@@ -190,11 +151,6 @@ bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
     float y_value = y.at(i);
 
     float inter = interpolator(x_value, y_value);
-    float test_inter = interpolator(60000, y_value);
-
-    //    std::cerr << x_value << ", " << y_value << ": " << z[i] << " = " <<
-    //    inter
-    //              << " : " << test_inter << std::endl;
   }
   return true;
 }
@@ -221,38 +177,24 @@ void GridHorizon::find_corner() {
 
 bool GridHorizon::interpolation(
     const std::vector<std::tuple<float, float, float>> &points_array) {
-  std::vector<float> x;
-  std::vector<float> y;
-  std::vector<float> z;
-
   const int MIN_POINTS_COUNT = 4;
 
-  assert(points_array.size() >= MIN_POINTS_COUNT); //
+  assert(points_array.size() >= MIN_POINTS_COUNT);
+  long size = points_array.size();
+  _2D::BicubicInterpolator<float>::VectorType xx(size), yy(size), zz(size);
 
-  x.reserve(points_array.size());
-  y.reserve(points_array.size());
-  z.reserve(points_array.size());
-
-  gradient_step = abs(x[1] - x[0]);
-
-  for (auto point : points_array) {
-    x.push_back(std::get<0>(point));
-    y.push_back(std::get<1>(point));
-    z.push_back(std::get<2>(point));
+  for (long i = 0; i < size; i++) {
+    xx(i) = std::get<0>(points_array[i]);
+    yy(i) = std::get<1>(points_array[i]);
+    zz(i) = std::get<2>(points_array[i]);
   }
 
-  interpolator.setData(x, y, z);
-  // checkGrid(x, y, z);
+  interpolator.setData(xx, yy, zz);
   return true;
 }
 
 double GridHorizon::operator()(float x, float y) const {
   return interpolator(x, y);
-}
-
-Horizon *GridHorizon::clone() {
-  GridHorizon *new_horizon = new GridHorizon(*this);
-  return new_horizon;
 }
 
 float GridHorizon::getDepth(float x, float y) const {
@@ -266,48 +208,5 @@ std::vector<float> GridHorizon::calculateGradientInPoint(float x,
   std::vector<float> gradient = {Derivative::derivative_x(x, y, interpolator),
                                  Derivative::derivative_y(x, y, interpolator)};
   return gradient;
-}
-
-std::vector<float> GridHorizon::normalAtPoint(float x, float y, float z) const {
-  std::vector<float> gradient =
-      calculateGradientInPoint(x, y); // [dz/dx, dz/dy]
-  float norm = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1] + 1);
-  return {gradient[0] / norm, gradient[1] / norm,
-          1}; // [dz/dx, dy/dz, 1], unit normal
-}
-
-std::vector<float>
-GridHorizon::minimize(const std::array<float, 3> &x0,
-                      const std::array<float, 3> &x1,
-                      const std::array<float, 3> &vector) const {
-  /* function zone borders */
-  float left_border_x = 0;
-  float right_border_x = 0;
-  float left_border_y = 0;
-  float right_border_y = 0;
-
-  /* defined start boundaries of the function */
-  left_border_x = x0[0] > x1[0] ? x1[0] : x0[0];
-  right_border_x = x0[0] > x1[0] ? x0[0] : x1[0];
-  left_border_y = x0[1] > x1[1] ? x1[1] : x0[1];
-  right_border_y = x0[1] > x1[1] ? x0[1] : x1[1];
-
-  /* s: way path from x0 to x1 */
-  float step = 0.0002f;
-  float s = 0.0f;
-
-  float prev_z_line = x0[2] + s * vector[2];
-
-  for (unsigned long i = 0; i < 1.0f / step; i++) {
-    float z_inter = interpolator(x0[0] + s * vector[0], x0[1] + s * vector[1]);
-    float z_line = x0[2] + s * vector[2];
-    if ((z_inter - z_line) * (z_inter - prev_z_line) <= 0) {
-      return {(x0[0] + (s - step / 2) * vector[0]),
-              (x0[1] + (s - step / 2) * vector[1]), z_inter};
-    }
-    prev_z_line = z_line;
-    s += step;
-  }
-  return {0, 0, 0};
 }
 } // namespace ray_tracing

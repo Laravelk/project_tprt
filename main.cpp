@@ -12,6 +12,21 @@
 #include "rapidjson/ostreamwrapper.h"
 #include "rapidjson/prettywriter.h"
 
+std::vector<std::array<int, 3>> getRayCode2() {
+  std::vector<std::array<int, 3>> ray_code;
+  std::array<int, 3> f = {3, 1, 0};
+  std::array<int, 3> f1 = {2, 1, 0};
+  std::array<int, 3> f2 = {1, 1, 0};
+  std::array<int, 3> f3 = {0, 1, 0};
+
+  ray_code.push_back(f);
+  ray_code.push_back(f1);
+  ray_code.push_back(f2);
+  ray_code.push_back(f3);
+
+  return ray_code;
+}
+
 std::vector<std::array<int, 3>> getRayCode1() {
   std::vector<std::array<int, 3>> ray_code;
   std::array<int, 3> f = {5, 1, 0};   // source -> 5 (5)
@@ -84,7 +99,7 @@ int main(int argc, char *argv[]) {
       std::move(ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]));
 
   // for ray code test
-  std::vector<std::array<int, 3>> ray_code = getRayCode1();
+  std::vector<std::array<int, 3>> ray_code = getRayCode2();
   // create the ray
   ray_tracing::Ray ray(source, receiver, velocity_model.get(), ray_code);
   // compute path with ray code

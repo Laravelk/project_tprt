@@ -13,11 +13,9 @@ void Ray::optimizeTrajectory() {
   std::vector<double> vector;
 
   for (int i = 1; i < trajectory.size(); i++) {
-    std::cerr << trajectory.at(i)[0] << " " << trajectory.at(i)[1] << " ";
     vector.push_back(trajectory.at(i)[0]);
     vector.push_back(trajectory.at(i)[1]);
   }
-  std::cerr << std::endl;
 
   Eigen::VectorXd eigenVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(
       vector.data(), vector.size());
@@ -80,8 +78,6 @@ void Ray::computePath() {}
 
 void Ray::computePathWithRayCode() {
   computeSegmentsRay();
-  std::cerr << "after compute segments"
-            << "\n";
   optimizeTrajectory();
 }
 

@@ -61,13 +61,15 @@ std::array<double, 2> GridHorizon::getGradientInPoint(double x,
 
   double t1 = getDepth(xEPS, y);
   double t2 = getDepth(x, y);
+  double tt = t1 - t2;
+  double ttt = tt / EPS;
 
   derivative_x = (getDepth(xEPS, y) - getDepth(x, y)) / EPS;
   derivative_y = (getDepth(x, yEPS) - getDepth(x, y)) / EPS;
 
   std::vector<float> d = calculateGradientInPoint(x, y); // TODO: delete
 
-  return {derivative_x, derivative_y};
+  return {d[0], d[1]};
 }
 
 /*
@@ -178,8 +180,10 @@ void GridHorizon::find_corner() {
 bool GridHorizon::interpolation(
     const std::vector<std::tuple<float, float, float>> &points_array) {
   const int MIN_POINTS_COUNT = 4;
-
   assert(points_array.size() >= MIN_POINTS_COUNT);
+
+  gradient_step =
+      abs(std::get<0>(points_array[0]) - std::get<0>(points_array[1]));
   long size = points_array.size();
   _2D::BicubicInterpolator<float>::VectorType xx(size), yy(size), zz(size);
 
@@ -198,8 +202,6 @@ double GridHorizon::operator()(float x, float y) const {
 }
 
 float GridHorizon::getDepth(float x, float y) const {
-  //  std::cerr << "GridHorizon::getDepth: " << x << " " << y << " "
-  //            << interpolator(x, y) << std::endl;
   return interpolator(x, y);
 }
 

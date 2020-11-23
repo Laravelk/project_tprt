@@ -12,7 +12,7 @@ namespace ray_tracing {
 void Ray::optimizeTrajectory() {
   std::vector<double> vector;
 
-  for (int i = 1; i < trajectory.size(); i++) {
+  for (int i = 1; i < trajectory.size() - 2; i++) {
     vector.push_back(trajectory.at(i)[0]);
     vector.push_back(trajectory.at(i)[1]);
   }
@@ -54,7 +54,6 @@ void Ray::computeSegmentsRay() {
       {receiver_location[0], receiver_location[1], receiver_location[2]});
 }
 
-// layer_number, up/down, wave_type
 void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
   for (auto ray_element : rayCode) {
     Direction direction;

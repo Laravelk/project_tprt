@@ -50,7 +50,6 @@ private:
 
       double norm_vec =
           sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-
       auto layer =
           ray.velocity_model->getLayer(ray.ray_code.at(iteration).layerNumber);
 
@@ -64,14 +63,16 @@ private:
 
     double value(const TVector &x) {
       double time = 0;
+      std::cerr << "Ray::value::start" << std::endl;
       int number_of_unknowns = ray.ray_code.size();
       for (int i = 1; i < number_of_unknowns - 1; i++) {
         ray.trajectory[i] = {
-            static_cast<float>(x[2 * i]), static_cast<float>(x[2 * i + 1]),
-            ray.velocity_model->getLayer(ray.ray_code[i + 1].layerNumber)
+            static_cast<float>(x[2 * (i - 1)]),
+            static_cast<float>(x[2 * (i - 1) + 1]),
+            ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
                 ->getTop()
-                ->getDepth({static_cast<float>(x[2 * i]),
-                            static_cast<float>(x[2 * i + 1])})};
+                ->getDepth({static_cast<float>(x[2 * (i - 1)]),
+                            static_cast<float>(x[2 * (i - 1) + 1])})};
       }
 
       std::array<float, 3> source_location = ray.source.getLocation();
@@ -82,8 +83,9 @@ private:
         source_location = receiver_location;
       }
 
-      time +=
-          calculation_part_time(source_location, ray.receiver.getLocation(), 7);
+      time += calculation_part_time(
+          source_location, ray.receiver.getLocation(),
+          ray.ray_code.at(ray.ray_code.size() - 1).layerNumber);
 
       std::cerr << "return time " << time
                 << "\n"; // TODO: delete or #ifdef debug
@@ -114,13 +116,14 @@ each is [dt/dxi, dt/dyi].
                  */
 
     void gradient(const TVector &x, TVector &grad) override {
+      std::cerr << "Ray::gradient::start" << std::endl;
 
       float xk_1 = ray.trajectory[0][0]; // xk-1
       float yk_1 = ray.trajectory[0][1];
       float zk_1 = ray.trajectory[0][2];
       unsigned long number_of_unknown = ray.trajectory.size();
 
-      for (unsigned long i = 0; i <= number_of_unknown - 2; i++) {
+      for (long i = 0; i <= number_of_unknown - 2; i++) {
         float xk = ray.trajectory[i + 1][0];
         float yk = ray.trajectory[i + 1][1];
         float zk = ray.trajectory[i + 1][2];
@@ -129,14 +132,13 @@ each is [dt/dxi, dt/dyi].
         float yk_plus_1 = ray.trajectory[i + 2][1];
         float zk_plus_1 = ray.trajectory[i + 2][2];
 
-        float DzkDxk =
-            (float)ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
+        std::array<double, 2> gradient =
+            ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
                 ->getTop()
-                ->getGradientInPoint(xk, yk)[0]; // dzk/dxk
-        float DzkDyk =
-            (float)ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
-                ->getTop()
-                ->getGradientInPoint(xk, yk)[1];
+                ->getGradientInPoint(xk, yk);
+
+        float DzkDxk = (float)gradient[0]; // dzk/dxk
+        float DzkDyk = (float)gradient[1];
 
         float Dvk_1Dxk = 0; // isotropic envoriment
         float Dvk_1Dyk = 0; // isotropic envoriment
@@ -147,9 +149,15 @@ each is [dt/dxi, dt/dyi].
         float vk =
             (float)(ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
                         ->Vp); // vk
-        float vk_1 =
-            (float)ray.velocity_model->getLayer(ray.ray_code[i - 1].layerNumber)
-                ->Vp; // vk-1
+        float vk_1 = 0;
+        int expression = i - 1;
+        if (expression < 0) {
+          vk_1 = 1000;
+        } else {
+          vk_1 = (float)ray.velocity_model
+                     ->getLayer(ray.ray_code[i - 1].layerNumber)
+                     ->Vp; // vk-1
+        }
 
         float lk = sqrt((xk_plus_1 - xk) * (xk_plus_1 - xk) +
                         (yk_plus_1 - yk) * (yk_plus_1 - yk) +
@@ -159,15 +167,21 @@ each is [dt/dxi, dt/dyi].
             sqrt((xk - xk_1) * (xk - xk_1) + (yk - yk_1) * (yk - yk_1) +
                  (zk - zk_1) * (zk - zk_1)); // lk-1
 
-        float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
+        /*float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
                       lk_1 * Dvk_1Dxk / (vk_1 * vk_1) -
                       (xk_plus_1 - xk + (zk_plus_1 - zk) * DzkDxk) / (lk * vk) +
-                      lk * DvkDxk_plus_1 / (vk * vk);
+                      lk * DvkDxk_plus_1 / (vk * vk);*/
 
-        float DtDxy = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
+        float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
+                      (xk_plus_1 - xk + (zk_plus_1 - zk) * DzkDxk) / (lk * vk);
+
+        /*float DtDxy = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
                       lk_1 * Dvk_1Dyk / (vk_1 * vk_1) -
                       (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk) +
-                      lk * DvkDyk_plus_1 / (vk * vk);
+                      lk * DvkDyk_plus_1 / (vk * vk); */
+
+        float DtDxy = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
+                      (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk);
 
         grad[2 * i] = DtDxk;
         grad[2 * i + 1] = DtDxy;
@@ -176,6 +190,9 @@ each is [dt/dxi, dt/dyi].
         yk_1 = yk;
         zk_1 = zk;
       }
+      std::cerr << "GRAD: ";
+      std::cerr << grad << std::endl;
+      std::cerr << std::endl;
     }
   };
 

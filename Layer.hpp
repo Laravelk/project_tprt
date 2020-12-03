@@ -7,9 +7,6 @@
 #include <memory>
 #include <string>
 
-/*
- * Среда
- * */
 namespace ray_tracing {
 class Layer {
 public:

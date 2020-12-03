@@ -3,23 +3,43 @@
 #ifndef TPRT_VELOCITYMODEL_HPP
 #define TPRT_VELOCITYMODEL_HPP
 
-/*
- *
- *
- * */
-
+#include "Horizon/FlatHorizon.hpp"
 #include "Layer.hpp"
+#include <limits>
+#include <memory>
 #include <vector>
 namespace ray_tracing {
 class VelocityModel {
 private:
   std::vector<std::unique_ptr<Layer>> layers;
 
+  // по оси z
+  // ось направлена вниз
+  static std::unique_ptr<FlatHorizon> getUpperHorizon() {
+    std::vector<float> anchor = {0, 0, 0};
+    float depth = (float)INT_MAX;
+    float dep = 0.0f;
+    float azimut = 0.0f;
+    std::string name = "upper";
+    return std::make_unique<FlatHorizon>(depth, dep, azimut, anchor, name);
+  }
+
+  static std::unique_ptr<FlatHorizon> getLowerHorizon() {
+    std::vector<float> anchor = {0, 0, 0};
+    float depth = (float)INT_MIN;
+    float dep = 0.0f;
+    float azimut = 0.0f;
+    std::string name = "lower";
+    return std::make_unique<FlatHorizon>(depth, dep, azimut, anchor, name);
+  }
+
 public:
   Layer *getLayer(int index) {
     assert(index < layers.size());
     return layers.at(index).get();
   }
+
+  int getLayersCount() { return layers.size(); }
 
   VelocityModel(std::vector<std::unique_ptr<Layer>> _layers) {
     /*std::cerr << "VelocityModelInit: layers size is " << _layers.size()

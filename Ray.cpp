@@ -5,6 +5,8 @@
 #include <unsupported/Eigen/NumericalDiff>
 #include <utility>
 
+// check module -- проверяет, что слои все хорошо
+
 typedef unsigned long ulong;
 
 /// this namespace contains classes which worked with ray_code and trajectory
@@ -12,7 +14,7 @@ namespace ray_tracing {
 void Ray::optimizeTrajectory() {
   std::vector<double> vector;
 
-  for (int i = 1; i < trajectory.size() - 2; i++) {
+  for (int i = 1; i < trajectory.size() - 1; i++) {
     vector.push_back(trajectory.at(i)[0]);
     vector.push_back(trajectory.at(i)[1]);
   }
@@ -24,7 +26,10 @@ void Ray::optimizeTrajectory() {
   BfgsSolver<MyProblem> solver;
   solver.minimize(probb, eigenVector);
   std::cerr << solver.status() << std::endl;
-  std::cerr << "argmin      " << eigenVector.transpose() << std::endl;
+  //  std::cerr << "argmin      " << eigenVector.transpose() << std::endl;
+  for (auto tr : trajectory) {
+    std::cerr << tr.at(0) << " " << tr.at(1) << " " << tr.at(2) << std::endl;
+  }
 }
 
 /// compute ray in layer and create segments

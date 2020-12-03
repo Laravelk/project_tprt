@@ -14,15 +14,17 @@
 
 std::vector<std::array<int, 3>> getRayCode2() {
   std::vector<std::array<int, 3>> ray_code;
-  std::array<int, 3> f = {3, 1, 0};
-  std::array<int, 3> f1 = {2, 1, 0};
-  std::array<int, 3> f2 = {1, 1, 0};
-  std::array<int, 3> f3 = {0, 1, 0};
+  std::array<int, 3> f = {1, -1, 0};
+  std::array<int, 3> f1 = {2, -1, 0};
+  std::array<int, 3> f2 = {3, -1, 0};
+  std::array<int, 3> f3 = {4, -1, 0};
+  std::array<int, 3> f4 = {5, -1, 0};
 
   ray_code.push_back(f);
   ray_code.push_back(f1);
   ray_code.push_back(f2);
   ray_code.push_back(f3);
+  ray_code.push_back(f4);
 
   return ray_code;
 }

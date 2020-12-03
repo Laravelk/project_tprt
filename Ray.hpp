@@ -12,7 +12,7 @@
 #include "cppoptlib/problem.h"
 #include "cppoptlib/solver/bfgssolver.h"
 #include "cppoptlib/solver/lbfgsbsolver.h"
-#include "cppoptlib/solver/lbfgssolver.h"
+//#include "cppoptlib/solver/lbfgssolver.h"
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -42,7 +42,7 @@ private:
     /// iteration: i in ray_code
     double calculation_part_time(std::array<float, 3> source_location,
                                  std::array<float, 3> receiver_location,
-                                 int iteration) {
+                                 int layer_number) {
 
       std::array<double, 3> vec{receiver_location[0] - source_location[0],
                                 receiver_location[1] - source_location[1],
@@ -50,11 +50,13 @@ private:
 
       double norm_vec =
           sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-      auto layer =
-          ray.velocity_model->getLayer(ray.ray_code.at(iteration).layerNumber);
+      auto layer = ray.velocity_model->getLayer(layer_number);
+      double vp = static_cast<double>(layer->getVp());
 
-      return norm_vec / static_cast<double>(layer->getVp());
+      return norm_vec / vp;
     }
+
+    std::vector<float> get_lenght() {}
 
   public:
     using typename cppoptlib::Problem<double>::Scalar;
@@ -64,12 +66,12 @@ private:
     double value(const TVector &x) {
       double time = 0;
       std::cerr << "Ray::value::start" << std::endl;
-      int number_of_unknowns = ray.ray_code.size();
-      for (int i = 1; i < number_of_unknowns - 1; i++) {
+      int number_of_unknowns = ray.trajectory.size();
+      for (int i = 1; i <= number_of_unknowns - 2; i++) {
         ray.trajectory[i] = {
             static_cast<float>(x[2 * (i - 1)]),
             static_cast<float>(x[2 * (i - 1) + 1]),
-            ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
+            ray.velocity_model->getLayer(ray.ray_code[i - 1].layerNumber)
                 ->getTop()
                 ->getDepth({static_cast<float>(x[2 * (i - 1)]),
                             static_cast<float>(x[2 * (i - 1) + 1])})};
@@ -77,26 +79,32 @@ private:
 
       std::array<float, 3> source_location = ray.source.getLocation();
 
-      for (int i = 1; i < ray.trajectory.size() - 1; i++) {
+      for (int i = 1; i < number_of_unknowns - 1; i++) {
         std::array<float, 3> receiver_location = ray.trajectory.at(i);
-        time += calculation_part_time(source_location, receiver_location, i);
+        double new_time =
+            calculation_part_time(source_location, receiver_location,
+                                  ray.ray_code.at(i - 1).layerNumber - 1);
+        time += new_time;
         source_location = receiver_location;
       }
 
-      time += calculation_part_time(
-          source_location, ray.receiver.getLocation(),
-          ray.ray_code.at(ray.ray_code.size() - 1).layerNumber);
+      int lastLayer = 0;
+      if (Direction::DOWN ==
+          ray.ray_code.at(ray.ray_code.size() - 2).direction) {
+        lastLayer = ray.velocity_model->getLayersCount() - 1;
+      } else {
+        lastLayer = 0;
+      }
 
-      std::cerr << "return time " << time
-                << "\n"; // TODO: delete or #ifdef debug
+      time += calculation_part_time(source_location, ray.receiver.getLocation(),
+                                    lastLayer);
+
+      //      std::cerr << "return time " << time
+      //                << "\n"; // TODO: delete or #ifdef debug
       return time;
     }
 
     /*
- Computes derivatives along the Ray with respect to [x,y] coordiantes of the ray
-on each horizon (interface). Equation (I.R. Obolentseva, V.Yu. Grechka, Ray
-method in anisotropic medium, 1989) k - number of a point [x_k, y_k, z_k], v_k,
-l_k - velocity and distance between k+1 and k points
 
     dt/dx_k = (x_k - x_k-1 + (z_k - z_k-1) * dz_k/dx_k) / (l_k-1 * v_k-1) -
 l_k-1 * dv_k-1/dx_k / v_k-1**2 - (x_k+1 - x_k + (z_k+1 - z_k) * dz_k/dx_k) /
@@ -116,14 +124,17 @@ each is [dt/dxi, dt/dyi].
                  */
 
     void gradient(const TVector &x, TVector &grad) override {
-      std::cerr << "Ray::gradient::start" << std::endl;
-
       float xk_1 = ray.trajectory[0][0]; // xk-1
       float yk_1 = ray.trajectory[0][1];
       float zk_1 = ray.trajectory[0][2];
       unsigned long number_of_unknown = ray.trajectory.size();
 
-      for (long i = 0; i <= number_of_unknown - 2; i++) {
+      for (int i = 0; i < x.size(); i++) {
+        std::cerr << x[i] << " ";
+      }
+      std::cerr << std::endl;
+
+      for (long i = 0; i < number_of_unknown - 2; i++) {
         float xk = ray.trajectory[i + 1][0];
         float yk = ray.trajectory[i + 1][1];
         float zk = ray.trajectory[i + 1][2];
@@ -132,13 +143,16 @@ each is [dt/dxi, dt/dyi].
         float yk_plus_1 = ray.trajectory[i + 2][1];
         float zk_plus_1 = ray.trajectory[i + 2][2];
 
-        std::array<double, 2> gradient =
+        std::array<double, 2> derive =
             ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
                 ->getTop()
                 ->getGradientInPoint(xk, yk);
 
-        float DzkDxk = (float)gradient[0]; // dzk/dxk
-        float DzkDyk = (float)gradient[1];
+        float DzkDxk = (float)derive[0]; // dzk/dxk
+        float DzkDyk = (float)derive[1];
+
+        //        std::cerr << "DzkDxk: " << DzkDxk << std::endl;
+        //        std::cerr << "DzkDyk: " << DzkDyk << std::endl;
 
         float Dvk_1Dxk = 0; // isotropic envoriment
         float Dvk_1Dyk = 0; // isotropic envoriment
@@ -149,23 +163,27 @@ each is [dt/dxi, dt/dyi].
         float vk =
             (float)(ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
                         ->Vp); // vk
+                               //        std::cerr << "vk: " << vk << std::endl;
         float vk_1 = 0;
         int expression = i - 1;
         if (expression < 0) {
-          vk_1 = 1000;
+          vk_1 = (float)ray.velocity_model->getLayer(0)->Vp;
         } else {
           vk_1 = (float)ray.velocity_model
                      ->getLayer(ray.ray_code[i - 1].layerNumber)
                      ->Vp; // vk-1
         }
+        //        std::cerr << "vk_1: " << vk_1 << std::endl;
 
         float lk = sqrt((xk_plus_1 - xk) * (xk_plus_1 - xk) +
                         (yk_plus_1 - yk) * (yk_plus_1 - yk) +
                         (zk_plus_1 - zk) * (zk_plus_1 - zk));
+        //        std::cerr << "lk: " << lk << std::endl;
 
         float lk_1 =
             sqrt((xk - xk_1) * (xk - xk_1) + (yk - yk_1) * (yk - yk_1) +
                  (zk - zk_1) * (zk - zk_1)); // lk-1
+        //        std::cerr << "lk_1: " << lk_1 << std::endl;
 
         /*float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
                       lk_1 * Dvk_1Dxk / (vk_1 * vk_1) -
@@ -175,16 +193,20 @@ each is [dt/dxi, dt/dyi].
         float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
                       (xk_plus_1 - xk + (zk_plus_1 - zk) * DzkDxk) / (lk * vk);
 
+        //        std::cerr << "DtDxk: " << DtDxk << std::endl;
+
         /*float DtDxy = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
                       lk_1 * Dvk_1Dyk / (vk_1 * vk_1) -
                       (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk) +
                       lk * DvkDyk_plus_1 / (vk * vk); */
 
-        float DtDxy = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
+        float DtDyk = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
                       (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk);
 
+        //        std::cerr << "DtDyk: " << DtDyk << std::endl << std::endl;
+
         grad[2 * i] = DtDxk;
-        grad[2 * i + 1] = DtDxy;
+        grad[2 * i + 1] = DtDyk;
 
         xk_1 = xk;
         yk_1 = yk;

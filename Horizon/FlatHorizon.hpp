@@ -15,7 +15,8 @@ class FlatHorizon : public Horizon {
 private:
   float dip;
   float azimuth;
-  float depth;
+  float depth; // TODO: delete
+  float D;
 
   std::vector<float> anchor;
   std::vector<float> normal;

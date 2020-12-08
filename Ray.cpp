@@ -22,13 +22,32 @@ void Ray::optimizeTrajectory() {
   Eigen::VectorXd eigenVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(
       vector.data(), vector.size());
 
-  MyProblem probb(*this);
-  BfgsSolver<MyProblem> solver;
-  solver.minimize(probb, eigenVector);
-  std::cerr << solver.status() << std::endl;
-  //  std::cerr << "argmin      " << eigenVector.transpose() << std::endl;
+  using Solver = cppoptlib::solver::Lbfgsb<Function>;
+  Function f(*this);
+  Function::vector_t x(vector.size());
+  x << eigenVector;
+
+  auto state = f.Eval(x);
+  std::cout << "this" << std::endl;
+
+  std::cout << f(x) << std::endl;
+  std::cout << state.gradient << std::endl;
+  std::cout << state.hessian << std::endl;
+
+  // std::cout << cppoptlib::utils::IsGradientCorrect(f, x) << std::endl;
+  // std::cout << cppoptlib::utils::IsHessianCorrect(f, x) << std::endl;
+
+  Solver solver;
+
+  auto [solution, solver_state] = solver.Minimize(f, x);
+  std::cout << "argmin " << solution.x.transpose() << std::endl;
+  std::cout << "f in argmin " << solution.value << std::endl;
+  std::cout << "iterations " << solver_state.num_iterations << std::endl;
+  std::cout << "status " << solver_state.status << std::endl;
+
   for (auto tr : trajectory) {
-    std::cerr << tr.at(0) << " " << tr.at(1) << " " << tr.at(2) << std::endl;
+    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+              << "] " << std::endl;
   }
 }
 

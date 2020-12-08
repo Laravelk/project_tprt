@@ -4,12 +4,20 @@ project(tprt)
 set(CMAKE_CXX_STANDARD 17)
 
 ## eigen
-find_package(Eigen3 REQUIRED)
+find_package(Eigen3 3.3.9)
 
 ## Interpolate
 find_package(libInterpolate REQUIRED)
+
 ## Boost for interpolate lib
 find_package(Boost REQUIRED)
+
+## lbfg
+include_directories(cppoptlib)
+
+## rapidjson
+find_package(RapidJSON CONFIG REQUIRED)
+include_directories(${RapidJSON_INCLUDE_DIRS})
 
 ## vxl
 SET(VXL_DIR /Users/ivanmorozov/Work/Lib/project/bin)
@@ -23,12 +31,6 @@ if(VXL_CORE_FOUND)
     include_directories(${VXL_CORE_INCLUDE_DIR})
 endif(VXL_CORE_FOUND)
 
-## lbfg
-include_directories(cppoptlib)
-
-## rapidjson
-find_package(RapidJSON CONFIG REQUIRED)
-include_directories(${RapidJSON_INCLUDE_DIRS})
 
 message(status, ${rapidjson_FOUND})
 add_executable(tprt main.cpp

@@ -8,19 +8,25 @@
 #include "Segment.hpp"
 #include "Source.hpp"
 #include "VelocityModel.hpp"
-#include "cppoptlib/meta.h"
-#include "cppoptlib/problem.h"
-#include "cppoptlib/solver/bfgssolver.h"
-#include "cppoptlib/solver/lbfgsbsolver.h"
-//#include "cppoptlib/solver/lbfgssolver.h"
+
+#include "cppoptlib/function.h"
+#include "cppoptlib/solver/bfgs.h"
+#include "cppoptlib/solver/conjugated_gradient_descent.h"
+#include "cppoptlib/solver/gradient_descent.h"
+#include "cppoptlib/solver/lbfgs.h"
+#include "cppoptlib/solver/lbfgsb.h"
+#include "cppoptlib/solver/newton_descent.h"
+
 #include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <vector>
 
 using namespace cppoptlib;
+using FunctionXd = cppoptlib::function::Function<double>;
 
 namespace ray_tracing {
+
 enum Direction { DOWN = -1, UP = 0 };
 enum WaveType { SWAVE = 0, PWAVE = 1 };
 /// class for cppoptlib Solver
@@ -28,11 +34,11 @@ enum WaveType { SWAVE = 0, PWAVE = 1 };
 /// source: object of type Source
 /// receiver: object of type Receiver
 /// velocity_model: object of type VelocityModel
-/// ray_code: for each Segment of Ray is [+1 (down) or -1 (up), depth of Layer,
-/// WaveType: 0 (WaveP) or 1 (WaveS)]
+/// ray_code: for each Segment of Ray is [+1 (down) or -1 (up), depth of
+/// Layer, WaveType: 0 (WaveP) or 1 (WaveS)]
 class Ray {
 private:
-  class MyProblem : public Problem<double> {
+  class Function : public FunctionXd {
   private:
     VelocityModel *model = nullptr;
     Ray &ray;
@@ -42,7 +48,7 @@ private:
     /// iteration: i in ray_code
     double calculation_part_time(std::array<float, 3> source_location,
                                  std::array<float, 3> receiver_location,
-                                 int layer_number) {
+                                 int layer_number) const {
 
       std::array<double, 3> vec{receiver_location[0] - source_location[0],
                                 receiver_location[1] - source_location[1],
@@ -53,19 +59,19 @@ private:
       auto layer = ray.velocity_model->getLayer(layer_number);
       double vp = static_cast<double>(layer->getVp());
 
+      std::cerr << "norm_vec / vp " << norm_vec << " " << vp << std::endl;
+
       return norm_vec / vp;
     }
 
-    std::vector<float> get_lenght() {}
-
   public:
-    using typename cppoptlib::Problem<double>::Scalar;
-    using typename cppoptlib::Problem<double>::TVector;
-    MyProblem(Ray &_ray) : ray(_ray) {}
+    using FunctionXd::hessian_t;
+    using FunctionXd::vector_t;
 
-    double value(const TVector &x) {
+    Function(Ray &_ray) : ray(_ray) {}
+
+    scalar_t operator()(const vector_t &x) const override {
       double time = 0;
-      std::cerr << "Ray::value::start" << std::endl;
       int number_of_unknowns = ray.trajectory.size();
       for (int i = 1; i <= number_of_unknowns - 2; i++) {
         ray.trajectory[i] = {
@@ -99,8 +105,8 @@ private:
       time += calculation_part_time(source_location, ray.receiver.getLocation(),
                                     lastLayer);
 
-      //      std::cerr << "return time " << time
-      //                << "\n"; // TODO: delete or #ifdef debug
+      std::cerr << std::endl;
+
       return time;
     }
 
@@ -123,7 +129,7 @@ each is [dt/dxi, dt/dyi].
              """
                  */
 
-    void gradient(const TVector &x, TVector &grad) override {
+    void Gradient(const vector_t &x, vector_t *grad) const override {
       float xk_1 = ray.trajectory[0][0]; // xk-1
       float yk_1 = ray.trajectory[0][1];
       float zk_1 = ray.trajectory[0][2];
@@ -148,11 +154,18 @@ each is [dt/dxi, dt/dyi].
                 ->getTop()
                 ->getGradientInPoint(xk, yk);
 
+        std::cerr << "-1 [" << xk_1 << ", " << yk_1 << ", " << zk_1 << "]"
+                  << std::endl;
+        std::cerr << "0 [" << xk << ", " << yk << ", " << zk << "]"
+                  << std::endl;
+        std::cerr << "1 [" << xk_plus_1 << ", " << yk_plus_1 << ", "
+                  << zk_plus_1 << "] " << std::endl;
+
         float DzkDxk = (float)derive[0]; // dzk/dxk
         float DzkDyk = (float)derive[1];
 
-        //        std::cerr << "DzkDxk: " << DzkDxk << std::endl;
-        //        std::cerr << "DzkDyk: " << DzkDyk << std::endl;
+        std::cerr << "DzkDxk: " << DzkDxk << std::endl;
+        std::cerr << "DzkDyk: " << DzkDyk << std::endl;
 
         float Dvk_1Dxk = 0; // isotropic envoriment
         float Dvk_1Dyk = 0; // isotropic envoriment
@@ -163,7 +176,7 @@ each is [dt/dxi, dt/dyi].
         float vk =
             (float)(ray.velocity_model->getLayer(ray.ray_code[i].layerNumber)
                         ->Vp); // vk
-                               //        std::cerr << "vk: " << vk << std::endl;
+        std::cerr << "vk: " << vk << std::endl;
         float vk_1 = 0;
         int expression = i - 1;
         if (expression < 0) {
@@ -173,60 +186,61 @@ each is [dt/dxi, dt/dyi].
                      ->getLayer(ray.ray_code[i - 1].layerNumber)
                      ->Vp; // vk-1
         }
-        //        std::cerr << "vk_1: " << vk_1 << std::endl;
+        std::cerr << "vk_1: " << vk_1 << std::endl;
 
         float lk = sqrt((xk_plus_1 - xk) * (xk_plus_1 - xk) +
                         (yk_plus_1 - yk) * (yk_plus_1 - yk) +
                         (zk_plus_1 - zk) * (zk_plus_1 - zk));
-        //        std::cerr << "lk: " << lk << std::endl;
+        std::cerr << "lk: " << lk << std::endl;
 
         float lk_1 =
             sqrt((xk - xk_1) * (xk - xk_1) + (yk - yk_1) * (yk - yk_1) +
                  (zk - zk_1) * (zk - zk_1)); // lk-1
-        //        std::cerr << "lk_1: " << lk_1 << std::endl;
+        std::cerr << "lk_1: " << lk_1 << std::endl;
 
         /*float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
                       lk_1 * Dvk_1Dxk / (vk_1 * vk_1) -
-                      (xk_plus_1 - xk + (zk_plus_1 - zk) * DzkDxk) / (lk * vk) +
-                      lk * DvkDxk_plus_1 / (vk * vk);*/
+                      (xk_plus_1 - xk + (zk_plus_1 - zk) * DzkDxk) / (lk * vk)
+           + lk * DvkDxk_plus_1 / (vk * vk);*/
 
         float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
                       (xk_plus_1 - xk + (zk_plus_1 - zk) * DzkDxk) / (lk * vk);
 
-        //        std::cerr << "DtDxk: " << DtDxk << std::endl;
+        std::cerr << "DtDxk: " << DtDxk << std::endl;
 
         /*float DtDxy = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
                       lk_1 * Dvk_1Dyk / (vk_1 * vk_1) -
-                      (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk) +
-                      lk * DvkDyk_plus_1 / (vk * vk); */
+                      (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk)
+           + lk * DvkDyk_plus_1 / (vk * vk); */
 
         float DtDyk = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
                       (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk);
 
-        //        std::cerr << "DtDyk: " << DtDyk << std::endl << std::endl;
+        std::cerr << "DtDyk: " << DtDyk << std::endl << std::endl;
 
-        grad[2 * i] = DtDxk;
-        grad[2 * i + 1] = DtDyk;
+        (*grad)[2 * i] = DtDxk;
+        (*grad)[2 * i + 1] = DtDyk;
 
         xk_1 = xk;
         yk_1 = yk;
         zk_1 = zk;
       }
-      std::cerr << "GRAD: ";
-      std::cerr << grad << std::endl;
-      std::cerr << std::endl;
+      std::cerr << "GRADIENT: ";
+      for (int i = 0; i < (*grad).size(); i++) {
+        std::cerr << (*grad)[i] << " ";
+      }
+      std::cerr << std::endl << std::endl;
     }
   };
 
   Source source;
   Receiver receiver;
-  VelocityModel
-      *velocity_model; /* TODO: -> * (std::uniuq_ptr in main) or shared */
+  VelocityModel *velocity_model;
+
   float timeP;
   float amplitudeP;
   float timeS;
   float amplitudeS;
-  std::unique_ptr<MyProblem> problem; /* TODO: remove unique_ptr */
 
   struct Code {
     Code(long number, Direction dir, WaveType type)
@@ -236,6 +250,7 @@ each is [dt/dxi, dt/dyi].
     WaveType wave_type;
     long layerNumber;
   };
+
   std::vector<Code> ray_code; // vector of ray_code
 
   std::vector<std::array<float, 3>> trajectory; // vector of points
@@ -257,14 +272,11 @@ public:
         velocity_model(_model), timeP(INFINITY), timeS(INFINITY), amplitudeP(1),
         amplitudeS(1) {
     generateCode(iray_code);
-    problem = std::make_unique<MyProblem>(*this);
   }
 
   [[deprecated]] Ray(Source source, Receiver receiver, VelocityModel *_model)
       : source(std::move(source)), receiver(receiver), velocity_model(_model),
-        timeP(INFINITY), timeS(INFINITY), amplitudeP(1), amplitudeS(1) {
-    problem = std::make_unique<MyProblem>(*this);
-  }
+        timeP(INFINITY), timeS(INFINITY), amplitudeP(1), amplitudeS(1) {}
 
   [[deprecated]] void computePath();
   void computePathWithRayCode(); // test function for raycode

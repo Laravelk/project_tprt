@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 4.10.2, 2020-11-23T16:55:52. -->
+<!-- Written by QtCreator 4.10.2, 2020-12-08T19:30:20. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -72,6 +72,12 @@
    <valuemap type="QVariantMap" key="ProjectExplorer.Target.BuildConfiguration.0">
     <valuelist type="QVariantList" key="CMake.Configuration">
      <value type="QString">CMAKE_BUILD_TYPE:STRING=Debug</value>
+     <value type="QString">CMAKE_CXX_COMPILER:STRING=%{Compiler:Executable:Cxx}</value>
+     <value type="QString">CMAKE_C_COMPILER:STRING=%{Compiler:Executable:C}</value>
+     <value type="QString">CMAKE_PREFIX_PATH:STRING=%{Qt:QT_INSTALL_PREFIX}</value>
+     <value type="QString">Eigen3_DIR:PATH=/usr/local/include/eigen3
+</value>
+     <value type="QString">QT_QMAKE_EXECUTABLE:STRING=%{Qt:qmakeExecutable}</value>
     </valuelist>
     <value type="QString" key="ProjectExplorer.BuildConfiguration.BuildDirectory">/Users/ivanmorozov/Work/build-ipgg-repo-Desktop_Qt_5_13_0_clang_64bit-u041eu0442u043bu0430u0434u043au0430</value>
     <valuemap type="QVariantMap" key="ProjectExplorer.BuildConfiguration.BuildStepList.0">

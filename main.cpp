@@ -12,6 +12,10 @@
 #include "rapidjson/ostreamwrapper.h"
 #include "rapidjson/prettywriter.h"
 
+#include <math.h>
+#include <nlopt.h>
+#include <nlopt.hpp>
+
 std::vector<std::array<int, 3>> getRayCode2() {
   std::vector<std::array<int, 3>> ray_code;
   std::array<int, 3> f = {1, -1, 0};
@@ -52,7 +56,6 @@ std::vector<std::array<int, 3>> getRayCode1() {
 }
 
 int main(int argc, char *argv[]) {
-
   if (argc != 3) {
     std::cerr << "Wrong parameters number" << std::endl;
     return EXIT_FAILURE;

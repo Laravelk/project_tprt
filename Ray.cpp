@@ -5,12 +5,16 @@
 #include <unsupported/Eigen/NumericalDiff>
 #include <utility>
 
+#include <nlopt.h>
+#include <nlopt.hpp>
+
 // check module -- проверяет, что слои все хорошо
 
 typedef unsigned long ulong;
 
 /// this namespace contains classes which worked with ray_code and trajectory
 namespace ray_tracing {
+
 void Ray::optimizeTrajectory() {
   std::vector<double> vector;
 
@@ -19,31 +23,9 @@ void Ray::optimizeTrajectory() {
     vector.push_back(trajectory.at(i)[1]);
   }
 
-  Eigen::VectorXd eigenVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(
-      vector.data(), vector.size());
-
-  using Solver = cppoptlib::solver::Lbfgsb<Function>;
-  Function f(*this);
-  Function::vector_t x(vector.size());
-  x << eigenVector;
-
-  auto state = f.Eval(x);
-  std::cout << "this" << std::endl;
-
-  std::cout << f(x) << std::endl;
-  std::cout << state.gradient << std::endl;
-  std::cout << state.hessian << std::endl;
-
-  // std::cout << cppoptlib::utils::IsGradientCorrect(f, x) << std::endl;
-  // std::cout << cppoptlib::utils::IsHessianCorrect(f, x) << std::endl;
-
-  Solver solver;
-
-  auto [solution, solver_state] = solver.Minimize(f, x);
-  std::cout << "argmin " << solution.x.transpose() << std::endl;
-  std::cout << "f in argmin " << solution.value << std::endl;
-  std::cout << "iterations " << solver_state.num_iterations << std::endl;
-  std::cout << "status " << solver_state.status << std::endl;
+  nlopt::opt opt(nlopt::LD_LBFGS, vector.size());
+  opt.set_min_objective(myfunc, NULL);
+  opt.optimize(vector);
 
   for (auto tr : trajectory) {
     std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
@@ -95,6 +77,141 @@ void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
     Code code(ray_element[0], direction, type);
     ray_code.push_back(code);
   }
+}
+
+double Ray::calculate_part_time(const std::array<float, 3> source,
+                                const std::array<float, 3> receiver,
+                                int layer_number) {
+  std::array<double, 3> vec{receiver[0] - source[0], receiver[1] - source[1],
+                            receiver[2] - source[2]};
+
+  double norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+  auto layer = velocity_model->getLayer(layer_number);
+  double vp = static_cast<double>(layer->getVp());
+
+  //  std::cerr << "norm_vec / vp " << norm_vec << " " << vp << std::endl;
+
+  return norm_vec / vp;
+}
+
+double Ray::calculate_full_time(const std::vector<double> &x) {
+  double time = 0;
+  int number_of_unknowns = trajectory.size();
+  for (int i = 1; i <= number_of_unknowns - 2; i++) {
+    trajectory[i] = {static_cast<float>(x[2 * (i - 1)]),
+                     static_cast<float>(x[2 * (i - 1) + 1]),
+                     velocity_model->getLayer(ray_code[i - 1].layerNumber)
+                         ->getTop()
+                         ->getDepth({static_cast<float>(x[2 * (i - 1)]),
+                                     static_cast<float>(x[2 * (i - 1) + 1])})};
+  }
+
+  std::array<float, 3> source_location = source.getLocation();
+
+  for (int i = 1; i < number_of_unknowns - 1; i++) {
+    std::array<float, 3> receiver_location = trajectory.at(i);
+    double new_time = calculate_part_time(source_location, receiver_location,
+                                          ray_code.at(i - 1).layerNumber - 1);
+    time += new_time;
+    source_location = receiver_location;
+  }
+
+  int lastLayer = 0;
+  if (Direction::DOWN == ray_code.at(ray_code.size() - 2).direction) {
+    lastLayer = velocity_model->getLayersCount() - 1;
+  } else {
+    lastLayer = 0;
+  }
+
+  time +=
+      calculate_part_time(source_location, receiver.getLocation(), lastLayer);
+
+  std::cerr << time << std::endl;
+
+  return time;
+}
+
+double Ray::myfunc(const std::vector<double> &x, std::vector<double> &grad,
+                   void *my_func_data) {
+  if (!grad.empty()) {
+    float xk_1 = trajectory[0][0]; // xk-1
+    float yk_1 = trajectory[0][1];
+    float zk_1 = trajectory[0][2];
+    unsigned long number_of_unknown = trajectory.size();
+
+    //    for (int i = 0; i < x.size(); i++) {
+    //      std::cerr << x[i] << " ";
+    //    }
+    //    std::cerr << std::endl;
+
+    for (long i = 0; i < number_of_unknown - 2; i++) {
+      float xk = trajectory[i + 1][0];
+      float yk = trajectory[i + 1][1];
+      float zk = trajectory[i + 1][2];
+
+      float xk_plus_1 = trajectory[i + 2][0];
+      float yk_plus_1 = trajectory[i + 2][1];
+      float zk_plus_1 = trajectory[i + 2][2];
+
+      std::array<double, 2> derive =
+          velocity_model->getLayer(ray_code[i].layerNumber)
+              ->getTop()
+              ->getGradientInPoint(xk, yk);
+
+      float DzkDxk = (float)derive[0]; // dzk/dxk
+      float DzkDyk = (float)derive[1];
+
+      //      std::cerr << "DzkDxk: " << DzkDxk << std::endl;
+      //      std::cerr << "DzkDyk: " << DzkDyk << std::endl;
+
+      float Dvk_1Dxk = 0; // isotropic envoriment
+      float Dvk_1Dyk = 0; // isotropic envoriment
+
+      float DvkDxk_plus_1 = 0; // isotropic envoriment
+      float DvkDyk_plus_1 = 0; // isotropic envoriment
+
+      float vk =
+          (float)(velocity_model->getLayer(ray_code[i].layerNumber)
+                      ->Vp); // vk
+                             //      std::cerr << "vk: " << vk << std::endl;
+      float vk_1 = 0;
+      int expression = i - 1;
+      if (expression < 0) {
+        vk_1 = (float)velocity_model->getLayer(0)->Vp;
+      } else {
+        vk_1 = (float)velocity_model->getLayer(ray_code[i - 1].layerNumber)
+                   ->Vp; // vk-1
+      }
+      //      std::cerr << "vk_1: " << vk_1 << std::endl;
+
+      float lk = sqrt((xk_plus_1 - xk) * (xk_plus_1 - xk) +
+                      (yk_plus_1 - yk) * (yk_plus_1 - yk) +
+                      (zk_plus_1 - zk) * (zk_plus_1 - zk));
+      //      std::cerr << "lk: " << lk << std::endl;
+
+      float lk_1 = sqrt((xk - xk_1) * (xk - xk_1) + (yk - yk_1) * (yk - yk_1) +
+                        (zk - zk_1) * (zk - zk_1)); // lk-1
+      //      std::cerr << "lk_1: " << lk_1 << std::endl;
+
+      float DtDxk = (xk - xk_1 + (zk - zk_1) * DzkDxk) / (lk_1 * vk_1) -
+                    (xk_plus_1 - xk + (zk_plus_1 - zk) * DzkDxk) / (lk * vk);
+
+      //      std::cerr << "DtDxk: " << DtDxk << std::endl;
+
+      float DtDyk = (yk - yk_1 + (zk - zk_1) * DzkDyk) / (lk_1 * vk_1) -
+                    (yk_plus_1 - yk + (zk_plus_1 - zk) * DzkDyk) / (lk * vk);
+
+      //      std::cerr << "DtDyk: " << DtDyk << std::endl << std::endl;
+
+      grad[2 * i] = DtDxk;
+      grad[2 * i + 1] = DtDyk;
+
+      xk_1 = xk;
+      yk_1 = yk;
+      zk_1 = zk;
+    }
+  }
+  return calculate_full_time(x);
 }
 
 void Ray::computePath() {}

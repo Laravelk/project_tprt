@@ -6,14 +6,17 @@ set(CMAKE_CXX_STANDARD 17)
 ## eigen
 find_package(Eigen3 3.3.9)
 
+##pagmo
+#find_package(Pagmo REQUIRED)
+
+##nlopt
+find_package(Nlopt REQUIRED)
+
 ## Interpolate
 find_package(libInterpolate REQUIRED)
 
 ## Boost for interpolate lib
 find_package(Boost REQUIRED)
-
-## lbfg
-include_directories(cppoptlib)
 
 ## rapidjson
 find_package(RapidJSON CONFIG REQUIRED)
@@ -52,5 +55,5 @@ add_executable(tprt main.cpp
         ReceiverData.hpp
         Horizon/Horizon.h Horizon/GridHorizon.cpp Horizon/GridHorizon.h Derivative.cpp Derivative.h)
 
-target_link_libraries(tprt LINK_PUBLIC ${VXL_CORE_LIBRARIES} vnl vnl_algo Eigen3::Eigen libInterpolate::Interpolate)
+target_link_libraries(tprt LINK_PUBLIC ${VXL_CORE_LIBRARIES} NLopt::nlopt vnl vnl_algo Eigen3::Eigen libInterpolate::Interpolate)
 

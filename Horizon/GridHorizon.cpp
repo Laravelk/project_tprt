@@ -23,7 +23,6 @@ rapidjson::Document GridHorizon::toJSON() {
   json_val.SetString("grid", allocator);
   doc.AddMember("HType", json_val, allocator);
 
-  // array of arrays? TODO: do
   for (auto &point : points) {
     json_val.SetArray();
     tmp_json_val.SetArray();
@@ -83,7 +82,8 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - document should be an object");
   }
 
-  std::vector<std::string> required_fields = {"Points", "Cardinal", "Name"};
+  std::vector<std::string> required_fields = {"Points", "Cardinal", "Name",
+                                              "Region"};
 
   if (!doc["Cardinal"].IsString())
     throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, "
@@ -94,9 +94,15 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - invalid JSON, `Name` should be a string");
 
   if (!doc["Points"].IsArray()) {
-    throw std::runtime_error(
-        "GridHorizon::fromJSON() - invalid JSON, 'Array' should be a array");
+    throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, 'Points "
+                             "Array' should be a array");
   }
+
+  //  if (!doc["Region"].IsArray()) {
+  //    throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON,
+  //    'Region "
+  //                             "Array' should be a array");
+  //  }
 
   std::string cardinal = doc["Cardinal"].GetString();
 
@@ -114,12 +120,21 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
                         doc["Points"][i][2].GetFloat());
   }
 
-  return std::make_unique<GridHorizon>(name, points);
+  std::vector<std::array<float, 2>> region;
+
+  for (SizeType i = 0; i < doc["Region"].Size(); i++) {
+    std::array<float, 2> point = {doc["Region"][i][0].GetFloat(),
+                                  doc["Region"][i][1].GetFloat()};
+    region.emplace_back(point);
+  }
+
+  return std::make_unique<GridHorizon>(name, points, region);
 }
 
 GridHorizon::GridHorizon(std::string _name,
-                         std::vector<std::tuple<float, float, float>> _points)
-    : points(_points) {
+                         std::vector<std::tuple<float, float, float>> _points,
+                         std::vector<std::array<float, 2>> _region)
+    : points(_points), region(_region) {
   name = _name;
   interpolation(points);
 }
@@ -155,26 +170,6 @@ bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
     float inter = interpolator(x_value, y_value);
   }
   return true;
-}
-
-void GridHorizon::find_corner() {
-  for (auto it : points) {
-    float x = std::get<0>(it);
-    float y = std::get<1>(it);
-    if (x < left_top.at(0) && y > left_top.at(1)) {
-      left_top = {x, y};
-    }
-    if (x > right_top.at(0) && y > right_top.at(1)) {
-      right_top = {x, y};
-    }
-    if (x < left_bottom.at(0) && y < left_bottom.at(1)) {
-      left_bottom = {x, y};
-    }
-    if (x > right_bottom[0] && y < right_bottom[1]) {
-      right_bottom = {x, y};
-    }
-  }
-  return;
 }
 
 bool GridHorizon::interpolation(

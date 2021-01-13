@@ -5,6 +5,7 @@
 
 #include "Horizon/FlatHorizon.hpp"
 #include "Layer.hpp"
+#include <array>
 #include <limits>
 #include <memory>
 #include <vector>
@@ -21,7 +22,13 @@ private:
     float dep = 0.0f;
     float azimut = 0.0f;
     std::string name = "upper";
-    return std::make_unique<FlatHorizon>(depth, dep, azimut, anchor, name);
+    std::array<float, 2> up_region = {10000.0f, 10000.0f}; // TODO: correct it
+    std::array<float, 2> min_region = {-10000.0f, -10000.0f};
+    std::vector<std::array<float, 2>> region;
+    region.push_back(up_region);
+    region.push_back(min_region);
+    return std::make_unique<FlatHorizon>(depth, dep, azimut, region, anchor,
+                                         name);
   }
 
   static std::unique_ptr<FlatHorizon> getLowerHorizon() {
@@ -30,7 +37,13 @@ private:
     float dep = 0.0f;
     float azimut = 0.0f;
     std::string name = "lower";
-    return std::make_unique<FlatHorizon>(depth, dep, azimut, anchor, name);
+    std::array<float, 2> up_region = {10000.0f, 10000.0f}; // TODO: correct it
+    std::array<float, 2> min_region = {-10000.0f, -10000.0f};
+    std::vector<std::array<float, 2>> region;
+    region.push_back(up_region);
+    region.push_back(min_region);
+    return std::make_unique<FlatHorizon>(depth, dep, azimut, region, anchor,
+                                         name);
   }
 
 public:

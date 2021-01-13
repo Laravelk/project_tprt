@@ -22,13 +22,16 @@ private:
   std::vector<float> normal;
 
 public:
+  std::vector<std::array<float, 2>> region;
+
   FlatHorizon(float depth, float dip, float azimuth,
+              std::vector<std::array<float, 2>> region,
               std::vector<float> anchor = {0, 0, 0}, std::string name = "");
 
   FlatHorizon(FlatHorizon &copy)
       : dip(copy.getDip()), depth(copy.getDepthValue()),
         azimuth(copy.getAzimuth()), anchor(copy.getAnchor()),
-        normal(copy.getNormal()) {
+        normal(copy.getNormal()), region(copy.region) {
     this->name = copy.getName();
   }
 

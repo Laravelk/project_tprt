@@ -15,17 +15,10 @@ private:
   _2D::BicubicInterpolator<float> interpolator;
   std::vector<std::tuple<float, float, float>> points;
 
-  std::array<float, 2> right_top = {FLT_MIN, FLT_MIN};
-  std::array<float, 2> left_top = {FLT_MAX, FLT_MIN};
-  std::array<float, 2> right_bottom = {FLT_MIN, FLT_MAX};
-  std::array<float, 2> left_bottom = {FLT_MAX, FLT_MAX};
-
   float gradient_step = 0.0f;
 
   bool checkGrid(std::vector<float> &, std::vector<float> &,
                  std::vector<float> &);
-
-  void find_corner();
 
   /*
    * x: x cord
@@ -37,18 +30,15 @@ private:
   constexpr static double EPS = 0.000001;
 
 public:
-  /*
-   * anchor: first point of horizon
-   * normal: vector of normal vectors for all points
-   * name: name of horizon
-   * points: all points after interpolation
-   */
-  GridHorizon(std::string, std::vector<std::tuple<float, float, float>>);
+  std::vector<std::array<float, 2>> region;
+
+  GridHorizon(std::string, std::vector<std::tuple<float, float, float>>,
+              std::vector<std::array<float, 2>>);
 
   /* copy constructor */
   GridHorizon(GridHorizon &hor)
       : interpolator(hor.getInterpolator()), points(hor.getPoints()),
-        gradient_step(hor.gradient_step) {
+        gradient_step(hor.gradient_step), region(hor.region) {
     name = hor.getName();
   }
 

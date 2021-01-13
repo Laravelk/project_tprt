@@ -53,7 +53,7 @@ add_executable(tprt main.cpp
         VelocityModel.hpp
         ReceiverData.cpp
         ReceiverData.hpp
-        Horizon/Horizon.h Horizon/GridHorizon.cpp Horizon/GridHorizon.h Derivative.cpp Derivative.h)
+        Horizon/Horizon.h Horizon/GridHorizon.cpp Horizon/GridHorizon.h Derivative.cpp Derivative.h Optimize.h)
 
 target_link_libraries(tprt LINK_PUBLIC ${VXL_CORE_LIBRARIES} NLopt::nlopt vnl vnl_algo Eigen3::Eigen libInterpolate::Interpolate)
 

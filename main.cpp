@@ -33,6 +33,16 @@ std::vector<std::array<int, 3>> getRayCode2() {
   return ray_code;
 }
 
+std::vector<std::array<int, 3>> getRayCode4() {
+  std::vector<std::array<int, 3>> ray_code;
+  std::array<int, 3> f = {1, -1, 0};
+  std::array<int, 3> f1 = {1, 1, 0};
+
+  ray_code.push_back(f);
+  ray_code.push_back(f1);
+  return ray_code;
+}
+
 std::vector<std::array<int, 3>> getRayCode1() {
   std::vector<std::array<int, 3>> ray_code;
   std::array<int, 3> f = {5, 1, 0};   // source -> 5 (5)
@@ -95,24 +105,33 @@ int main(int argc, char *argv[]) {
 
   // auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
 
+  std::ifstream sources_file("sources.txt");
+  std::ifstream receivers_file("receivers.txt");
+
   // source
-  auto source = ray_tracing::Source::fromJSON(doc["Source"].GetObject());
+  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
   // get info about receiver
-  auto receiver = ray_tracing::Receiver::fromJSON(doc["Receiver"].GetObject());
+  auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
   // get info about velocity model
   auto velocity_model =
       std::move(ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]));
 
+  std::cerr << "SOME";
+
   // for ray code test
-  std::vector<std::array<int, 3>> ray_code = getRayCode2();
+  std::vector<std::array<int, 3>> ray_code = getRayCode4();
+  std::cerr << "SOME2";
+
   // create the ray
-  ray_tracing::Ray ray(source, receiver, velocity_model.get(), ray_code);
+  ray_tracing::Ray ray(std::move(sources), std::move(receivers),
+                       velocity_model.get(), ray_code);
+  std::cerr << "SOME3";
   // compute path with ray code
   ray.computePathWithRayCode();
 
   std::ofstream ofs(argv2);
   rapidjson::OStreamWrapper osw(ofs);
   rapidjson::PrettyWriter<rapidjson::OStreamWrapper> writer(osw);
-  ray.toJSON().Accept(writer);
+  //  ray.toJSON().Accept(writer);
   return 0;
 }

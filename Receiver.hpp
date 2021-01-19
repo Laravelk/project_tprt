@@ -5,6 +5,7 @@
 
 #include "rapidjson/document.h"
 #include <array>
+#include <fstream>
 #include <string>
 #include <vector>
 
@@ -23,6 +24,10 @@ public:
            std::string name = "")
       : location(location), orientation(std::move(orientation)),
         sampling(sampling), name(name) {}
+
+  Receiver(std::array<float, 3> location) : location(location) {}
+
+  static std::vector<Receiver> fromFile(std::ifstream file);
 
   const std::array<float, 3> &getLocation() const { return location; }
 

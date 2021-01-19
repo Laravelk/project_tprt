@@ -25,10 +25,16 @@ enum WaveType { SWAVE = 0, PWAVE = 1 };
 /// velocity_model: object of type VelocityModel
 /// ray_code: for each Segment of Ray is [+1 (down) or -1 (up), depth of
 /// Layer, WaveType: 0 (WaveP) or 1 (WaveS)]
+///
+///
+static long ff = 0;
+
 class Ray {
 private:
-  Source source;
-  Receiver receiver;
+  std::vector<Source> sources;
+  std::vector<Receiver> receivers;
+  Source current_source;
+  Receiver current_receiver;
   VelocityModel *velocity_model;
 
   float timeP;
@@ -66,20 +72,31 @@ public:
   std::vector<std::array<float, 3>> &getTrajectory() { return trajectory; }
   std::vector<Code> &getRayCodeVector() { return ray_code; }
   VelocityModel *getModel() { return velocity_model; }
-  Receiver getReceiver() { return receiver; }
-  Source getSource() { return source; }
+  Receiver getReceiver() { return current_receiver; }
+  Source getSource() { return current_source; }
 
   Ray(Source source, Receiver receiver, VelocityModel *_model,
       const std::vector<std::array<int, 3>> iray_code)
-      : source(std::move(source)), receiver(std::move(receiver)),
-        velocity_model(_model), timeP(INFINITY), timeS(INFINITY), amplitudeP(1),
-        amplitudeS(1) {
+      : current_source(std::move(source)),
+        current_receiver(std::move(receiver)), velocity_model(_model),
+        timeP(INFINITY), timeS(INFINITY), amplitudeP(1), amplitudeS(1) {
+    generateCode(iray_code);
+  }
+
+  Ray(std::vector<Source> _sources, std::vector<Receiver> _receivers,
+      VelocityModel *_model, const std::vector<std::array<int, 3>> iray_code)
+      : velocity_model(_model), timeP(INFINITY), timeS(INFINITY), amplitudeP(1),
+        amplitudeS(1), sources(std::move(_sources)),
+        receivers(std::move(_receivers)), current_receiver(receivers[0]),
+        current_source(sources[0]) {
+    current_source = sources[0];
+    current_receiver = receivers[0];
     generateCode(iray_code);
   }
 
   void setTrajectory(std::vector<double> raw_trajectory) {
     std::vector<std::array<float, 3>> new_trajectory;
-    new_trajectory.push_back(source.getLocation());
+    new_trajectory.push_back(current_source.getLocation());
     for (int i = 1; i <= trajectory.size() - 2; i++) {
       new_trajectory.push_back(
           {static_cast<float>(raw_trajectory[2 * (i - 1)]),
@@ -90,7 +107,7 @@ public:
                    {static_cast<float>(raw_trajectory[2 * (i - 1)]),
                     static_cast<float>(raw_trajectory[2 * (i - 1) + 1])})});
     }
-    new_trajectory.push_back(receiver.getLocation());
+    new_trajectory.push_back(current_receiver.getLocation());
     trajectory = new_trajectory;
 
     //    std::cerr << "trajectory" << std::endl;
@@ -102,8 +119,9 @@ public:
   }
 
   [[deprecated]] Ray(Source source, Receiver receiver, VelocityModel *_model)
-      : source(std::move(source)), receiver(receiver), velocity_model(_model),
-        timeP(INFINITY), timeS(INFINITY), amplitudeP(1), amplitudeS(1) {}
+      : current_source(std::move(source)), current_receiver(receiver),
+        velocity_model(_model), timeP(INFINITY), timeS(INFINITY), amplitudeP(1),
+        amplitudeS(1) {}
 
   [[deprecated]] void computePath();
   void computePathWithRayCode(); // test function for raycode

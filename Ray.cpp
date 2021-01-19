@@ -17,7 +17,6 @@ typedef unsigned long ulong;
 
 /// this namespace contains classes which worked with ray_code and trajectory
 namespace ray_tracing {
-
 void Ray::optimizeTrajectory() {
   std::vector<double> vector;
 
@@ -80,35 +79,31 @@ Time 0.379
   // LN_NELDERMEAD > 5000 итераций. Плохо сходится
   // LN_SBPLX Не меняет значение траектории вовсе
 
-  nlopt::opt opt(nlopt::LD_CCSAQ, vector.size());
+  nlopt::opt opt(nlopt::LD_SLSQP, vector.size());
   std::vector<double> lb(vector.size());
   for (auto v : lb) {
     v = -1000;
   }
+  double minf = 0;
   opt.set_lower_bounds(lb);
   opt.set_min_objective(Optimize::myfunc, this);
-  //  opt.set_xtol_abs(1e-3);
-  opt.set_maxeval(500);
-
-  double minf;
-  double start_time = clock(); // начальное время
+  opt.set_xtol_abs(1e-3);
+  opt.set_maxeval(5);
   nlopt::result result = opt.optimize(vector, minf);
-  double end_time = clock();                  // конечное время
-  double search_time = end_time - start_time; // искомое время
-  std::cout << "The result is" << std::endl;
-  std::cout << result << std::endl;
-  std::cout << "Minimal function value " << minf << std::endl;
-  std::cout << "search_time: " << search_time / CLOCKS_PER_SEC << std::endl;
-  for (auto tr : trajectory) {
-    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-              << "] " << std::endl;
-  }
+  //  std::cout << "The result is" << std::endl;
+  //  std::cout << result << std::endl;
+  //  std::cout << "Minimal function value " << minf << std::endl;
+  //  std::cout << "search_time: " << search_time / CLOCKS_PER_SEC << std::endl;
+  //  for (auto tr : trajectory) {
+  //    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+  //              << "] " << std::endl;
+  //  }
 }
 
 /// compute ray in layer and create segments
 void Ray::computeSegmentsRay() {
-  auto source_location = source.getLocation();
-  auto receiver_location = receiver.getLocation();
+  auto source_location = current_source.getLocation();
+  auto receiver_location = current_receiver.getLocation();
 
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
@@ -130,6 +125,9 @@ void Ray::computeSegmentsRay() {
   }
   trajectory.push_back(
       {receiver_location[0], receiver_location[1], receiver_location[2]});
+  //  for (auto tr : trajectory) {
+  //    std::cerr << tr[0] << " " << tr[1] << " " << tr[2] << std::endl;
+  //  }
 }
 
 void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
@@ -154,8 +152,24 @@ void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
 void Ray::computePath() {}
 
 void Ray::computePathWithRayCode() {
-  computeSegmentsRay();
-  optimizeTrajectory();
+  double start_time = clock(); // начальное время
+  double end_time = clock();   // конечное время
+
+  //  computeSegmentsRay();
+  //  current_receiver = receivers[0];
+  //  current_source = sources[0];
+  std::cerr << "FFF";
+  for (long i = 0; i < receivers.size(); i++) {
+    start_time = clock();
+    current_receiver = receivers[i];
+    current_source = sources[i];
+    trajectory.clear();
+    computeSegmentsRay();
+    optimizeTrajectory();
+    end_time = clock();
+    double search_time = end_time - start_time; // искомое время
+    std::cerr << search_time / CLOCKS_PER_SEC << std::endl;
+  }
 }
 
 rapidjson::Document Ray::toJSON() {

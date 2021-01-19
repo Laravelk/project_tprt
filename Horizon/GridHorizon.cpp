@@ -2,8 +2,10 @@
 
 #include "../Derivative.h"
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -82,8 +84,8 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - document should be an object");
   }
 
-  std::vector<std::string> required_fields = {"Points", "Cardinal", "Name",
-                                              "Region"};
+  std::vector<std::string> required_fields = {"PointsFileName", "Cardinal",
+                                              "Name", "Region"};
 
   if (!doc["Cardinal"].IsString())
     throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, "
@@ -93,16 +95,11 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "GridHorizon::fromJSON() - invalid JSON, `Name` should be a string");
 
-  if (!doc["Points"].IsArray()) {
-    throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, 'Points "
-                             "Array' should be a array");
+  if (!doc["PointsFileName"].IsString()) {
+    throw std::runtime_error(
+        "GridHorizon::fromJSON() - invalid JSON, 'FilePath "
+        "String' should be a string");
   }
-
-  //  if (!doc["Region"].IsArray()) {
-  //    throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON,
-  //    'Region "
-  //                             "Array' should be a array");
-  //  }
 
   std::string cardinal = doc["Cardinal"].GetString();
 
@@ -114,11 +111,20 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
 
   std::vector<std::tuple<float, float, float>> points;
 
-  for (SizeType i = 0; i < doc["Points"].Size(); i++) {
-    points.emplace_back(doc["Points"][i][0].GetFloat(),
-                        doc["Points"][i][1].GetFloat(),
-                        doc["Points"][i][2].GetFloat());
+  std::ifstream pointsFile(doc["PointsFileName"].GetString());
+
+  while (!pointsFile.eof()) {
+    float x;
+    float y;
+    float z;
+    pointsFile >> x;
+    pointsFile >> y;
+    pointsFile >> z;
+    auto tuple = std::make_tuple(x, y, z);
+    points.push_back(tuple);
   }
+
+  pointsFile.close();
 
   std::vector<std::array<float, 2>> region;
 

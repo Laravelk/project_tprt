@@ -134,11 +134,11 @@ private:
     Source source = ray->getSource();
     Receiver receiver = ray->getReceiver();
 
-    std::cerr << "x: " << std::endl;
-    for (auto part : x) {
-      std::cerr << part << std::endl;
-    }
-    std::cerr << std::endl;
+    //    std::cerr << "x: " << std::endl;
+    //    for (auto part : x) {
+    //      std::cerr << part << std::endl;
+    //    }
+    //    std::cerr << std::endl;
 
     int number_of_unknowns = trajectory.size();
 

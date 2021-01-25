@@ -4,17 +4,22 @@
 #endif // OPTIMIZE_H
 
 #include "Ray.hpp"
+#include "raydata.h"
 
 namespace ray_tracing {
 class Optimize {
 public:
+  Optimize() {}
+
   static double myfunc(const std::vector<double> &x, std::vector<double> &grad,
                        void *my_func_data) {
-    Ray *ray = static_cast<ray_tracing::Ray *>(my_func_data);
+    RayData *ray_data = static_cast<ray_tracing::RayData *>(my_func_data);
 
-    auto trajectory = ray->getTrajectory();
-    auto velocity_model = ray->getModel();
-    auto ray_code = ray->getRayCodeVector();
+    auto trajectory = ray_data->trajectory;
+    auto velocity_model = ray_data->velocity_model;
+    auto ray_code = ray_data->ray_code;
+    auto horizons = ray_data->horizons;
+    auto vp = ray_data->vp;
 
     if (!grad.empty()) {
       float xk_1 = trajectory[0][0]; // xk-1
@@ -32,9 +37,7 @@ public:
         float zk_plus_1 = trajectory[i + 2][2];
 
         std::array<double, 2> derive =
-            velocity_model->getLayer(ray_code[i].layerNumber)
-                ->getTop()
-                ->getGradientInPoint(xk, yk);
+            horizons[ray_code[i].layerNumber]->getGradientInPoint(xk, yk);
 
         float DzkDxk = (float)derive[0]; // dzk/dxk
         float DzkDyk = (float)derive[1];
@@ -42,22 +45,21 @@ public:
         //        std::cerr << "DzkDxk: " << DzkDxk << std::endl;
         //        std::cerr << "DzkDyk: " << DzkDyk << std::endl;
 
-        float Dvk_1Dxk = 0; // isotropic envoriment
-        float Dvk_1Dyk = 0; // isotropic envoriment
+        //        float Dvk_1Dxk = 0; // isotropic envoriment
+        //        float Dvk_1Dyk = 0; // isotropic envoriment
 
-        float DvkDxk_plus_1 = 0; // isotropic envoriment
-        float DvkDyk_plus_1 = 0; // isotropic envoriment
+        //        float DvkDxk_plus_1 = 0; // isotropic envoriment
+        //        float DvkDyk_plus_1 = 0; // isotropic envoriment
 
-        float vk = (float)(velocity_model->getLayer(ray_code[i].layerNumber)
-                               ->Vp); // vk
+        float vk = vp[ray_code[i].layerNumber];
+
         //        std::cerr << "vk: " << vk << std::endl;
         float vk_1 = 0;
         int expression = i - 1;
         if (expression < 0) {
-          vk_1 = (float)velocity_model->getLayer(0)->Vp;
+          vk_1 = vp[0];
         } else {
-          vk_1 = (float)velocity_model->getLayer(ray_code[i - 1].layerNumber)
-                     ->Vp; // vk-1
+          vk_1 = vp[ray_code[i - 1].layerNumber]; // vk_1
         }
         //        std::cerr << "vk_1: " << vk_1 << std::endl;
 
@@ -84,32 +86,20 @@ public:
         grad[2 * i] = DtDxk;
         grad[2 * i + 1] = DtDyk;
 
-        //        std::cerr << "grad: " << std::endl;
-        //        for (int i = 0; i < grad.size(); i++) {
-        //          std::cerr << grad[i] << std::endl;
-        //        }
-        //        std::cerr << std::endl;
-
         xk_1 = xk;
         yk_1 = yk;
         zk_1 = zk;
       }
     }
-    return calculate_full_time(x, ray);
+    return calculate_full_time(x, ray_data);
   }
 
 private:
   static double calculate_part_time(const std::array<float, 3> source,
                                     const std::array<float, 3> receiver,
-                                    int layer_number, ray_tracing::Ray *ray) {
-    auto velocity_model = ray->getModel();
-
-    //    std::cerr << "number: " << layer_number << std::endl;
-    //    std::cerr << "source: " << source[0] << " " << source[1] << " " <<
-    //    source[2]
-    //              << std::endl;
-    //    std::cerr << "receiver: " << receiver[0] << " " << receiver[1] << " "
-    //              << receiver[2] << std::endl;
+                                    int layer_number,
+                                    ray_tracing::RayData *ray_data) {
+    auto velocity_model = ray_data->velocity_model;
 
     std::array<double, 3> vec{receiver[0] - source[0], receiver[1] - source[1],
                               receiver[2] - source[2]};
@@ -118,53 +108,56 @@ private:
     auto layer = velocity_model->getLayer(layer_number);
     double vp = static_cast<double>(layer->getVp());
 
-    //    std::cerr << "norm_vec / vp " << norm_vec << " " << vp << " "
-    //              << norm_vec / vp << std::endl
-    //              << std::endl;
-
     return norm_vec / vp;
   }
 
   static double calculate_full_time(const std::vector<double> &x,
-                                    ray_tracing::Ray *ray) {
+                                    ray_tracing::RayData *ray_data) {
     double time = 0;
-    auto trajectory = ray->getTrajectory();
-    auto velocity_model = ray->getModel();
-    auto ray_code = ray->getRayCodeVector();
-    Source source = ray->getSource();
-    Receiver receiver = ray->getReceiver();
-
-    //    std::cerr << "x: " << std::endl;
-    //    for (auto part : x) {
-    //      std::cerr << part << std::endl;
-    //    }
-    //    std::cerr << std::endl;
+    auto trajectory = ray_data->trajectory;
+    auto velocity_model = ray_data->velocity_model;
+    auto ray_code = ray_data->ray_code;
+    auto vp_array = ray_data->vp;
+    std::array<float, 3> source_location = ray_data->source.getLocation();
+    std::array<float, 3> receiver_location = ray_data->receiver.getLocation();
 
     int number_of_unknowns = trajectory.size();
 
-    ray->setTrajectory(x);
-
-    std::array<float, 3> source_location = source.getLocation();
+    //    ray_data->setTrajectory(x);
 
     for (int i = 1; i < number_of_unknowns - 1; i++) {
-      std::array<float, 3> receiver_location = trajectory.at(i);
-      time += calculate_part_time(source_location, receiver_location,
-                                  ray_code.at(i - 1).layerNumber - 1, ray);
+      std::array<double, 3> vec{receiver_location[0] - source_location[0],
+                                receiver_location[1] - source_location[1],
+                                receiver_location[2] - source_location[2]};
+
+      double norm_vec =
+          sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+      float vp = vp_array[ray_code.at(i - 1).layerNumber - 1];
+
+      time += norm_vec / vp;
+
       source_location = receiver_location;
     }
 
     int lastLayer = 0;
-    if (ray_tracing::Direction::DOWN ==
-        ray_code.at(ray_code.size() - 2).direction) {
-      lastLayer = velocity_model->getLayersCount() - 1;
-    } else {
-      lastLayer = 0;
-    }
+    //    ray_tracing::Direction dir = ray_code.at(ray_code.size() -
+    //    2).direction; if (ray_tracing::Direction::DOWN == dir) {
+    //      lastLayer = velocity_model->getLayersCount() - 1;
+    //    } else {
+    //      lastLayer = 0;
+    //    }
 
-    time += calculate_part_time(source_location, receiver.getLocation(),
-                                lastLayer, ray);
+    lastLayer = velocity_model->getLayersCount() - 1;
 
-    //    std::cerr << "time " << time << std::endl << std::endl;
+    std::array<double, 3> vec{receiver_location[0] - source_location[0],
+                              receiver_location[1] - source_location[1],
+                              receiver_location[2] - source_location[2]};
+
+    double norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
+    auto layer = velocity_model->getLayer(lastLayer);
+    double vp = static_cast<double>(layer->getVp());
+
+    time += norm_vec / vp;
 
     return time;
   }

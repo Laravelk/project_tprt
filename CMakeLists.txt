@@ -37,6 +37,8 @@ endif(VXL_CORE_FOUND)
 
 message(status, ${rapidjson_FOUND})
 add_executable(tprt main.cpp
+        RayData.cpp
+        RayData.h
         Source.cpp
         Source.hpp
         Ray.cpp

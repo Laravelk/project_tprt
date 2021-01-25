@@ -7,6 +7,7 @@
 #include <utility>
 
 #include "Optimize.h"
+#include "raydata.h"
 
 #include <nlopt.h>
 #include <nlopt.hpp>
@@ -24,6 +25,8 @@ void Ray::optimizeTrajectory() {
     vector.push_back(trajectory.at(i)[0]);
     vector.push_back(trajectory.at(i)[1]);
   }
+
+  RayData *ray_data = new RayData(this);
 
   /* Примерная итоговая траектория
 [ 0, 0, 0]
@@ -66,9 +69,8 @@ Time 0.379
     [ 777, 777, 400]
   */
 
-  // LD_LBFGS terminating with uncaught exception of type std::runtime_error:
-  // nlopt failure
-  // LD_TNEWTON_PRECOND_RESTART аналогично
+  // LD_LBFGS terminating with uncaught exception of type
+  // std::runtime_error: nlopt failure LD_TNEWTON_PRECOND_RESTART аналогично
   // LD_TNEWTON аналогично
   // LD_VAR1 аналогично
 
@@ -78,18 +80,21 @@ Time 0.379
   // LN_PRAXIS 2000 итераций. Плохо сходится
   // LN_NELDERMEAD > 5000 итераций. Плохо сходится
   // LN_SBPLX Не меняет значение траектории вовсе
-
-  nlopt::opt opt(nlopt::LD_SLSQP, vector.size());
-  std::vector<double> lb(vector.size());
-  for (auto v : lb) {
-    v = -1000;
-  }
+  nlopt::opt opt(nlopt::LD_AUGLAG, vector.size());
+  //  std::vector<double> lb(vector.size());
+  //  for (auto v : lb) {
+  //    v = -1000;
+  //  }
   double minf = 0;
-  opt.set_lower_bounds(lb);
-  opt.set_min_objective(Optimize::myfunc, this);
+  //  opt.set_lower_bounds(lb);
+  opt.set_min_objective(Optimize::myfunc, ray_data);
   opt.set_xtol_abs(1e-3);
-  opt.set_maxeval(5);
+  opt.set_maxeval(1);
+  double start_time = clock(); // начальное время
   nlopt::result result = opt.optimize(vector, minf);
+  double end_time = clock();                  // конечное время
+  double search_time = end_time - start_time; // искомое время
+  std::cerr << search_time / CLOCKS_PER_SEC << std::endl;
   //  std::cout << "The result is" << std::endl;
   //  std::cout << result << std::endl;
   //  std::cout << "Minimal function value " << minf << std::endl;
@@ -98,6 +103,8 @@ Time 0.379
   //    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
   //              << "] " << std::endl;
   //  }
+
+  delete ray_data;
 }
 
 /// compute ray in layer and create segments
@@ -158,17 +165,16 @@ void Ray::computePathWithRayCode() {
   //  computeSegmentsRay();
   //  current_receiver = receivers[0];
   //  current_source = sources[0];
-  std::cerr << "FFF";
   for (long i = 0; i < receivers.size(); i++) {
-    start_time = clock();
     current_receiver = receivers[i];
     current_source = sources[i];
     trajectory.clear();
     computeSegmentsRay();
+    start_time = clock();
     optimizeTrajectory();
     end_time = clock();
-    double search_time = end_time - start_time; // искомое время
-    std::cerr << search_time / CLOCKS_PER_SEC << std::endl;
+    //    double search_time = end_time - start_time; // искомое время
+    //    std::cerr << search_time / CLOCKS_PER_SEC << std::endl;
   }
 }
 

@@ -27,7 +27,15 @@ enum WaveType { SWAVE = 0, PWAVE = 1 };
 /// Layer, WaveType: 0 (WaveP) or 1 (WaveS)]
 ///
 ///
-static long ff = 0;
+
+struct Code {
+  Code(long number, Direction dir, WaveType type)
+      : direction(dir), wave_type(type), layerNumber(number) {}
+
+  Direction direction;
+  WaveType wave_type;
+  long layerNumber;
+};
 
 class Ray {
 private:
@@ -41,15 +49,6 @@ private:
   float amplitudeP;
   float timeS;
   float amplitudeS;
-
-  struct Code {
-    Code(long number, Direction dir, WaveType type)
-        : direction(dir), wave_type(type), layerNumber(number) {}
-
-    Direction direction;
-    WaveType wave_type;
-    long layerNumber;
-  };
 
   std::vector<Code> ray_code; // vector of ray_code
   std::vector<std::array<float, 3>> trajectory;

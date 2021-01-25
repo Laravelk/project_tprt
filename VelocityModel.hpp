@@ -52,6 +52,14 @@ public:
     return layers.at(index).get();
   }
 
+  std::vector<Layer *> getLayers() {
+    std::vector<Layer *> layers_ptr;
+    for (auto &layer : layers) {
+      layers_ptr.push_back(layer.get());
+    }
+    return layers_ptr;
+  }
+
   int getLayersCount() { return layers.size(); }
 
   VelocityModel(std::vector<std::unique_ptr<Layer>> _layers) {

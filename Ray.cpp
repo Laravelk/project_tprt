@@ -12,6 +12,8 @@
 #include <nlopt.h>
 #include <nlopt.hpp>
 
+#define N 200
+
 // check module -- проверяет, что слои все хорошо
 
 typedef unsigned long ulong;
@@ -165,17 +167,22 @@ void Ray::computePathWithRayCode() {
   //  computeSegmentsRay();
   //  current_receiver = receivers[0];
   //  current_source = sources[0];
-  for (long i = 0; i < receivers.size(); i++) {
+  if (N > receivers.size()) {
+    std::cerr << "Ray::computePathWithRayCode: Invalid count of receivers"
+              << std::endl;
+    return;
+  }
+  start_time = clock();
+  for (long i = 0; i < N; i++) {
     current_receiver = receivers[i];
     current_source = sources[i];
     trajectory.clear();
     computeSegmentsRay();
-    start_time = clock();
     optimizeTrajectory();
-    end_time = clock();
-    //    double search_time = end_time - start_time; // искомое время
-    //    std::cerr << search_time / CLOCKS_PER_SEC << std::endl;
   }
+  end_time = clock();
+  std::cerr << "Result time: " << (end_time - start_time) / CLOCKS_PER_SEC
+            << std::endl;
 }
 
 rapidjson::Document Ray::toJSON() {

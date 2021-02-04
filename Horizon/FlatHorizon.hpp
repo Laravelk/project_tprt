@@ -29,8 +29,8 @@ public:
               std::vector<float> anchor = {0, 0, 0}, std::string name = "");
 
   FlatHorizon(FlatHorizon &copy)
-      : dip(copy.getDip()), depth(copy.getDepthValue()),
-        azimuth(copy.getAzimuth()), anchor(copy.getAnchor()),
+      : dip(copy.getDip()), azimuth(copy.getAzimuth()),
+        depth(copy.getDepthValue()), anchor(copy.getAnchor()),
         normal(copy.getNormal()), region(copy.region) {
     this->name = copy.getName();
   }

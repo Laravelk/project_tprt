@@ -23,7 +23,7 @@ public:
   }
 
   Layer(std::unique_ptr<Horizon> _top, float _Vp, float _Vs)
-      : top(std::move(_top)), Vp(_Vp), Vs(_Vs) {}
+      : Vp(_Vp), Vs(_Vs), top(std::move(_top)) {}
 
   ~Layer() {}
 

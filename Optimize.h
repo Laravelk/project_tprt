@@ -11,12 +11,11 @@ class Optimize {
 public:
   Optimize() {}
 
-  static double myfunc(const std::vector<double> &x, std::vector<double> &grad,
+  static double myfunc(const std::vector<double> &, std::vector<double> &grad,
                        void *my_func_data) {
     RayData *ray_data = static_cast<ray_tracing::RayData *>(my_func_data);
 
     auto trajectory = ray_data->trajectory;
-    auto velocity_model = ray_data->velocity_model;
     auto ray_code = ray_data->ray_code;
     auto horizons = ray_data->horizons;
     auto vp = ray_data->vp;
@@ -27,7 +26,7 @@ public:
       float zk_1 = trajectory[0][2];
       unsigned long number_of_unknown = trajectory.size();
 
-      for (long i = 0; i < number_of_unknown - 2; i++) {
+      for (unsigned long i = 0; i < number_of_unknown - 2; i++) {
         float xk = trajectory[i + 1][0];
         float yk = trajectory[i + 1][1];
         float zk = trajectory[i + 1][2];
@@ -91,7 +90,7 @@ public:
         zk_1 = zk;
       }
     }
-    return calculate_full_time(x, ray_data);
+    return calculate_full_time(ray_data);
   }
 
 private:
@@ -111,50 +110,35 @@ private:
     return norm_vec / vp;
   }
 
-  static double calculate_full_time(const std::vector<double> &x,
-                                    ray_tracing::RayData *ray_data) {
+  static double calculate_full_time(ray_tracing::RayData *ray_data) {
     double time = 0;
     auto trajectory = ray_data->trajectory;
     auto velocity_model = ray_data->velocity_model;
     auto ray_code = ray_data->ray_code;
     auto vp_array = ray_data->vp;
-    std::array<float, 3> source_location = ray_data->source.getLocation();
-    std::array<float, 3> receiver_location = ray_data->receiver.getLocation();
-
     int number_of_unknowns = trajectory.size();
 
-    //    ray_data->setTrajectory(x);
-
     for (int i = 1; i < number_of_unknowns - 1; i++) {
-      std::array<double, 3> vec{receiver_location[0] - source_location[0],
-                                receiver_location[1] - source_location[1],
-                                receiver_location[2] - source_location[2]};
+      std::array<double, 3> vec{trajectory[i][0] - trajectory[i - 1][0],
+                                trajectory[i][1] - trajectory[i - 1][1],
+                                trajectory[i][2] - trajectory[i - 1][2]};
 
       double norm_vec =
           sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
       float vp = vp_array[ray_code.at(i - 1).layerNumber - 1];
 
       time += norm_vec / vp;
-
-      source_location = receiver_location;
     }
 
-    int lastLayer = 0;
-    //    ray_tracing::Direction dir = ray_code.at(ray_code.size() -
-    //    2).direction; if (ray_tracing::Direction::DOWN == dir) {
-    //      lastLayer = velocity_model->getLayersCount() - 1;
-    //    } else {
-    //      lastLayer = 0;
-    //    }
-
-    lastLayer = velocity_model->getLayersCount() - 1;
-
-    std::array<double, 3> vec{receiver_location[0] - source_location[0],
-                              receiver_location[1] - source_location[1],
-                              receiver_location[2] - source_location[2]};
+    std::array<double, 3> vec{trajectory[number_of_unknowns - 1][0] -
+                                  trajectory[number_of_unknowns - 2][0],
+                              trajectory[number_of_unknowns - 1][1] -
+                                  trajectory[number_of_unknowns - 2][1],
+                              trajectory[number_of_unknowns - 1][2] -
+                                  trajectory[number_of_unknowns - 2][2]};
 
     double norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-    auto layer = velocity_model->getLayer(lastLayer);
+    auto layer = velocity_model->getLayer(velocity_model->getLayersCount() - 1);
     double vp = static_cast<double>(layer->getVp());
 
     time += norm_vec / vp;

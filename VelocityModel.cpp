@@ -13,10 +13,10 @@ rapidjson::Document VelocityModel::toJSON() {
 
   doc.SetArray();
 
-  for (const auto &layer : layers) {
-    tmp_json_val.CopyFrom(layers[0].get()->toJSON(), allocator);
-    doc.PushBack(tmp_json_val, allocator);
-  }
+  //  for (const auto &layer : layers) {
+  //    tmp_json_val.CopyFrom(layers[0].get()->toJSON(), allocator);
+  //    doc.PushBack(tmp_json_val, allocator);
+  //  }
 
   // doc.AddMember("Velocity model", json_val, allocator);
 

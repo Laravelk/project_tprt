@@ -12,10 +12,6 @@
 #include <nlopt.h>
 #include <nlopt.hpp>
 
-#define N 200
-
-// check module -- проверяет, что слои все хорошо
-
 typedef unsigned long ulong;
 
 /// this namespace contains classes which worked with ray_code and trajectory
@@ -23,7 +19,7 @@ namespace ray_tracing {
 void Ray::optimizeTrajectory() {
   std::vector<double> vector;
 
-  for (int i = 1; i < trajectory.size() - 1; i++) {
+  for (unsigned long i = 1; i < trajectory.size() - 1; i++) {
     vector.push_back(trajectory.at(i)[0]);
     vector.push_back(trajectory.at(i)[1]);
   }
@@ -87,24 +83,21 @@ Time 0.379
   //  for (auto v : lb) {
   //    v = -1000;
   //  }
-  double minf = 0;
+  //  double minf = 0;
   //  opt.set_lower_bounds(lb);
   opt.set_min_objective(Optimize::myfunc, ray_data);
   opt.set_xtol_abs(1e-3);
   opt.set_maxeval(1);
-  double start_time = clock(); // начальное время
-  nlopt::result result = opt.optimize(vector, minf);
-  double end_time = clock();                  // конечное время
-  double search_time = end_time - start_time; // искомое время
-  std::cerr << search_time / CLOCKS_PER_SEC << std::endl;
+  opt.optimize(vector);
+  //  minf = opt.get_maxtime();
   //  std::cout << "The result is" << std::endl;
   //  std::cout << result << std::endl;
   //  std::cout << "Minimal function value " << minf << std::endl;
   //  std::cout << "search_time: " << search_time / CLOCKS_PER_SEC << std::endl;
-  //  for (auto tr : trajectory) {
-  //    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-  //              << "] " << std::endl;
-  //  }
+  for (auto tr : trajectory) {
+    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+              << "] " << std::endl;
+  }
 
   delete ray_data;
 }
@@ -158,28 +151,11 @@ void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
   }
 }
 
-void Ray::computePath() {}
-
 void Ray::computePathWithRayCode() {
   double start_time = clock(); // начальное время
   double end_time = clock();   // конечное время
-
-  //  computeSegmentsRay();
-  //  current_receiver = receivers[0];
-  //  current_source = sources[0];
-  if (N > receivers.size()) {
-    std::cerr << "Ray::computePathWithRayCode: Invalid count of receivers"
-              << std::endl;
-    return;
-  }
-  start_time = clock();
-  for (long i = 0; i < N; i++) {
-    current_receiver = receivers[i];
-    current_source = sources[i];
-    trajectory.clear();
-    computeSegmentsRay();
-    optimizeTrajectory();
-  }
+  computeSegmentsRay();
+  optimizeTrajectory();
   end_time = clock();
   std::cerr << "Result time: " << (end_time - start_time) / CLOCKS_PER_SEC
             << std::endl;

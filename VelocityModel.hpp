@@ -47,10 +47,7 @@ private:
   }
 
 public:
-  Layer *getLayer(int index) {
-    assert(index < layers.size());
-    return layers.at(index).get();
-  }
+  Layer *getLayer(int index) { return layers.at(index).get(); }
 
   std::vector<Layer *> getLayers() {
     std::vector<Layer *> layers_ptr;

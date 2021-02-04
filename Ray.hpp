@@ -46,9 +46,9 @@ private:
   VelocityModel *velocity_model;
 
   float timeP;
-  float amplitudeP;
-  float timeS;
-  float amplitudeS;
+  //  float amplitudeP;
+  //  float timeS;
+  //  float amplitudeS;
 
   std::vector<Code> ray_code; // vector of ray_code
   std::vector<std::array<float, 3>> trajectory;
@@ -78,16 +78,17 @@ public:
       const std::vector<std::array<int, 3>> iray_code)
       : current_source(std::move(source)),
         current_receiver(std::move(receiver)), velocity_model(_model),
-        timeP(INFINITY), timeS(INFINITY), amplitudeP(1), amplitudeS(1) {
+        timeP(INFINITY) /*amplitudeP(1), timeS(INFINITY), amplitudeS(1)*/ {
     generateCode(iray_code);
   }
 
   Ray(std::vector<Source> _sources, std::vector<Receiver> _receivers,
       VelocityModel *_model, const std::vector<std::array<int, 3>> iray_code)
-      : velocity_model(_model), timeP(INFINITY), timeS(INFINITY), amplitudeP(1),
-        amplitudeS(1), sources(std::move(_sources)),
-        receivers(std::move(_receivers)), current_receiver(receivers[0]),
-        current_source(sources[0]) {
+      : sources(std::move(_sources)), receivers(std::move(_receivers)),
+        current_source(sources[0]), current_receiver(receivers[0]),
+        velocity_model(_model), timeP(INFINITY) /*amplitudeP(1),
+        timeS(INFINITY)*/
+  {
     current_source = sources[0];
     current_receiver = receivers[0];
     generateCode(iray_code);
@@ -96,7 +97,7 @@ public:
   void setTrajectory(std::vector<double> raw_trajectory) {
     std::vector<std::array<float, 3>> new_trajectory;
     new_trajectory.push_back(current_source.getLocation());
-    for (int i = 1; i <= trajectory.size() - 2; i++) {
+    for (unsigned long i = 1; i <= trajectory.size() - 2; i++) {
       new_trajectory.push_back(
           {static_cast<float>(raw_trajectory[2 * (i - 1)]),
            static_cast<float>(raw_trajectory[2 * (i - 1) + 1]),
@@ -116,13 +117,6 @@ public:
     //    }
     //    std::cerr << std::endl;
   }
-
-  [[deprecated]] Ray(Source source, Receiver receiver, VelocityModel *_model)
-      : current_source(std::move(source)), current_receiver(receiver),
-        velocity_model(_model), timeP(INFINITY), timeS(INFINITY), amplitudeP(1),
-        amplitudeS(1) {}
-
-  [[deprecated]] void computePath();
   void computePathWithRayCode(); // test function for raycode
 
   rapidjson::Document toJSON();

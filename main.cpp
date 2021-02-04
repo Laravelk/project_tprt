@@ -114,20 +114,20 @@ int main(int argc, char *argv[]) {
   auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
   // get info about velocity model
   auto velocity_model =
-      std::move(ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]));
-
-  std::cerr << "SOME";
+      ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
 
   // for ray code test
   std::vector<std::array<int, 3>> ray_code = getRayCode4();
-  std::cerr << "SOME2";
-
   // create the ray
-  ray_tracing::Ray ray(std::move(sources), std::move(receivers),
-                       velocity_model.get(), ray_code);
-  std::cerr << "SOME3";
+  std::vector<ray_tracing::Ray> rays;
+  const long N = 3;
+  for (long i = 0; i < N; i++) {
+    ray_tracing::Ray ray(sources[i], receivers[i], velocity_model.get(),
+                         ray_code);
+    ray.computePathWithRayCode();
+    rays.push_back(ray);
+  }
   // compute path with ray code
-  ray.computePathWithRayCode();
 
   std::ofstream ofs(argv2);
   rapidjson::OStreamWrapper osw(ofs);

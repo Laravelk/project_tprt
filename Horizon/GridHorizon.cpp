@@ -63,7 +63,6 @@ std::array<double, 2> GridHorizon::getGradientInPoint(double x,
   double t1 = getDepth(xEPS, y);
   double t2 = getDepth(x, y);
   double tt = t1 - t2;
-  double ttt = tt / EPS;
 
   derivative_x = (getDepth(xEPS, y) - getDepth(x, y)) / EPS;
   derivative_y = (getDepth(x, yEPS) - getDepth(x, y)) / EPS;
@@ -169,12 +168,12 @@ bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
     return false;
   }
 
-  for (unsigned long i = 0; i < x.size(); i++) {
-    float x_value = x.at(i);
-    float y_value = y.at(i);
+  //  for (unsigned long i = 0; i < x.size(); i++) {
+  //    float x_value = x.at(i);
+  //    float y_value = y.at(i);
 
-    float inter = interpolator(x_value, y_value);
-  }
+  //    float inter = interpolator(x_value, y_value);
+  //  }
   return true;
 }
 

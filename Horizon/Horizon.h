@@ -3,8 +3,10 @@
 
 // Created by Иван Морозов on 2020-06-17.
 
-#include "../rapidjson/pointer.h"
+#include <array>
 #include <string>
+
+#include "../rapidjson/pointer.h"
 
 namespace ray_tracing {
 class Horizon {

@@ -12,9 +12,7 @@
 #include "rapidjson/ostreamwrapper.h"
 #include "rapidjson/prettywriter.h"
 
-#include <math.h>
-#include <nlopt.h>
-#include <nlopt.hpp>
+#include <chrono>
 
 std::vector<std::array<int, 3>> getRayCode2() {
   std::vector<std::array<int, 3>> ray_code;
@@ -120,13 +118,20 @@ int main(int argc, char *argv[]) {
   std::vector<std::array<int, 3>> ray_code = getRayCode4();
   // create the ray
   std::vector<ray_tracing::Ray> rays;
-  const long N = 3;
+  const long N = 100;
+
   for (long i = 0; i < N; i++) {
-    ray_tracing::Ray ray(sources[i], receivers[i], velocity_model.get(),
-                         ray_code);
-    ray.computePathWithRayCode();
-    rays.push_back(ray);
+    rays.emplace_back(sources[i], receivers[i], velocity_model.get(), ray_code);
   }
+
+  auto start = std::chrono::steady_clock::now();
+  for (long i = 0; i < N; i++) {
+    rays[i].computePathWithRayCode();
+  }
+  auto end = std::chrono::steady_clock::now();
+  std::chrono::duration<double> elapsed_seconds = end - start;
+  std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
   // compute path with ray code
 
   std::ofstream ofs(argv2);

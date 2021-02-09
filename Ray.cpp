@@ -2,7 +2,7 @@
 #include "Segment.hpp"
 #include <Eigen/Dense>
 #include <algorithm>
-#include <ctime>
+#include <chrono>
 #include <unsupported/Eigen/NumericalDiff>
 #include <utility>
 
@@ -26,46 +26,11 @@ void Ray::optimizeTrajectory() {
 
   RayData *ray_data = new RayData(this);
 
-  /* Примерная итоговая траектория
-[ 0, 0, 0]
-[ 24.4568, 26.1691, 50]
-[ 59.8238, 63.9923, 103.863]
-[ 168.736, 178.158, 203.104]
-[ 314.162, 325.188, 300]
-[ 777, 777, 400]
-Time 0.379
-  */
   // LD_SLSQP – 0.379634 Python + За 200 итераций результат – 0.389
 
   // LD_MMA - 0.385 Python +- За 70-80 итераций
-  /*
-    [ 0, 0, 0]
-    [ 53.254, 53.5549, 50]
-    [ 69.4059, 69.3922, 104.324]
-    [ 297.961, 297.914, 205.466]
-    [ 479.379, 479.358, 300]
-    [ 777, 777, 400]
-  */
-
   // LD_CCSAQ - 0.386 За 100-200 итераций
-  /*
-    [ 0, 0, 0]
-    [ 51.2585, 51.2338, 50]
-    [ 114.054, 114.572, 107.025]
-    [ 333.097, 332.144, 206.11]
-    [ 506.851, 507.61, 300]
-    [ 777, 777, 400]
-  */
-
   // LD_AUGLAG - 0.388 150 итераций
-  /*
-    [ 0, 0, 0]
-    [ 53.254, 53.5549, 50]
-    [ 69.4059, 69.3922, 104.324]
-    [ 297.961, 297.914, 205.466]
-    [ 479.379, 479.358, 300]
-    [ 777, 777, 400]
-  */
 
   // LD_LBFGS terminating with uncaught exception of type
   // std::runtime_error: nlopt failure LD_TNEWTON_PRECOND_RESTART аналогично
@@ -78,7 +43,7 @@ Time 0.379
   // LN_PRAXIS 2000 итераций. Плохо сходится
   // LN_NELDERMEAD > 5000 итераций. Плохо сходится
   // LN_SBPLX Не меняет значение траектории вовсе
-  nlopt::opt opt(nlopt::LD_AUGLAG, vector.size());
+  nlopt::opt opt(nlopt::LN_NEWUOA, vector.size());
   //  std::vector<double> lb(vector.size());
   //  for (auto v : lb) {
   //    v = -1000;
@@ -87,17 +52,17 @@ Time 0.379
   //  opt.set_lower_bounds(lb);
   opt.set_min_objective(Optimize::myfunc, ray_data);
   opt.set_xtol_abs(1e-3);
-  opt.set_maxeval(1);
+  //  opt.set_maxeval(1);
   opt.optimize(vector);
   //  minf = opt.get_maxtime();
   //  std::cout << "The result is" << std::endl;
   //  std::cout << result << std::endl;
   //  std::cout << "Minimal function value " << minf << std::endl;
   //  std::cout << "search_time: " << search_time / CLOCKS_PER_SEC << std::endl;
-  for (auto tr : trajectory) {
-    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-              << "] " << std::endl;
-  }
+  //  for (auto tr : trajectory) {
+  //    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+  //              << "] " << std::endl;
+  //  }
 
   delete ray_data;
 }
@@ -152,13 +117,8 @@ void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
 }
 
 void Ray::computePathWithRayCode() {
-  double start_time = clock(); // начальное время
-  double end_time = clock();   // конечное время
   computeSegmentsRay();
   optimizeTrajectory();
-  end_time = clock();
-  std::cerr << "Result time: " << (end_time - start_time) / CLOCKS_PER_SEC
-            << std::endl;
 }
 
 rapidjson::Document Ray::toJSON() {

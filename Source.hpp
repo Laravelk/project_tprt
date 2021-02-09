@@ -5,6 +5,7 @@
 #include <array>
 #include <fstream>
 #include <string>
+#include <vector>
 
 namespace ray_tracing {
 class Source {

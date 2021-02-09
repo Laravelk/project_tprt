@@ -1,6 +1,7 @@
 #ifndef RAYDATA_H
 #define RAYDATA_H
 
+#include <memory>
 #include <vector>
 
 #include "Ray.hpp"

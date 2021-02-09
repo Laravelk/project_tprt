@@ -138,8 +138,9 @@ private:
                                   trajectory[number_of_unknowns - 2][2]};
 
     double norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-    auto layer = velocity_model->getLayer(velocity_model->getLayersCount() - 1);
-    double vp = static_cast<double>(layer->getVp());
+    //    auto layer = velocity_model->getLayer(velocity_model->getLayersCount()
+    //    - 1); double vp = static_cast<double>(layer->getVp());
+    double vp = vp_array[velocity_model->getLayersCount() - 1];
 
     time += norm_vec / vp;
 

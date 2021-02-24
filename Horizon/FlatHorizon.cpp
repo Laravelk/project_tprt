@@ -97,8 +97,8 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - document should be an object");
 
-  std::vector<std::string> required_fields = {
-      "Dip", "Azimuth", "Depth", "Anchor", "Cardinal", "Name", "Region"};
+  std::vector<std::string> required_fields = {"Dip",    "Azimuth",  "Depth",
+                                              "Anchor", "Cardinal", "Name"};
 
   for (const auto &field : required_fields) {
     if (!doc.HasMember(field.c_str()))
@@ -156,9 +156,8 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
 
   std::vector<std::array<float, 2>> region;
 
-  for (rapidjson::SizeType i = 0; i < doc["Region"].Size(); i++) {
-    std::array<float, 2> point = {doc["Region"][i][0].GetFloat(),
-                                  doc["Region"][i][1].GetFloat()};
+  for (rapidjson::SizeType i = 0; i < 2; i++) {
+    std::array<float, 2> point = {1000, 1000};
     region.emplace_back(point);
   }
 

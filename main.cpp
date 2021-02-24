@@ -107,22 +107,27 @@ int main(int argc, char *argv[]) {
   std::ifstream receivers_file("receivers.txt");
 
   // source
-  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
+  //  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
+  auto source = ray_tracing::Source::fromJSON(doc["Source"]);
   // get info about receiver
-  auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
+  //  auto receivers =
+  //  ray_tracing::Receiver::fromFile(std::move(receivers_file));
+  auto receiver = ray_tracing::Receiver::fromJSON(doc["Receiver"]);
   // get info about velocity model
   auto velocity_model =
       ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
 
   // for ray code test
-  std::vector<std::array<int, 3>> ray_code = getRayCode4();
+  std::vector<std::array<int, 3>> ray_code = getRayCode2();
   // create the ray
   std::vector<ray_tracing::Ray> rays;
-  const long N = 100;
+  const long N = 100000;
 
   for (long i = 0; i < N; i++) {
-    rays.emplace_back(sources[i], receivers[i], velocity_model.get(), ray_code);
+    rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
   }
+
+  rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
 
   auto start = std::chrono::steady_clock::now();
   for (long i = 0; i < N; i++) {
@@ -134,9 +139,9 @@ int main(int argc, char *argv[]) {
 
   // compute path with ray code
 
-  std::ofstream ofs(argv2);
-  rapidjson::OStreamWrapper osw(ofs);
-  rapidjson::PrettyWriter<rapidjson::OStreamWrapper> writer(osw);
+  //  std::ofstream ofs(argv2);
+  //  rapidjson::OStreamWrapper osw(ofs);
+  //  rapidjson::PrettyWriter<rapidjson::OStreamWrapper> writer(osw);
   //  ray.toJSON().Accept(writer);
   return 0;
 }

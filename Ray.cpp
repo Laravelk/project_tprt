@@ -7,7 +7,7 @@
 #include <utility>
 
 #include "Optimize.h"
-#include "raydata.h"
+#include "RayData.h"
 
 #include <nlopt.h>
 #include <nlopt.hpp>
@@ -43,7 +43,7 @@ void Ray::optimizeTrajectory() {
   // LN_PRAXIS 2000 итераций. Плохо сходится
   // LN_NELDERMEAD > 5000 итераций. Плохо сходится
   // LN_SBPLX Не меняет значение траектории вовсе
-  nlopt::opt opt(nlopt::LD_SLSQP, vector.size());
+  nlopt::opt opt(nlopt::LD_AUGLAG, vector.size());
   //  std::vector<double> lb(vector.size());
   //  for (auto v : lb) {
   //    v = -1000;

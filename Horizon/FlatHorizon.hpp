@@ -9,6 +9,7 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 namespace ray_tracing {
 class FlatHorizon : public Horizon {

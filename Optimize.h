@@ -4,7 +4,7 @@
 #endif // OPTIMIZE_H
 
 #include "Ray.hpp"
-#include "raydata.h"
+#include "RayData.h"
 
 namespace ray_tracing {
 class Optimize {

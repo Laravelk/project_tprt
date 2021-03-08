@@ -118,10 +118,10 @@ int main(int argc, char *argv[]) {
       ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
 
   // for ray code test
-  std::vector<std::array<int, 3>> ray_code = getRayCode2();
+  std::vector<std::array<int, 3>> ray_code = getRayCode4();
   // create the ray
   std::vector<ray_tracing::Ray> rays;
-  const long N = 100000;
+  const long N = 100;
 
   for (long i = 0; i < N; i++) {
     rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
@@ -132,6 +132,7 @@ int main(int argc, char *argv[]) {
   auto start = std::chrono::steady_clock::now();
   for (long i = 0; i < N; i++) {
     rays[i].computePathWithRayCode();
+      std::cerr << i << std::endl;
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;

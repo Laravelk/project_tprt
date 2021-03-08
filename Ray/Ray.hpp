@@ -29,10 +29,8 @@ struct Code {
 
 class Ray {
 private:
-  std::vector<Source> sources;
-  std::vector<Receiver> receivers;
-  Source current_source;
-  Receiver current_receiver;
+  Source source;
+  Receiver receiver;
   VelocityModel *velocity_model;
 
   float timeP;

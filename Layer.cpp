@@ -37,7 +37,7 @@ std::unique_ptr<Layer> Layer::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "Layer::fromJSON() - document should be an object");
 
-  std::vector<std::string> required_fields = {"LType", "Vp",   "Vs",
+  std::vector<std::string> required_fields = {"LType", "Vp",   "Vs", "Density",
                                               "Top",   "Name", "HType"};
 
   for (const auto &field : required_fields) {
@@ -48,15 +48,20 @@ std::unique_ptr<Layer> Layer::fromJSON(const rapidjson::Value &doc) {
 
   if (!doc["LType"].IsString())
     throw std::runtime_error(
-        "Layer::fromJSON() - invalid JSON, `HType` should be a string");
+        "Layer::fromJSON() - invalid JSON, `LType` should be a string");
 
   if (!doc["Vp"].IsFloat())
     throw std::runtime_error(
-        "Layer::fromJSON() - invalid JSON, `Dip` should be a float");
+        "Layer::fromJSON() - invalid JSON, `Vp` should be a float");
 
   if (!doc["Vs"].IsFloat())
     throw std::runtime_error(
-        "Layer::fromJSON() - invalid JSON, `Azimuth` should be a float");
+        "Layer::fromJSON() - invalid JSON, `Vs` should be a float");
+
+  if (!doc["Density"].IsFloat()) {
+      throw std::runtime_error(
+              "Layer::fromJSON - invalid JSON, 'Density' should be a float");
+  }
 
   if (!doc["Name"].IsString())
     throw std::runtime_error(
@@ -70,15 +75,16 @@ std::unique_ptr<Layer> Layer::fromJSON(const rapidjson::Value &doc) {
 
   float vp = doc["Vp"].GetFloat();
   float vs = doc["Vs"].GetFloat();
+  float density = doc["Density"].GetFloat();
 
   std::string name = doc["Name"].GetString();
   std::string htype = doc["HType"].GetString();
 
   if ("grid" == htype) {
-    return std::make_unique<Layer>(vp, vs, GridHorizon::fromJSON(doc["Top"]),
+    return std::make_unique<Layer>(vp, vs, density, GridHorizon::fromJSON(doc["Top"]),
                                    name);
   } else {
-    return std::make_unique<Layer>(vp, vs, FlatHorizon::fromJSON(doc["Top"]),
+    return std::make_unique<Layer>(vp, vs, density, FlatHorizon::fromJSON(doc["Top"]),
                                    name);
   }
 }

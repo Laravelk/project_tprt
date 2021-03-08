@@ -29,8 +29,8 @@ void Ray::optimizeTrajectory() {
 
 /// compute ray in layer and create segments
 void Ray::computeSegmentsRay() {
-  auto source_location = current_source.getLocation();
-  auto receiver_location = current_receiver.getLocation();
+  auto source_location = source.getLocation();
+  auto receiver_location = receiver.getLocation();
 
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
@@ -133,7 +133,11 @@ rapidjson::Document Ray::toJSON() {
 }
 
     void Ray::rayPolarization() {
-//        float vel0 = velocity_model->getLayer(0).Vp;
+        float vel0 = velocity_model->getLayer(0)->Vp;
+        float rho0 = velocity_model->getLayer(0)->density;
+        float sou_factor = pow(1 / (4 * M_PI) * (1000 / rho0) * (1000 / vel0), 3);
+
+        float polariz0 = source
     }
     // namespace ray_tracing
 

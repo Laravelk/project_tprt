@@ -32,7 +32,7 @@ VelocityModel::fromJSON(const rapidjson::Value &doc) {
   std::vector<std::unique_ptr<Layer>> local_layers;
   uint64_t layer_number = doc.Size();
   local_layers.push_back(
-      std::make_unique<Layer>(2100, 1000, getUpperHorizon(), "upper layer"));
+      std::make_unique<Layer>(2100, 1000, 1000, getUpperHorizon(), "upper layer"));
   for (uint64_t i = 0; i < layer_number; i++) { // TODO: 1 -> layer_number
     local_layers.push_back(Layer::fromJSON(doc[i]));
   }

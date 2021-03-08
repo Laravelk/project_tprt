@@ -17,7 +17,7 @@ private:
   float dip;
   float azimuth;
   float depth; // TODO: delete
-  float D;
+  float D{};
 
   std::vector<std::array<float, 2>> region;
   std::vector<float> anchor;
@@ -36,25 +36,25 @@ public:
     this->name = copy.getName();
   }
 
-  std::array<double, 2> getGradientInPoint(double x, double y) const override;
-  std::array<double, 2>
+  [[nodiscard]] std::array<double, 2> getGradientInPoint(double x, double y) const override;
+  [[nodiscard]] std::array<double, 2>
   getGradientInPoint(std::array<double, 2> cord) const override;
 
-  ~FlatHorizon() override {}
+  ~FlatHorizon() override = default;
 
-  virtual float getDepth(std::array<float, 2> x) const override;
+  float getDepth(std::array<float, 2> x) const override;
 
-  virtual rapidjson::Document toJSON() override;
+  rapidjson::Document toJSON() override;
 
   static std::unique_ptr<FlatHorizon> fromJSON(const rapidjson::Value &doc);
 
   void setDepth(float value);
-  float getDepthValue() { return depth; }
+  float getDepthValue() const { return depth; }
 
-  float getDip() const;
+  [[nodiscard]] float getDip() const;
   void setDip(float value);
 
-  float getAzimuth() const;
+  [[nodiscard]] float getAzimuth() const;
   void setAzimuth(float value);
 
   std::vector<float> getAnchor() const;

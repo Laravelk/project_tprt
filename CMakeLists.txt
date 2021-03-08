@@ -38,7 +38,7 @@ add_executable(tprt main.cpp
         Layer.cpp
         VelocityModel.cpp
         VelocityModel.hpp
-        Horizon/Horizon.h Horizon/GridHorizon.cpp Horizon/GridHorizon.h Math/Derivative.cpp Math/Derivative.h Optimize.h)
+        Horizon/Horizon.h Horizon/GridHorizon.cpp Horizon/GridHorizon.h Math/Derivative.cpp Math/Derivative.h Optimize.h Ray/WaveType.h)
 
 target_link_libraries(tprt LINK_PUBLIC NLopt::nlopt Eigen3::Eigen libInterpolate::Interpolate)
 

@@ -7,6 +7,9 @@
 #include <string>
 #include <vector>
 
+#include "Receiver.hpp"
+#include "Ray/WaveType.h"
+
 namespace ray_tracing {
 class Source {
   std::array<float, 3> location;
@@ -25,7 +28,9 @@ public:
 
   Source(std::array<float, 3> location) : location(location) {}
 
-  const std::array<float, 3> &getLocation() const;
+  float unitPolarization(std::array<float, 3> xyz_target, WaveType type);
+
+  [[nodiscard]] const std::array<float, 3> &getLocation() const;
 
   rapidjson::Document toJSON();
 

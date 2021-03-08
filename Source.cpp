@@ -5,6 +5,7 @@
 #include "Source.hpp"
 #include <fstream>
 #include <vector>
+#include <math.h>
 
 namespace ray_tracing {
 const std::array<float, 3> &Source::getLocation() const { return location; }
@@ -141,4 +142,18 @@ Source Source::fromJSON(const rapidjson::Value &doc) {
 
   return Source(location, moment, magnitude, t0, stype);
 }
+
+    float Source::unitPolarization(std::array<float, 3> xyz_target, WaveType type) {
+        float norm =
+                pow(pow(xyz_target[0] - location[0], 2) +
+                pow(xyz_target[1] - location[1], 2) +
+                pow(xyz_target[2] - location[2], 2), 1 / 2);
+
+        std::array<float, 3> unitVector = {(xyz_target[0] - location[0]) / norm,
+                                           (xyz_target[1] - location[1]) / norm,
+                                           (xyz_target[2] - location[2]) / norm
+        };
+
+        
+    }
 } // namespace ray_tracing

@@ -5,6 +5,7 @@
 
 #include "../rapidjson/pointer.h"
 #include <string>
+#include <array>
 
 namespace ray_tracing {
 class Horizon {

@@ -80,29 +80,19 @@ Time 0.379
   // LN_NELDERMEAD > 5000 итераций. Плохо сходится
   // LN_SBPLX Не меняет значение траектории вовсе
 
-  nlopt::opt opt(nlopt::LD_CCSAQ, vector.size());
-  std::vector<double> lb(vector.size());
-  for (auto v : lb) {
-    v = -1000;
-  }
-  opt.set_lower_bounds(lb);
+  nlopt::opt opt(nlopt::LD_AUGLAG, vector.size());
   opt.set_min_objective(Optimize::myfunc, this);
-  //  opt.set_xtol_abs(1e-3);
-  opt.set_maxeval(500);
+    opt.set_xtol_abs(1e-4);
 
-  double minf;
-  double start_time = clock(); // начальное время
-  nlopt::result result = opt.optimize(vector, minf);
-  double end_time = clock();                  // конечное время
-  double search_time = end_time - start_time; // искомое время
-  std::cout << "The result is" << std::endl;
-  std::cout << result << std::endl;
-  std::cout << "Minimal function value " << minf << std::endl;
-  std::cout << "search_time: " << search_time / CLOCKS_PER_SEC << std::endl;
-  for (auto tr : trajectory) {
-    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-              << "] " << std::endl;
-  }
+//  double minf;
+//  nlopt::result result = opt.optimize(vector, minf);
+//  std::cout << "The result is" << std::endl;
+//  std::cout << result << std::endl;
+//  std::cout << "Minimal function value " << minf << std::endl;
+//  for (auto tr : trajectory) {
+//    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+//              << "] " << std::endl;
+//  }
 }
 
 /// compute ray in layer and create segments

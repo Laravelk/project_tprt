@@ -5,31 +5,36 @@
 
 #include "rapidjson/document.h"
 #include <array>
+#include <fstream>
 #include <string>
 #include <vector>
 
 namespace ray_tracing {
-class Receiver {
-  std::array<float, 3> location;
-  std::vector<std::array<float, 3>> orientation;
+    class Receiver {
+        std::array<float, 3> location;
+        std::vector<std::array<float, 3>> orientation;
 
-  float sampling;
+        float sampling{};
 
-  std::string name;
+        std::string name;
 
-public:
-  Receiver(std::array<float, 3> location,
-           std::vector<std::array<float, 3>> orientation, float sampling,
-           std::string name = "")
-      : location(location), orientation(std::move(orientation)),
-        sampling(sampling), name(name) {}
+    public:
+        Receiver(std::array<float, 3> location,
+                 std::vector<std::array<float, 3>> orientation, float sampling,
+                 std::string name = "")
+                : location(location), orientation(std::move(orientation)),
+                  sampling(sampling), name(std::move(name)) {}
 
-  const std::array<float, 3> &getLocation() const { return location; }
+        Receiver(std::array<float, 3> location) : location(location) {}
 
-  rapidjson::Document toJSON();
+        static std::vector<Receiver> fromFile(std::ifstream file);
 
-  static Receiver fromJSON(const rapidjson::Value &doc);
-};
+        [[nodiscard]] const std::array<float, 3> &getLocation() const { return location; }
+
+        rapidjson::Document toJSON();
+
+        static Receiver fromJSON(const rapidjson::Value &doc);
+    };
 } // namespace ray_tracing
 
 #endif // TPRT_RECIEVER_HPP

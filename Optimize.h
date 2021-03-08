@@ -104,13 +104,6 @@ private:
                                     int layer_number, ray_tracing::Ray *ray) {
     auto velocity_model = ray->getModel();
 
-    //    std::cerr << "number: " << layer_number << std::endl;
-    //    std::cerr << "source: " << source[0] << " " << source[1] << " " <<
-    //    source[2]
-    //              << std::endl;
-    //    std::cerr << "receiver: " << receiver[0] << " " << receiver[1] << " "
-    //              << receiver[2] << std::endl;
-
     std::array<double, 3> vec{receiver[0] - source[0], receiver[1] - source[1],
                               receiver[2] - source[2]};
 
@@ -133,12 +126,6 @@ private:
     auto ray_code = ray->getRayCodeVector();
     Source source = ray->getSource();
     Receiver receiver = ray->getReceiver();
-
-    std::cerr << "x: " << std::endl;
-    for (auto part : x) {
-      std::cerr << part << std::endl;
-    }
-    std::cerr << std::endl;
 
     int number_of_unknowns = trajectory.size();
 
@@ -163,9 +150,7 @@ private:
 
     time += calculate_part_time(source_location, receiver.getLocation(),
                                 lastLayer, ray);
-
-    //    std::cerr << "time " << time << std::endl << std::endl;
-
+    
     return time;
   }
 };

@@ -2,13 +2,13 @@
 // Created by Алексей Матвеев on 06.06.2018.
 //
 
-#include <vector>
 #include "Source.hpp"
+#include <fstream>
+#include <vector>
+#include <math.h>
 
 namespace ray_tracing {
-    const std::array<float, 3> & Source::getLocation() const {
-        return location;
-    }
+    const std::array<float, 3> &Source::getLocation() const { return location; }
 
     rapidjson::Document Source::toJSON() {
         rapidjson::Document doc;
@@ -18,17 +18,18 @@ namespace ray_tracing {
 
         auto &allocator = doc.GetAllocator();
 
-        json_val.SetArray().PushBack(location[0], allocator).
-                PushBack(location[1], allocator).
-                PushBack(location[2], allocator);
+        json_val.SetArray()
+                .PushBack(location[0], allocator)
+                .PushBack(location[1], allocator)
+                .PushBack(location[2], allocator);
         doc.AddMember("Location", json_val, allocator);
 
         json_val.SetArray();
         for (int i = 0; i < 3; i++) {
             tmp_json_val.SetArray();
-            tmp_json_val.PushBack(moment[i][0], allocator).
-                    PushBack(moment[i][1], allocator).
-                    PushBack(moment[i][2], allocator);
+            tmp_json_val.PushBack(moment[i][0], allocator)
+                    .PushBack(moment[i][1], allocator)
+                    .PushBack(moment[i][2], allocator);
 
             json_val.PushBack(tmp_json_val, allocator);
         }
@@ -48,40 +49,73 @@ namespace ray_tracing {
         return doc;
     }
 
+    std::vector<Source> Source::fromFile(std::ifstream file) {
+        std::vector<std::array<float, 3>> sources_cord;
+
+        while (!file.eof()) {
+            float x = 0, y = 0, z = 0;
+            file >> x;
+            file >> y;
+            file >> z;
+            std::array<float, 3> location = {x, y, z};
+            sources_cord.push_back(location);
+        }
+
+        std::vector<Source> sources;
+
+        for (auto location : sources_cord) {
+            Source source(location);
+            sources.push_back(source);
+        }
+
+        return sources;
+    }
+
     Source Source::fromJSON(const rapidjson::Value &doc) {
         if (!doc.IsObject())
-            throw std::runtime_error("Source::fromJSON() - document should be an object");
+            throw std::runtime_error(
+                    "Source::fromJSON() - document should be an object");
 
-        std::vector<std::string> required_fields = {"Location", "Moment", "Cardinal", "Magnitude", "T0", "SType"};
+        std::vector<std::string> required_fields = {"Location",  "Moment", "Cardinal",
+                                                    "Magnitude", "T0",     "SType"};
 
-        for (const auto &field: required_fields) {
+        for (const auto &field : required_fields) {
             if (!doc.HasMember(field.c_str()))
-                throw std::runtime_error("Source::fromJSON() - invalid JSON, missing field " + field);
+                throw std::runtime_error(
+                        "Source::fromJSON() - invalid JSON, missing field " + field);
         }
 
         if (!doc["Location"].IsArray())
-            throw std::runtime_error("Source::fromJSON() - invalid JSON, `Location` should be an array");
+            throw std::runtime_error(
+                    "Source::fromJSON() - invalid JSON, `Location` should be an array");
 
         if (doc["Location"].Size() != 3)
-            throw std::runtime_error("Source::fromJSON - invalid JSON, wrong 'Location' size (should be equal three)");
+            throw std::runtime_error("Source::fromJSON - invalid JSON, wrong "
+                                     "'Location' size (should be equal three)");
 
         if (!doc["Moment"].IsArray())
-            throw std::runtime_error("Source::fromJSON() - invalid JSON, `Orientation` should be an array");
+            throw std::runtime_error(
+                    "Source::fromJSON() - invalid JSON, `Orientation` should be an array");
 
         if (doc["Moment"].Size() != 3)
-            throw std::runtime_error("Source::fromJSON - invalid JSON, wrong 'Orientation' size (should be equal Nc)");
+            throw std::runtime_error("Source::fromJSON - invalid JSON, wrong "
+                                     "'Orientation' size (should be equal Nc)");
 
         if (!doc["Cardinal"].IsString())
-            throw std::runtime_error("Source::fromJSON() - invalid JSON, `Cardinal` should be a string");
+            throw std::runtime_error(
+                    "Source::fromJSON() - invalid JSON, `Cardinal` should be a string");
 
         if (!doc["Magnitude"].IsFloat())
-            throw std::runtime_error("Source::fromJSON() - invalid JSON, `Magnitude` should be a float");
+            throw std::runtime_error(
+                    "Source::fromJSON() - invalid JSON, `Magnitude` should be a float");
 
         if (!doc["T0"].IsFloat())
-            throw std::runtime_error("Source::fromJSON() - invalid JSON, `T0` should be a float");
+            throw std::runtime_error(
+                    "Source::fromJSON() - invalid JSON, `T0` should be a float");
 
         if (!doc["SType"].IsString())
-            throw std::runtime_error("Source::fromJSON() - invalid JSON, `SType` should be a string");
+            throw std::runtime_error(
+                    "Source::fromJSON() - invalid JSON, `SType` should be a string");
 
         float magnitude = doc["Magnitude"].GetFloat();
         float t0 = doc["T0"].GetFloat();
@@ -89,20 +123,23 @@ namespace ray_tracing {
         std::string cardinal = doc["Cardinal"].GetString();
 
         if (cardinal != "END")
-            throw std::runtime_error("Source::fromJSON() - invalid JSON, `Cardinal` should be equal 'END'");
+            throw std::runtime_error(
+                    "Source::fromJSON() - invalid JSON, `Cardinal` should be equal 'END'");
 
-        std::array<float, 3> location{doc["Location"][0].GetFloat(), doc["Location"][1].GetFloat(),
+        std::array<float, 3> location{doc["Location"][0].GetFloat(),
+                                      doc["Location"][1].GetFloat(),
                                       doc["Location"][2].GetFloat()};
 
         std::array<std::array<float, 3>, 3> moment{};
 
         for (uint64_t i = 0; i < 3; i++) {
             if (!doc["Moment"][i].IsArray())
-                throw std::runtime_error("Source::fromJSON() - invalid JSON, `Moment` should be an 2D array");
+                throw std::runtime_error(
+                        "Source::fromJSON() - invalid JSON, `Moment` should be an 2D array");
             moment[i] = {doc["Moment"][i][0].GetFloat(), doc["Moment"][i][1].GetFloat(),
                          doc["Moment"][i][2].GetFloat()};
         }
 
         return Source(location, moment, magnitude, t0, stype);
     }
-}
+} // namespace ray_tracing

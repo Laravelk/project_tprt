@@ -72,6 +72,8 @@ public:
     generateCode(iray_code);
   }
 
+  void rayPolarization();
+
   void setTrajectory(std::vector<double> raw_trajectory) {
     std::vector<std::array<float, 3>> new_trajectory;
     new_trajectory.push_back(current_source.getLocation());

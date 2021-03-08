@@ -163,15 +163,13 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
                             doc["Anchor"][1].GetFloat()};
 
-  std::vector<std::array<float, 2>> region;
-
   for (rapidjson::SizeType i = 0; i < doc["Region"].Size(); i++) {
     std::array<float, 2> point = {doc["Region"][i][0].GetFloat(),
                                   doc["Region"][i][1].GetFloat()};
     region.emplace_back(point);
   }
 
-  return std::make_unique<FlatHorizon>(depth, dip, azimuth, region, anchor,
-
+  return std::make_unique<FlatHorizon>(depth, dip, azimuth, region, anchor);
 }
+
 } // namespace ray_tracing

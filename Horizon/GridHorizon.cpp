@@ -67,8 +67,7 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - document should be an object");
   }
 
-  std::vector<std::string> required_fields = {"PointsFileName", "Cardinal",
-
+  std::vector<std::string> required_fields = {"PointsFileName", "Cardinal", "Name"};
 
   if (!doc["Cardinal"].IsString())
     throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, "

@@ -130,6 +130,11 @@ rapidjson::Document Ray::toJSON() {
   doc.AddMember("Record", json_val, allocator);
   */
   return doc;
-} // namespace ray_tracing
+}
+
+    void Ray::rayPolarization() {
+//        float vel0 = velocity_model->getLayer(0).Vp;
+    }
+    // namespace ray_tracing
 
 } // namespace ray_tracing

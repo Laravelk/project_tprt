@@ -24,7 +24,6 @@ private:
   std::vector<float> normal;
 
 public:
-  std::vector<std::array<float, 2>> region;
 
   FlatHorizon(float depth, float dip, float azimuth,
               std::vector<std::array<float, 2>> region,

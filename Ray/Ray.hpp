@@ -47,26 +47,26 @@ public:
   std::vector<std::array<float, 3>> &getTrajectory() { return trajectory; }
   std::vector<Code> &getRayCodeVector() { return ray_code; }
   VelocityModel *getModel() { return velocity_model; }
-  Receiver getReceiver() { return current_receiver; }
-  Source getSource() { return current_source; }
+  Receiver getReceiver() { return receiver; }
+  Source getSource() { return source; }
 
   Ray(Source source, Receiver receiver, VelocityModel *_model,
       const std::vector<std::array<int, 3>>& iray_code)
-      : current_source(std::move(source)),
-        current_receiver(std::move(receiver)), velocity_model(_model),
+      : source(std::move(source)),
+        receiver(std::move(receiver)), velocity_model(_model),
         timeP(INFINITY) /*amplitudeP(1), timeS(INFINITY), amplitudeS(1)*/ {
     generateCode(iray_code);
   }
 
   Ray(std::vector<Source> _sources, std::vector<Receiver> _receivers,
       VelocityModel *_model, const std::vector<std::array<int, 3>>& iray_code)
-      : sources(std::move(_sources)), receivers(std::move(_receivers)),
-        current_source(sources[0]), current_receiver(receivers[0]),
+      :
+        source(source), receiver(receiver),
         velocity_model(_model), timeP(INFINITY) /*amplitudeP(1),
         timeS(INFINITY)*/
   {
-    current_source = sources[0];
-    current_receiver = receivers[0];
+    source = source;
+    receiver = receiver;
     generateCode(iray_code);
   }
 
@@ -74,7 +74,7 @@ public:
 
   void setTrajectory(std::vector<double> raw_trajectory) {
     std::vector<std::array<float, 3>> new_trajectory;
-    new_trajectory.push_back(current_source.getLocation());
+    new_trajectory.push_back(source.getLocation());
     for (unsigned long i = 1; i <= trajectory.size() - 2; i++) {
       new_trajectory.push_back(
           {static_cast<float>(raw_trajectory[2 * (i - 1)]),
@@ -85,7 +85,7 @@ public:
                    {static_cast<float>(raw_trajectory[2 * (i - 1)]),
                     static_cast<float>(raw_trajectory[2 * (i - 1) + 1])})});
     }
-    new_trajectory.push_back(current_receiver.getLocation());
+    new_trajectory.push_back(receiver.getLocation());
     trajectory = new_trajectory;
   }
   void computePathWithRayCode();

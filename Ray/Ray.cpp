@@ -20,10 +20,20 @@ void Ray::optimizeTrajectory() {
 
   auto *ray_data = new RayData(this);
 
-  nlopt::opt opt(nlopt::LN_NEWUOA, vector.size());
+  nlopt::opt opt(nlopt::LD_AUGLAG, vector.size());
   opt.set_min_objective(Optimize::myfunc, ray_data);
-  opt.set_xtol_abs(1e-3);
+  opt.set_xtol_abs(1e-4);
   opt.optimize(vector);
+
+//  double minf;
+//  nlopt::result result = opt.optimize(vector, minf);
+//  std::cout << "The result is" << std::endl;
+//  std::cout << result << std::endl;
+//  std::cout << "Minimal function value " << minf << std::endl;
+//  for (auto tr : trajectory) {
+//    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+//              << "] " << std::endl;
+//  }
   delete ray_data;
 }
 
@@ -137,7 +147,7 @@ rapidjson::Document Ray::toJSON() {
         float rho0 = velocity_model->getLayer(0)->density;
         float sou_factor = pow(1 / (4 * M_PI) * (1000 / rho0) * (1000 / vel0), 3);
 
-        float polariz0 = source
+//        float polariz0 = source
     }
     // namespace ray_tracing
 

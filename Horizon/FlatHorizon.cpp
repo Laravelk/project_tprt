@@ -100,41 +100,47 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   std::vector<std::string> required_fields = {
       "Dip", "Azimuth", "Depth", "Anchor", "Cardinal", "Name", "Region"};
 
+
   for (const auto &field : required_fields) {
     if (!doc.HasMember(field.c_str()))
       throw std::runtime_error(
           "FlatHorizon::fromJSON() - invalid JSON, missing field " + field);
   }
 
-  if (!doc["Dip"].IsFloat())
+  if (!doc["Dip"].IsFloat()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Dip` should be a float");
+  }
 
-  if (!doc["Azimuth"].IsFloat())
+  if (!doc["Azimuth"].IsFloat()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Azimuth` should be a float");
+  }
 
-  if (!doc["Depth"].IsFloat())
+  if (!doc["Depth"].IsFloat()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Depth` should be a float");
+  }
 
-  if (!doc["Anchor"].IsArray())
+  if (!doc["Anchor"].IsArray()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Anchor` should be an array");
+  }
 
-  //  if (!doc["Region"].IsArray()) {
-  //    throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON,
-  //    'Region "
-  //                             "Array' should be a array");
-  //  }
-
-  if (!doc["Cardinal"].IsString())
+  if (!doc["Cardinal"].IsString()) {
     throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, "
                              "`Cardinal` should be a string");
+  }
 
-  if (!doc["Name"].IsString())
+  if (!doc["Name"].IsString()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Name` should be a string");
+  }
+
+  if (!doc["Region"].IsArray()) {
+    throw std::runtime_error("FlatHorizon::fromJSON() - invalid JSON, 'Region' "
+                             "size should be equal two");
+  }
 
   float dip = doc["Dip"].GetFloat();
   float azimuth = doc["Azimuth"].GetFloat();
@@ -148,8 +154,11 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
 
   std::string name = doc["Name"].GetString();
 
-  std::cerr << "FlatHorizon::fromJSON:name " << name << " with depth " << depth
-            << "\n"; // TODO: remove or #ifdef
+  std::vector<std::array<float, 2>> region;
+  region.push_back(
+      {doc["Region"][0][0].GetFloat(), doc["Region"][0][1].GetFloat()});
+  region.push_back(
+      {doc["Region"][1][0].GetFloat(), doc["Region"][1][1].GetFloat()});
 
   std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
                             doc["Anchor"][1].GetFloat()};
@@ -163,6 +172,6 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   }
 
   return std::make_unique<FlatHorizon>(depth, dip, azimuth, region, anchor,
-                                       name);
+
 }
 } // namespace ray_tracing

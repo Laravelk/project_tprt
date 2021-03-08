@@ -64,10 +64,11 @@ public:
   double operator()(float x, float y) const;
 
   std::string getName() const { return name; }
+
   _2D::BicubicInterpolator<float> getInterpolator() const;
   void setInterpolator(const _2D::BicubicInterpolator<float> &value);
+
   std::vector<std::tuple<float, float, float>> getPoints() const;
-  void setPoints(const std::vector<std::tuple<float, float, float>> &value);
 };
 } // namespace ray_tracing
 

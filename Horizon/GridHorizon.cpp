@@ -68,7 +68,7 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
   }
 
   std::vector<std::string> required_fields = {"PointsFileName", "Cardinal",
-                                              "Name", "Region"};
+
 
   if (!doc["Cardinal"].IsString())
     throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, "
@@ -126,6 +126,7 @@ GridHorizon::GridHorizon(std::string _name,
     : points(std::move(std::move(_points))), region(std::move(_region)) {
   name = std::move(_name);
   interpolation(points);
+
 }
 
 _2D::BicubicInterpolator<float> GridHorizon::getInterpolator() const {
@@ -139,11 +140,6 @@ void GridHorizon::setInterpolator(
 
 std::vector<std::tuple<float, float, float>> GridHorizon::getPoints() const {
   return points;
-}
-
-void GridHorizon::setPoints(
-    const std::vector<std::tuple<float, float, float>> &value) {
-  points = value;
 }
 
 bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
@@ -170,6 +166,7 @@ bool GridHorizon::interpolation(
       abs(std::get<0>(points_array[0]) - std::get<0>(points_array[1]));
   long size = points_array.size();
   _2D::BicubicInterpolator<float>::VectorType xx(size), yy(size), zz(size);
+
 
   for (long i = 0; i < size; i++) {
     xx(i) = std::get<0>(points_array[i]);

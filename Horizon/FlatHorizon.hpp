@@ -19,6 +19,7 @@ private:
   float depth; // TODO: delete
   float D;
 
+  std::vector<std::array<float, 2>> region;
   std::vector<float> anchor;
   std::vector<float> normal;
 
@@ -47,14 +48,19 @@ public:
   virtual rapidjson::Document toJSON() override;
 
   static std::unique_ptr<FlatHorizon> fromJSON(const rapidjson::Value &doc);
+
   void setDepth(float value);
   float getDepthValue() { return depth; }
+
   float getDip() const;
   void setDip(float value);
+
   float getAzimuth() const;
   void setAzimuth(float value);
+
   std::vector<float> getAnchor() const;
   void setAnchor(const std::vector<float> &value);
+
   std::vector<float> getNormal() const;
   void setNormal(const std::vector<float> &value);
 };

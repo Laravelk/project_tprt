@@ -1,9 +1,11 @@
 // Created by Иван Морозов on 2020-06-17.
 
-#include "../Derivative.h"
+#include "../Math/Derivative.h"
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
+#include <fstream>
 #include <iostream>
 #include <memory>
+#include <tuple>
 #include <utility>
 #include <vector>
 
@@ -23,7 +25,6 @@ rapidjson::Document GridHorizon::toJSON() {
   json_val.SetString("grid", allocator);
   doc.AddMember("HType", json_val, allocator);
 
-  // array of arrays? TODO: do
   for (auto &point : points) {
     json_val.SetArray();
     tmp_json_val.SetArray();
@@ -54,26 +55,11 @@ GridHorizon::getGradientInPoint(std::array<double, 2> cord) const {
 
 std::array<double, 2> GridHorizon::getGradientInPoint(double x,
                                                       double y) const {
-  double derivative_x = 0, derivative_y = 0;
-  double EPS = gradient_step;
-  double xEPS = x + EPS;
-  double yEPS = y + EPS;
-
-  double t1 = getDepth(xEPS, y);
-  double t2 = getDepth(x, y);
-
-  derivative_x = (getDepth(xEPS, y) - getDepth(x, y)) / EPS;
-  derivative_y = (getDepth(x, yEPS) - getDepth(x, y)) / EPS;
-
   std::vector<float> d = calculateGradientInPoint(x, y); // TODO: delete
 
-  return {derivative_x, derivative_y};
+  return {d[0], d[1]};
 }
 
-/*
- * doc: "top" in json file
- * @return: GridHorizon object
- * */
 std::unique_ptr<GridHorizon>
 GridHorizon::fromJSON(const rapidjson::Value &doc) {
   if (!doc.IsObject()) {
@@ -81,7 +67,8 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
         "GridHorizon::fromJSON() - document should be an object");
   }
 
-  std::vector<std::string> required_fields = {"Points", "Cardinal", "Name"};
+  std::vector<std::string> required_fields = {"PointsFileName", "Cardinal",
+
 
   if (!doc["Cardinal"].IsString())
     throw std::runtime_error("GridHorizon::fromJSON() - invalid JSON, "
@@ -91,9 +78,10 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "GridHorizon::fromJSON() - invalid JSON, `Name` should be a string");
 
-  if (!doc["Points"].IsArray()) {
+  if (!doc["PointsFileName"].IsString()) {
     throw std::runtime_error(
-        "GridHorizon::fromJSON() - invalid JSON, 'Array' should be a array");
+        "GridHorizon::fromJSON() - invalid JSON, 'FilePath "
+        "String' should be a string");
   }
 
   std::string cardinal = doc["Cardinal"].GetString();
@@ -106,24 +94,41 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
 
   std::vector<std::tuple<float, float, float>> points;
 
-  for (SizeType i = 0; i < doc["Points"].Size(); i++) {
-    points.emplace_back(doc["Points"][i][0].GetFloat(),
-                        doc["Points"][i][1].GetFloat(),
-                        doc["Points"][i][2].GetFloat());
+  std::ifstream pointsFile(doc["PointsFileName"].GetString());
+
+  while (!pointsFile.eof()) {
+    float x;
+    float y;
+    float z;
+    pointsFile >> x;
+    pointsFile >> y;
+    pointsFile >> z;
+    auto tuple = std::make_tuple(x, y, z);
+    points.push_back(tuple);
   }
 
-  return std::make_unique<GridHorizon>(name, points);
+  pointsFile.close();
+
+  std::vector<std::array<float, 2>> region;
+
+  for (SizeType i = 0; i < doc["Region"].Size(); i++) {
+    std::array<float, 2> point = {doc["Region"][i][0].GetFloat(),
+                                  doc["Region"][i][1].GetFloat()};
+    region.emplace_back(point);
+  }
+
+  return std::make_unique<GridHorizon>(name, points, region);
 }
 
 GridHorizon::GridHorizon(std::string _name,
-                         std::vector<std::tuple<float, float, float>> _points)
-    : points(_points) {
-  name = _name;
-  find_corner(); // TODO: delete
-  // interpolation(points); TODO: add
+                         std::vector<std::tuple<float, float, float>> _points,
+                         std::vector<std::array<float, 2>> _region)
+    : points(std::move(std::move(_points))), region(std::move(_region)) {
+  name = std::move(_name);
+  interpolation(points);
+
 }
 
-/* check grid value */
 _2D::BicubicInterpolator<float> GridHorizon::getInterpolator() const {
   return interpolator;
 }
@@ -143,64 +148,33 @@ bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
     return false;
   }
 
-  for (unsigned long i = 0; i < x.size(); i++) {
-    float x_value = x.at(i);
-    float y_value = y.at(i);
+  //  for (unsigned long i = 0; i < x.size(); i++) {
+  //    float x_value = x.at(i);
+  //    float y_value = y.at(i);
 
-    float inter = interpolator(x_value, y_value);
-    float test_inter = interpolator(60000, y_value);
-
-    //    std::cerr << x_value << ", " << y_value << ": " << z[i] << " = " <<
-    //    inter
-    //              << " : " << test_inter << std::endl;
-  }
+  //    float inter = interpolator(x_value, y_value);
+  //  }
   return true;
-}
-
-void GridHorizon::find_corner() {
-  for (auto it : points) {
-    float x = std::get<0>(it);
-    float y = std::get<1>(it);
-    if (x < left_top.at(0) && y > left_top.at(1)) {
-      left_top = {x, y};
-    }
-    if (x > right_top.at(0) && y > right_top.at(1)) {
-      right_top = {x, y};
-    }
-    if (x < left_bottom.at(0) && y < left_bottom.at(1)) {
-      left_bottom = {x, y};
-    }
-    if (x > right_bottom[0] && y < right_bottom[1]) {
-      right_bottom = {x, y};
-    }
-  }
-  return;
 }
 
 bool GridHorizon::interpolation(
     const std::vector<std::tuple<float, float, float>> &points_array) {
-  std::vector<float> x;
-  std::vector<float> y;
-  std::vector<float> z;
-
   const int MIN_POINTS_COUNT = 4;
-
   assert(points_array.size() >= MIN_POINTS_COUNT);
 
-  x.reserve(points_array.size());
-  y.reserve(points_array.size());
-  z.reserve(points_array.size());
+  gradient_step =
+      abs(std::get<0>(points_array[0]) - std::get<0>(points_array[1]));
+  long size = points_array.size();
+  _2D::BicubicInterpolator<float>::VectorType xx(size), yy(size), zz(size);
 
-  gradient_step = abs(x[1] - x[0]);
 
-  for (auto point : points_array) {
-    x.push_back(std::get<0>(point));
-    y.push_back(std::get<1>(point));
-    z.push_back(std::get<2>(point));
+  for (long i = 0; i < size; i++) {
+    xx(i) = std::get<0>(points_array[i]);
+    yy(i) = std::get<1>(points_array[i]);
+    zz(i) = std::get<2>(points_array[i]);
   }
 
-  interpolator.setData(x, y, z);
-  // checkGrid(x, y, z);
+  interpolator.setData(xx, yy, zz);
   return true;
 }
 
@@ -208,14 +182,7 @@ double GridHorizon::operator()(float x, float y) const {
   return interpolator(x, y);
 }
 
-Horizon *GridHorizon::clone() {
-  GridHorizon *new_horizon = new GridHorizon(*this);
-  return new_horizon;
-}
-
 float GridHorizon::getDepth(float x, float y) const {
-  //  std::cerr << "GridHorizon::getDepth: " << x << " " << y << " "
-  //            << interpolator(x, y) << std::endl;
   return interpolator(x, y);
 }
 
@@ -224,48 +191,5 @@ std::vector<float> GridHorizon::calculateGradientInPoint(float x,
   std::vector<float> gradient = {Derivative::derivative_x(x, y, interpolator),
                                  Derivative::derivative_y(x, y, interpolator)};
   return gradient;
-}
-
-std::vector<float> GridHorizon::normalAtPoint(float x, float y, float z) const {
-  std::vector<float> gradient =
-      calculateGradientInPoint(x, y); // [dz/dx, dz/dy]
-  float norm = sqrt(gradient[0] * gradient[0] + gradient[1] * gradient[1] + 1);
-  return {gradient[0] / norm, gradient[1] / norm,
-          1}; // [dz/dx, dy/dz, 1], unit normal
-}
-
-std::vector<float>
-GridHorizon::minimize(const std::array<float, 3> &x0,
-                      const std::array<float, 3> &x1,
-                      const std::array<float, 3> &vector) const {
-  /* function zone borders */
-  float left_border_x = 0;
-  float right_border_x = 0;
-  float left_border_y = 0;
-  float right_border_y = 0;
-
-  /* defined start boundaries of the function */
-  left_border_x = x0[0] > x1[0] ? x1[0] : x0[0];
-  right_border_x = x0[0] > x1[0] ? x0[0] : x1[0];
-  left_border_y = x0[1] > x1[1] ? x1[1] : x0[1];
-  right_border_y = x0[1] > x1[1] ? x0[1] : x1[1];
-
-  /* s: way path from x0 to x1 */
-  float step = 0.0002f;
-  float s = 0.0f;
-
-  float prev_z_line = x0[2] + s * vector[2];
-
-  for (unsigned long i = 0; i < 1.0f / step; i++) {
-    float z_inter = interpolator(x0[0] + s * vector[0], x0[1] + s * vector[1]);
-    float z_line = x0[2] + s * vector[2];
-    if ((z_inter - z_line) * (z_inter - prev_z_line) <= 0) {
-      return {(x0[0] + (s - step / 2) * vector[0]),
-              (x0[1] + (s - step / 2) * vector[1]), z_inter};
-    }
-    prev_z_line = z_line;
-    s += step;
-  }
-  return {0, 0, 0};
 }
 } // namespace ray_tracing

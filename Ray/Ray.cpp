@@ -1,9 +1,10 @@
 #include "Ray.hpp"
-#include "Segment.hpp"
-#include <Eigen/Dense>
 #include <algorithm>
-#include <unsupported/Eigen/NumericalDiff>
-#include <utility>
+#include <nlopt.hpp>
+
+#include "../Optimize.h"
+#include "RayData.h"
+
 
 typedef unsigned long ulong;
 
@@ -12,27 +13,24 @@ namespace ray_tracing {
 void Ray::optimizeTrajectory() {
   std::vector<double> vector;
 
-  for (int i = 1; i < trajectory.size(); i++) {
-    std::cerr << trajectory.at(i)[0] << " " << trajectory.at(i)[1] << " ";
+  for (unsigned long i = 1; i < trajectory.size() - 1; i++) {
     vector.push_back(trajectory.at(i)[0]);
     vector.push_back(trajectory.at(i)[1]);
   }
-  std::cerr << std::endl;
 
-  Eigen::VectorXd eigenVector = Eigen::Map<Eigen::VectorXd, Eigen::Unaligned>(
-      vector.data(), vector.size());
+  auto *ray_data = new RayData(this);
 
-  MyProblem probb(*this);
-  BfgsSolver<MyProblem> solver;
-  solver.minimize(probb, eigenVector);
-  std::cerr << solver.status() << std::endl;
-  std::cerr << "argmin      " << eigenVector.transpose() << std::endl;
+  nlopt::opt opt(nlopt::LN_NEWUOA, vector.size());
+  opt.set_min_objective(Optimize::myfunc, ray_data);
+  opt.set_xtol_abs(1e-3);
+  opt.optimize(vector);
+  delete ray_data;
 }
 
 /// compute ray in layer and create segments
 void Ray::computeSegmentsRay() {
-  auto source_location = source.getLocation();
-  auto receiver_location = receiver.getLocation();
+  auto source_location = current_source.getLocation();
+  auto receiver_location = current_receiver.getLocation();
 
   float diff_x = receiver_location[0] - source_location[0];
   float diff_y = receiver_location[1] - source_location[1];
@@ -56,7 +54,6 @@ void Ray::computeSegmentsRay() {
       {receiver_location[0], receiver_location[1], receiver_location[2]});
 }
 
-// layer_number, up/down, wave_type
 void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
   for (auto ray_element : rayCode) {
     Direction direction;
@@ -76,12 +73,8 @@ void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
   }
 }
 
-void Ray::computePath() {}
-
 void Ray::computePathWithRayCode() {
   computeSegmentsRay();
-  std::cerr << "after compute segments"
-            << "\n";
   optimizeTrajectory();
 }
 

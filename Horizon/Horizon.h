@@ -3,8 +3,10 @@
 
 // Created by Иван Морозов on 2020-06-17.
 
-#include "../rapidjson/pointer.h"
+#include <array>
 #include <string>
+
+#include "../rapidjson/pointer.h"
 
 namespace ray_tracing {
 class Horizon {
@@ -15,7 +17,6 @@ public:
   virtual rapidjson::Document toJSON() = 0;
 
   virtual float getDepth(std::array<float, 2> x) const = 0;
-  virtual Horizon *clone() = 0;
 
   virtual std::array<double, 2> getGradientInPoint(double x,
                                                    double y) const = 0;

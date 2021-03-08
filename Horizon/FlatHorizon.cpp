@@ -5,22 +5,27 @@
 
 /*
  * граница между средами
- * */
+ *
+ */
 namespace ray_tracing {
 
-// NOTE: как это работает
-float FlatHorizon::getDepth(std::array<float, 2> x) const {
-  std::array<float, 2> absolute_x = {{x[0] - anchor[0], x[1] - anchor[1]}};
-  float z = (depth - (absolute_x[0] * normal[0] + absolute_x[1] * normal[1])) /
-            (normal[2] + 1e-16f);
-  //  std::cerr << "FlatHorizon::getDepth::ABS: " << absolute_x[0] << " "
-  //            << absolute_x[1] << " " << z << std::endl;
-  return z;
+FlatHorizon::FlatHorizon(float depth, float dip, float azimuth,
+                         std::vector<std::array<float, 2>> _region,
+                         std::vector<float> anchor, std::string _name)
+    : dip(dip), azimuth(azimuth), depth((-1.0f) * depth), anchor(anchor),
+      region(_region) {
+
+  name = _name;
+  normal.push_back(sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180));
+  normal.push_back((dip * M_PI / 180) * sin(azimuth * M_PI / 180));
+  normal.push_back((-1.0f) * cos(dip * M_PI / 180));
+  D = (-1.0f) *
+      (normal[0] * anchor[0] + normal[1] * anchor[1] + normal[2] * depth);
 }
 
-Horizon *FlatHorizon::clone() {
-  FlatHorizon *new_horizon = new FlatHorizon(*this);
-  return new_horizon;
+float FlatHorizon::getDepth(std::array<float, 2> x) const {
+  return (-1.0f) * (normal[0] * x[0] + normal[1] * x[1] + D) /
+         (normal[2] + 1e-16);
 }
 
 void FlatHorizon::setDepth(float value) { depth = value; }
@@ -41,42 +46,15 @@ std::vector<float> FlatHorizon::getNormal() const { return normal; }
 
 void FlatHorizon::setNormal(const std::vector<float> &value) { normal = value; }
 
-FlatHorizon::FlatHorizon(float depth, float dip, float azimuth,
-                         std::vector<float> anchor,
-                         std::vector<std::array<float, 2>> region,
-                         std::string _name)
-    : dip(dip), azimuth(azimuth), depth(depth), anchor(anchor) {
-  this->region = region;
-  this->name = _name;
-  this->normal.push_back(sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180));
-  this->normal.push_back((dip * M_PI / 180) * sin(azimuth * M_PI / 180));
-  this->normal.push_back(cos(dip * M_PI / 180));
-}
-
 std::array<double, 2>
 FlatHorizon::getGradientInPoint(std::array<double, 2> cord) const {
   return getGradientInPoint(cord[0], cord[1]);
 }
 
+// TODO: сменить название
 std::array<double, 2> FlatHorizon::getGradientInPoint(double x,
                                                       double y) const {
-  double derivative_x = 0, derivative_y = 0;
-  const double EPS = 1000.0f;
-
-  double xEPS = x + EPS;
-  double yEPS = y + EPS;
-  std::array<float, 2> array1{(float)xEPS, (float)y};
-  std::array<float, 2> array2{(float)x, (float)y};
-
-  double t1 = getDepth(array1);
-  double t2 = getDepth(array2);
-
-  derivative_x = (getDepth(array1) - getDepth(array2)) / EPS;
-  derivative_y =
-      (getDepth({(float)x, (float)(yEPS)}) - getDepth({(float)x, (float)y})) /
-      EPS;
-
-  return {derivative_x, derivative_y};
+  return {(-1) * normal[0] / normal[2], (-1) * normal[1] / normal[2]};
 }
 
 rapidjson::Document FlatHorizon::toJSON() {
@@ -120,7 +98,8 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
         "FlatHorizon::fromJSON() - document should be an object");
 
   std::vector<std::string> required_fields = {
-      "Dip", "Azimuth", "Depth", "Anchor", "Cardinal", "Name" /*, "Region"*/};
+      "Dip", "Azimuth", "Depth", "Anchor", "Cardinal", "Name", "Region"};
+
 
   for (const auto &field : required_fields) {
     if (!doc.HasMember(field.c_str()))
@@ -146,11 +125,6 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   if (!doc["Anchor"].IsArray()) {
     throw std::runtime_error(
         "FlatHorizon::fromJSON() - invalid JSON, `Anchor` should be an array");
-  }
-
-  if (doc["Anchor"].Size() != 3) {
-    throw std::runtime_error("FlatHorizon::fromJSON - invalid JSON, wrong "
-                             "'Anchor' size (should be equal two)");
   }
 
   if (!doc["Cardinal"].IsString()) {
@@ -189,7 +163,15 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   std::vector<float> anchor{doc["Anchor"][0].GetFloat(),
                             doc["Anchor"][1].GetFloat()};
 
-  return std::make_unique<FlatHorizon>(depth, dip, azimuth, anchor, region,
-                                       name);
+  std::vector<std::array<float, 2>> region;
+
+  for (rapidjson::SizeType i = 0; i < doc["Region"].Size(); i++) {
+    std::array<float, 2> point = {doc["Region"][i][0].GetFloat(),
+                                  doc["Region"][i][1].GetFloat()};
+    region.emplace_back(point);
+  }
+
+  return std::make_unique<FlatHorizon>(depth, dip, azimuth, region, anchor,
+
 }
 } // namespace ray_tracing

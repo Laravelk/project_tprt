@@ -9,27 +9,30 @@
 #include <cmath>
 #include <iostream>
 #include <vector>
+#include <memory>
 
 namespace ray_tracing {
 class FlatHorizon : public Horizon {
 private:
   float dip;
   float azimuth;
-  float depth;
+  float depth; // TODO: delete
+  float D;
 
   std::vector<std::array<float, 2>> region;
   std::vector<float> anchor;
   std::vector<float> normal;
 
 public:
+  std::vector<std::array<float, 2>> region;
+
   FlatHorizon(float depth, float dip, float azimuth,
-              std::vector<float> anchor = {0, 0, 0},
-              std::vector<std::array<float, 2>> region = {{0, 0}, {1, 1}},
-              std::string name = "");
+              std::vector<std::array<float, 2>> region,
+              std::vector<float> anchor = {0, 0, 0}, std::string name = "");
 
   FlatHorizon(FlatHorizon &copy)
-      : dip(copy.getDip()), depth(copy.getDepthValue()),
-        azimuth(copy.getAzimuth()), anchor(copy.getAnchor()),
+      : dip(copy.getDip()), azimuth(copy.getAzimuth()),
+        depth(copy.getDepthValue()), anchor(copy.getAnchor()),
         normal(copy.getNormal()), region(copy.region) {
     this->name = copy.getName();
   }
@@ -41,8 +44,6 @@ public:
   ~FlatHorizon() override {}
 
   virtual float getDepth(std::array<float, 2> x) const override;
-
-  virtual Horizon *clone() override;
 
   virtual rapidjson::Document toJSON() override;
 

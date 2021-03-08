@@ -5,7 +5,7 @@
 
 #include "Horizon/FlatHorizon.hpp"
 #include "Horizon/GridHorizon.h"
-#include "Ray.hpp"
+#include "Ray/Ray.hpp"
 #include "VelocityModel.hpp"
 #include "rapidjson/error/en.h"
 #include "rapidjson/istreamwrapper.h"

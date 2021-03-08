@@ -1,16 +1,10 @@
 #include "Ray.hpp"
-#include "Segment.hpp"
-#include <Eigen/Dense>
 #include <algorithm>
-#include <chrono>
-#include <unsupported/Eigen/NumericalDiff>
-#include <utility>
-
-#include "Optimize.h"
-#include "raydata.h"
-
-#include <nlopt.h>
 #include <nlopt.hpp>
+
+#include "../Optimize.h"
+#include "RayData.h"
+
 
 typedef unsigned long ulong;
 
@@ -24,46 +18,12 @@ void Ray::optimizeTrajectory() {
     vector.push_back(trajectory.at(i)[1]);
   }
 
-  RayData *ray_data = new RayData(this);
+  auto *ray_data = new RayData(this);
 
-  // LD_SLSQP – 0.379634 Python + За 200 итераций результат – 0.389
-
-  // LD_MMA - 0.385 Python +- За 70-80 итераций
-  // LD_CCSAQ - 0.386 За 100-200 итераций
-  // LD_AUGLAG - 0.388 150 итераций
-
-  // LD_LBFGS terminating with uncaught exception of type
-  // std::runtime_error: nlopt failure LD_TNEWTON_PRECOND_RESTART аналогично
-  // LD_TNEWTON аналогично
-  // LD_VAR1 аналогично
-
-  // LN_COBYLA – OutOfMemory Python (2000) -  Эффективность сомнительная
-  // LN_BOBYQA OutOfMemory при 500 итерация. Выглядит более эффективным
-  // LN_NEWUOA Рассходится на определенной итерации > 1200
-  // LN_PRAXIS 2000 итераций. Плохо сходится
-  // LN_NELDERMEAD > 5000 итераций. Плохо сходится
-  // LN_SBPLX Не меняет значение траектории вовсе
   nlopt::opt opt(nlopt::LN_NEWUOA, vector.size());
-  //  std::vector<double> lb(vector.size());
-  //  for (auto v : lb) {
-  //    v = -1000;
-  //  }
-  //  double minf = 0;
-  //  opt.set_lower_bounds(lb);
   opt.set_min_objective(Optimize::myfunc, ray_data);
   opt.set_xtol_abs(1e-3);
-  //  opt.set_maxeval(1);
   opt.optimize(vector);
-  //  minf = opt.get_maxtime();
-  //  std::cout << "The result is" << std::endl;
-  //  std::cout << result << std::endl;
-  //  std::cout << "Minimal function value " << minf << std::endl;
-  //  std::cout << "search_time: " << search_time / CLOCKS_PER_SEC << std::endl;
-  //  for (auto tr : trajectory) {
-  //    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-  //              << "] " << std::endl;
-  //  }
-
   delete ray_data;
 }
 
@@ -92,9 +52,6 @@ void Ray::computeSegmentsRay() {
   }
   trajectory.push_back(
       {receiver_location[0], receiver_location[1], receiver_location[2]});
-  //  for (auto tr : trajectory) {
-  //    std::cerr << tr[0] << " " << tr[1] << " " << tr[2] << std::endl;
-  //  }
 }
 
 void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {

@@ -14,7 +14,7 @@ class Receiver {
   std::array<float, 3> location;
   std::vector<std::array<float, 3>> orientation;
 
-  float sampling;
+  float sampling{};
 
   std::string name;
 
@@ -23,13 +23,13 @@ public:
            std::vector<std::array<float, 3>> orientation, float sampling,
            std::string name = "")
       : location(location), orientation(std::move(orientation)),
-        sampling(sampling), name(name) {}
+        sampling(sampling), name(std::move(name)) {}
 
   Receiver(std::array<float, 3> location) : location(location) {}
 
   static std::vector<Receiver> fromFile(std::ifstream file);
 
-  const std::array<float, 3> &getLocation() const { return location; }
+  [[nodiscard]] const std::array<float, 3> &getLocation() const { return location; }
 
   rapidjson::Document toJSON();
 

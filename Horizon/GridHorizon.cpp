@@ -1,6 +1,6 @@
 // Created by Иван Морозов on 2020-06-17.
 
-#include "../Derivative.h"
+#include "../Math/Derivative.h"
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
 #include <fstream>
 #include <iostream>
@@ -55,27 +55,11 @@ GridHorizon::getGradientInPoint(std::array<double, 2> cord) const {
 
 std::array<double, 2> GridHorizon::getGradientInPoint(double x,
                                                       double y) const {
-  double derivative_x = 0, derivative_y = 0;
-  double EPS = gradient_step;
-  double xEPS = x + EPS;
-  double yEPS = y + EPS;
-
-  double t1 = getDepth(xEPS, y);
-  double t2 = getDepth(x, y);
-  double tt = t1 - t2;
-
-  derivative_x = (getDepth(xEPS, y) - getDepth(x, y)) / EPS;
-  derivative_y = (getDepth(x, yEPS) - getDepth(x, y)) / EPS;
-
   std::vector<float> d = calculateGradientInPoint(x, y); // TODO: delete
 
   return {d[0], d[1]};
 }
 
-/*
- * doc: "top" in json file
- * @return: GridHorizon object
- * */
 std::unique_ptr<GridHorizon>
 GridHorizon::fromJSON(const rapidjson::Value &doc) {
   if (!doc.IsObject()) {
@@ -139,8 +123,8 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
 GridHorizon::GridHorizon(std::string _name,
                          std::vector<std::tuple<float, float, float>> _points,
                          std::vector<std::array<float, 2>> _region)
-    : points(_points), region(_region) {
-  name = _name;
+    : points(std::move(std::move(_points))), region(std::move(_region)) {
+  name = std::move(_name);
   interpolation(points);
 }
 

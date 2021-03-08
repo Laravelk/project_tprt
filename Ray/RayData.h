@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "Ray.hpp"
-#include "VelocityModel.hpp"
+#include "../VelocityModel.hpp"
 
 namespace ray_tracing {
 struct RayData {

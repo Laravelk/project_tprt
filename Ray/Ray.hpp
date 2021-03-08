@@ -3,11 +3,10 @@
 #ifndef TPRT_RAY_HPP
 #define TPRT_RAY_HPP
 
-#include "Layer.hpp"
-#include "Receiver.hpp"
-#include "Segment.hpp"
-#include "Source.hpp"
-#include "VelocityModel.hpp"
+#include "../Layer.hpp"
+#include "../Receiver.hpp"
+#include "../Source.hpp"
+#include "../VelocityModel.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -18,15 +17,6 @@ namespace ray_tracing {
 
 enum Direction { DOWN = -1, UP = 0 };
 enum WaveType { SWAVE = 0, PWAVE = 1 };
-/// class for cppoptlib Solver
-
-/// source: object of type Source
-/// receiver: object of type Receiver
-/// velocity_model: object of type VelocityModel
-/// ray_code: for each Segment of Ray is [+1 (down) or -1 (up), depth of
-/// Layer, WaveType: 0 (WaveP) or 1 (WaveS)]
-///
-///
 
 struct Code {
   Code(long number, Direction dir, WaveType type)
@@ -46,28 +36,16 @@ private:
   VelocityModel *velocity_model;
 
   float timeP;
-  //  float amplitudeP;
-  //  float timeS;
-  //  float amplitudeS;
 
   std::vector<Code> ray_code; // vector of ray_code
   std::vector<std::array<float, 3>> trajectory;
 
-  /// function which optimize trajectory
-  /// @return nothing
   void optimizeTrajectory();
-
-  /// function do first optimization of trajectory
-  /// @return nothing
   void computeSegmentsRay();
 
-  void generateCode(const std::vector<std::array<int, 3>> ray_code);
+  void generateCode(std::vector<std::array<int, 3>> ray_code);
 
 public:
-  //  friend double myfunc(const std::vector<double> &x, std::vector<double>
-  //  &grad,
-  //                       void *data);
-
   std::vector<std::array<float, 3>> &getTrajectory() { return trajectory; }
   std::vector<Code> &getRayCodeVector() { return ray_code; }
   VelocityModel *getModel() { return velocity_model; }
@@ -75,7 +53,7 @@ public:
   Source getSource() { return current_source; }
 
   Ray(Source source, Receiver receiver, VelocityModel *_model,
-      const std::vector<std::array<int, 3>> iray_code)
+      const std::vector<std::array<int, 3>>& iray_code)
       : current_source(std::move(source)),
         current_receiver(std::move(receiver)), velocity_model(_model),
         timeP(INFINITY) /*amplitudeP(1), timeS(INFINITY), amplitudeS(1)*/ {
@@ -83,7 +61,7 @@ public:
   }
 
   Ray(std::vector<Source> _sources, std::vector<Receiver> _receivers,
-      VelocityModel *_model, const std::vector<std::array<int, 3>> iray_code)
+      VelocityModel *_model, const std::vector<std::array<int, 3>>& iray_code)
       : sources(std::move(_sources)), receivers(std::move(_receivers)),
         current_source(sources[0]), current_receiver(receivers[0]),
         velocity_model(_model), timeP(INFINITY) /*amplitudeP(1),
@@ -109,15 +87,8 @@ public:
     }
     new_trajectory.push_back(current_receiver.getLocation());
     trajectory = new_trajectory;
-
-    //    std::cerr << "trajectory" << std::endl;
-    //    for (auto part : trajectory) {
-    //      std::cerr << part[0] << " " << part[1] << " " << part[2] <<
-    //      std::endl;
-    //    }
-    //    std::cerr << std::endl;
   }
-  void computePathWithRayCode(); // test function for raycode
+  void computePathWithRayCode();
 
   rapidjson::Document toJSON();
 };

@@ -7,6 +7,7 @@
 #include "../Receiver.hpp"
 #include "../Source.hpp"
 #include "../VelocityModel.hpp"
+#include "WaveType.h"
 
 #include <algorithm>
 #include <cmath>
@@ -16,7 +17,6 @@
 namespace ray_tracing {
 
 enum Direction { DOWN = -1, UP = 0 };
-enum WaveType { SWAVE = 0, PWAVE = 1 };
 
 struct Code {
   Code(long number, Direction dir, WaveType type)
@@ -32,6 +32,7 @@ private:
   Source source;
   Receiver receiver;
   VelocityModel *velocity_model;
+  const WaveType waveType = WaveType::PWave; // TODO: changed
 
   float timeP;
 

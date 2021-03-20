@@ -73,10 +73,10 @@ void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
     } else {
       direction = Direction::UP;
     }
-    if (WaveType::SWAVE == ray_element[2]) {
-      type = WaveType::SWAVE;
+    if (WaveType::SWave == ray_element[2]) {
+      type = WaveType::SWave;
     } else {
-      type = WaveType::PWAVE;
+      type = WaveType::PWave;
     }
     Code code(ray_element[0], direction, type);
     ray_code.push_back(code);
@@ -143,11 +143,15 @@ rapidjson::Document Ray::toJSON() {
 }
 
     void Ray::rayPolarization() {
+
         float vel0 = velocity_model->getLayer(0)->Vp;
         float rho0 = velocity_model->getLayer(0)->density;
         float sou_factor = pow(1 / (4 * M_PI) * (1000 / rho0) * (1000 / vel0), 3);
+        Eigen::Vector3d polariz0 = source.unitPolarization(receiver.getLocation(), waveType);
 
-//        float polariz0 = source
+        for(int i = 1; i < velocity_model->getLayersCount(); i++) {
+
+        }
     }
     // namespace ray_tracing
 

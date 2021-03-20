@@ -2,8 +2,8 @@
 #define TPRT_WAVETYPE_H
 
 enum WaveType {
-    VType,
-    SType
+    SWave,
+    PWave
 };
 
 #endif //TPRT_WAVETYPE_H

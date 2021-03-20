@@ -1,11 +1,14 @@
 #ifndef TPRT_LAYER_HPP
 #define TPRT_LAYER_HPP
 
-#include "Horizon/FlatHorizon.hpp"
-#include "Horizon/GridHorizon.h"
-#include "rapidjson/document.h"
 #include <memory>
 #include <string>
+
+#include "rapidjson/document.h"
+
+#include "Ray/WaveType.h"
+#include "Horizon/FlatHorizon.hpp"
+#include "Horizon/GridHorizon.h"
 
 namespace ray_tracing {
 class Layer {

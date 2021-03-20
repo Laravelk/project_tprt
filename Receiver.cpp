@@ -16,12 +16,12 @@ std::vector<Receiver> Receiver::fromFile(std::ifstream file) {
 
   std::vector<Receiver> receivers;
 
-  for (auto location : receivers_cord) {
-    Receiver receiver(location);
-    receivers.push_back(receiver);
-  }
+  receivers.reserve(receivers_cord.size());
+    for (auto location : receivers_cord) {
+        receivers.emplace_back(location);
+    }
 
-  return receivers;
+    return receivers;
 }
 
 rapidjson::Document Receiver::toJSON() {

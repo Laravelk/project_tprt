@@ -127,6 +127,7 @@ int main(int argc, char *argv[]) {
   auto start = std::chrono::steady_clock::now();
   for (long i = 0; i < N; i++) {
     rays[i].computePathWithRayCode();
+    std::cerr << i << std::endl;
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;

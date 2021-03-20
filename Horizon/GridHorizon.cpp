@@ -147,12 +147,6 @@ bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
     return false;
   }
 
-  //  for (unsigned long i = 0; i < x.size(); i++) {
-  //    float x_value = x.at(i);
-  //    float y_value = y.at(i);
-
-  //    float inter = interpolator(x_value, y_value);
-  //  }
   return true;
 }
 
@@ -187,8 +181,9 @@ float GridHorizon::getDepth(float x, float y) const {
 
 std::vector<float> GridHorizon::calculateGradientInPoint(float x,
                                                          float y) const {
-  std::vector<float> gradient = {Derivative::derivative_x(x, y, interpolator),
-                                 Derivative::derivative_y(x, y, interpolator)};
-  return gradient;
+  return {
+      Derivative::derivative_x(x, y, interpolator),
+      Derivative::derivative_y(x, y, interpolator)
+  };
 }
 } // namespace ray_tracing

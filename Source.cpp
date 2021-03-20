@@ -5,7 +5,7 @@
 #include "Source.hpp"
 #include <fstream>
 #include <vector>
-#include <math.h>
+#include <Eigen/Dense>
 
 namespace ray_tracing {
 const std::array<float, 3> &Source::getLocation() const { return location; }
@@ -143,17 +143,74 @@ Source Source::fromJSON(const rapidjson::Value &doc) {
   return Source(location, moment, magnitude, t0, stype);
 }
 
-    float Source::unitPolarization(std::array<float, 3> xyz_target, WaveType type) {
-        float norm =
-                pow(pow(xyz_target[0] - location[0], 2) +
-                pow(xyz_target[1] - location[1], 2) +
-                pow(xyz_target[2] - location[2], 2), 1 / 2);
+Eigen::Vector3d Source::unitPolarization(std::array<float, 3> xyz_target, WaveType waveType) {
+    Eigen::Matrix3d moment; // TODO: moment -> source in json file
 
-        std::array<float, 3> unitVector = {(xyz_target[0] - location[0]) / norm,
-                                           (xyz_target[1] - location[1]) / norm,
-                                           (xyz_target[2] - location[2]) / norm
-        };
+    float norm =
+            pow(pow(xyz_target[0] - location[0], 2) +
+            pow(xyz_target[1] - location[1], 2) +
+            pow(xyz_target[2] - location[2], 2), 1 / 2);
 
-        
+    Eigen::Vector3d unit = { (xyz_target[0] - location[0]) / norm,
+                             (xyz_target[1] - location[1]) / norm,
+                             (xyz_target[2] - location[2]) / norm };
+
+    std::array<Eigen::Matrix3d, 3> matrix_array;
+    if (WaveType::PWave == waveType) { // np.einsum("i, k, l", n, n, n)
+        for (int i = 0; i < 3; i++) {
+            Eigen::Matrix3d matrix;
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 3; k++) {
+                    matrix(j, k) = unit[i] * unit[j] * unit[k];
+                }
+            }
+            matrix_array[i] = matrix;
+        }
+    } else { // np.einsum("ik, l", np.eye(3), n) - np.einsum("i, k, l", n, n, n)
+        std::array<Eigen::Matrix3d, 3> firstMatrixArray; // np.einsum("i, k, l", n, n, n)
+        std::array<Eigen::Matrix3d, 3> secondMatrixArray; // np.einsum("ik, l", np.eye(3), n)
+
+        for (int i = 0; i < 3; i++) {
+            Eigen::Matrix3d matrix;
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 3; k++) {
+                    matrix(j, k) = unit[i] * unit[j] * unit[k];
+                }
+            }
+            firstMatrixArray[i] = matrix;
+        }
+
+        const Eigen::Matrix3d identity = Eigen::Matrix3d::Identity(3, 3);
+        for (int i = 0; i < 3; i++) {
+            Eigen::Matrix3d matrix;
+            for (int j = 0; j < 3; j++) {
+                for (int k = 0; k < 3; k++) {
+                    matrix(j, k) = unit[j] * identity(i, k);
+                }
+            }
+            secondMatrixArray[i] = matrix; // TODO: matrix_array[i] = matrix - firstMatrixArray[i] ???
+        }
+
+        for (int i = 0; i < 3; i++) {
+            matrix_array[i] = secondMatrixArray[i] - firstMatrixArray[i];
+        }
     }
+
+    Eigen::Vector3d resultVector;
+    for (int i = 0; i < 3; i++) {
+        double valueSum = 0;
+        for (int j = 0; j < 3; j++) {
+            for (int k = 0; k < 3; k++) {
+                valueSum += moment(j, k) * matrix_array[i](j, k);
+            }
+        }
+        resultVector[i] = valueSum;
+    }
+
+    if (resultVector.all() == 0) {
+        return resultVector;
+    } else {
+        return resultVector.normalized();
+    }
+}
 } // namespace ray_tracing

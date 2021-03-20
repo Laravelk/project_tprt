@@ -5,6 +5,12 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3")
+set(CMAKE_CXX_FLAGS "-g2")
+set(CMAKE_BUILD_TYPE Debug)
+#include(CMakeForceCompiler)
+#CMAKE_FORCE_C_COMPILER(icc "Intel C Compiler")
+#CMAKE_FORCE_CXX_COMPILER(icpc "Intel C++ Compiler")
+#CMAKE_FORCE_Fortran_COMPILER(ifort "Intel Fortran Compiler")
 
 ## eigen
 find_package(Eigen3)
@@ -38,7 +44,13 @@ add_executable(tprt main.cpp
         Layer.cpp
         VelocityModel.cpp
         VelocityModel.hpp
-        Horizon/Horizon.h Horizon/GridHorizon.cpp Horizon/GridHorizon.h Math/Derivative.cpp Math/Derivative.h Optimize.h Ray/WaveType.h)
+        Horizon/Horizon.h
+        Horizon/GridHorizon.cpp
+        Horizon/GridHorizon.h
+        Math/Derivative.cpp
+        Math/Derivative.h
+        Optimize.h
+        Ray/WaveType.h)
 
 target_link_libraries(tprt LINK_PUBLIC NLopt::nlopt Eigen3::Eigen libInterpolate::Interpolate)
 

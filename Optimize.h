@@ -13,7 +13,7 @@ public:
 
   static double myfunc(const std::vector<double> &, std::vector<double> &grad,
                        void *my_func_data) {
-    RayData *ray_data = static_cast<ray_tracing::RayData *>(my_func_data);
+    auto *ray_data = static_cast<ray_tracing::RayData *>(my_func_data);
 
     auto trajectory = ray_data->trajectory;
     auto ray_code = ray_data->ray_code;
@@ -138,8 +138,6 @@ private:
                                   trajectory[number_of_unknowns - 2][2]};
 
     double norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-    //    auto layer = velocity_model->getLayer(velocity_model->getLayersCount()
-    //    - 1); double vp = static_cast<double>(layer->getVp());
     double vp = vp_array[velocity_model->getLayersCount() - 1];
 
     time += norm_vec / vp;

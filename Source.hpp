@@ -6,6 +6,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include <Eigen/Dense>
 
 #include "Receiver.hpp"
 #include "Ray/WaveType.h"
@@ -28,7 +29,7 @@ public:
 
   Source(std::array<float, 3> location) : location(location) {}
 
-  float unitPolarization(std::array<float, 3> xyz_target, WaveType type);
+  Eigen::Vector3d unitPolarization(std::array<float, 3> xyz_target, WaveType type);
 
   [[nodiscard]] const std::array<float, 3> &getLocation() const;
 

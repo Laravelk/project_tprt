@@ -16,11 +16,11 @@
 
 std::vector<std::array<int, 3>> getRayCode2() {
   std::vector<std::array<int, 3>> ray_code;
-  std::array<int, 3> f = {1, -1, 0};
-  std::array<int, 3> f1 = {2, -1, 0};
-  std::array<int, 3> f2 = {3, -1, 0};
-  std::array<int, 3> f3 = {4, -1, 0};
-  std::array<int, 3> f4 = {5, -1, 0};
+  std::array<int, 3> f = {0, 1, 0};
+  std::array<int, 3> f1 = {1, 1, 0};
+  std::array<int, 3> f2 = {2, 1, 0};
+  std::array<int, 3> f3 = {3, 1, 0};
+  std::array<int, 3> f4 = {4, 1, 0};
 
   ray_code.push_back(f);
   ray_code.push_back(f1);
@@ -107,21 +107,23 @@ int main(int argc, char *argv[]) {
   std::ifstream receivers_file("receivers.txt");
 
   // source
-  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
+//  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
+  auto source = ray_tracing::Source::fromJSON(doc["Source"]);
   // get info about receiver
-  auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
+//  auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
+    auto receiver = ray_tracing::Receiver::fromJSON(doc["Receiver"]);
   // get info about velocity model
   auto velocity_model =
       ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
 
   // for ray code test
-  std::vector<std::array<int, 3>> ray_code = getRayCode4();
+  std::vector<std::array<int, 3>> ray_code = getRayCode2();
   // create the ray
   std::vector<ray_tracing::Ray> rays;
-  const long N = 100;
+  const long N = 1;
 
   for (long i = 0; i < N; i++) {
-    rays.emplace_back(sources[i], receivers[i], velocity_model.get(), ray_code);
+    rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
   }
 
   auto start = std::chrono::steady_clock::now();

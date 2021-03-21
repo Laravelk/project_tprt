@@ -94,7 +94,7 @@ GridHorizon::fromJSON(const rapidjson::Value &doc) {
   std::vector<std::tuple<float, float, float>> points;
 
   std::ifstream pointsFile(doc["PointsFileName"].GetString());
-
+    std::cerr << "Open file: " << doc["PointsFileName"].GetString() << std::endl;
   while (!pointsFile.eof()) {
     float x;
     float y;

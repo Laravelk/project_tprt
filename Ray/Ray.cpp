@@ -5,7 +5,6 @@
 #include "../Optimize.h"
 #include "RayData.h"
 
-
 typedef unsigned long ulong;
 
 /// this namespace contains classes which worked with ray_code and trajectory
@@ -20,20 +19,30 @@ void Ray::optimizeTrajectory() {
 
   auto *ray_data = new RayData(this);
 
-  nlopt::opt opt(nlopt::LD_AUGLAG, vector.size());
-  opt.set_min_objective(Optimize::myfunc, ray_data);
-  opt.set_xtol_abs(1e-4);
-  opt.optimize(vector);
+  std::vector<double> lb(vector.size());
+  std::vector<double> ub(vector.size());
+  for (int i = 0; i < vector.size(); i++) {
+    lb[i] = -1000;
+    ub[i] = 1000;
+  }
 
-//  double minf;
-//  nlopt::result result = opt.optimize(vector, minf);
-//  std::cout << "The result is" << std::endl;
-//  std::cout << result << std::endl;
-//  std::cout << "Minimal function value " << minf << std::endl;
-//  for (auto tr : trajectory) {
-//    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-//              << "] " << std::endl;
-//  }
+  nlopt::opt opt(nlopt::LD_LBFGS, vector.size());
+  opt.set_lower_bounds(lb);
+  opt.set_upper_bounds(ub);
+  opt.set_min_objective(Optimize::myfunc, ray_data);
+  opt.set_xtol_abs(1e-9);
+  opt.set_maxeval(50);
+
+  double minf;
+  nlopt::result result = opt.optimize(vector, minf);
+  std::cout << "The result is" << std::endl;
+  std::cout << result << std::endl;
+  std::cout << "Minimal function value " << minf << std::endl;
+  this->trajectory = ray_data->trajectory;
+  for (auto tr : ray_data->trajectory) {
+    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+              << "] " << std::endl;
+  }
   delete ray_data;
 }
 
@@ -56,7 +65,7 @@ void Ray::computeSegmentsRay() {
     x += step_x;
     y += step_y;
     Horizon *hor =
-        velocity_model->getLayer(ray_code.at(i).layerNumber)->getTop();
+        velocity_model->getLayer(ray_code.at(i + 1).layerNumber)->getTop();
     z = hor->getDepth({x, y});
     trajectory.push_back({x, y, z});
   }
@@ -142,17 +151,17 @@ rapidjson::Document Ray::toJSON() {
   return doc;
 }
 
-    void Ray::rayPolarization() {
+void Ray::rayPolarization() {
 
-        float vel0 = velocity_model->getLayer(0)->Vp;
-        float rho0 = velocity_model->getLayer(0)->density;
-        float sou_factor = pow(1 / (4 * M_PI) * (1000 / rho0) * (1000 / vel0), 3);
-        Eigen::Vector3d polariz0 = source.unitPolarization(receiver.getLocation(), waveType);
+  float vel0 = velocity_model->getLayer(0)->Vp;
+  float rho0 = velocity_model->getLayer(0)->density;
+  float sou_factor = pow(1 / (4 * M_PI) * (1000 / rho0) * (1000 / vel0), 3);
+  Eigen::Vector3d polariz0 =
+      source.unitPolarization(receiver.getLocation(), waveType);
 
-        for(int i = 1; i < velocity_model->getLayersCount(); i++) {
-
-        }
-    }
-    // namespace ray_tracing
+  for (int i = 1; i < velocity_model->getLayersCount(); i++) {
+  }
+}
+// namespace ray_tracing
 
 } // namespace ray_tracing

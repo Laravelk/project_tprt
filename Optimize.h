@@ -11,7 +11,7 @@ class Optimize {
 public:
   Optimize() {}
 
-  static double myfunc(const std::vector<double> &, std::vector<double> &grad,
+  static double myfunc(const std::vector<double> &x, std::vector<double> &grad,
                        void *my_func_data) {
     auto *ray_data = static_cast<ray_tracing::RayData *>(my_func_data);
 
@@ -88,60 +88,37 @@ public:
         xk_1 = xk;
         yk_1 = yk;
         zk_1 = zk;
+
       }
     }
-    return calculate_full_time(ray_data);
+      ray_data->setTrajectory(x);
+      return calculate_full_time(ray_data);
   }
 
 private:
-  static double calculate_part_time(const std::array<float, 3> source,
-                                    const std::array<float, 3> receiver,
-                                    int layer_number,
-                                    ray_tracing::RayData *ray_data) {
-    auto velocity_model = ray_data->velocity_model;
-
-    std::array<double, 3> vec{receiver[0] - source[0], receiver[1] - source[1],
-                              receiver[2] - source[2]};
-
-    double norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-    auto layer = velocity_model->getLayer(layer_number);
-    double vp = static_cast<double>(layer->getVp());
-
-    return norm_vec / vp;
-  }
-
   static double calculate_full_time(ray_tracing::RayData *ray_data) {
     double time = 0;
     auto trajectory = ray_data->trajectory;
-    auto velocity_model = ray_data->velocity_model;
     auto ray_code = ray_data->ray_code;
     auto vp_array = ray_data->vp;
     int number_of_unknowns = trajectory.size();
 
-    for (int i = 1; i < number_of_unknowns - 1; i++) {
-      std::array<double, 3> vec{trajectory[i][0] - trajectory[i - 1][0],
-                                trajectory[i][1] - trajectory[i - 1][1],
-                                trajectory[i][2] - trajectory[i - 1][2]};
+      for (int i = 0; i < number_of_unknowns - 1; i++) {
+      std::array<double, 3> vec{trajectory[i + 1][0] - trajectory[i][0],
+                                trajectory[i + 1][1] - trajectory[i][1],
+                                trajectory[i + 1][2] - trajectory[i][2]};
 
       double norm_vec =
           sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-      float vp = vp_array[ray_code.at(i - 1).layerNumber - 1];
+      float vp = vp_array[ray_code[i].layerNumber];
+
+      std::cerr << trajectory[i + 1][2] << " " << trajectory[i][2] << " " << i << std::endl;
+      std::cerr << "lenght: " << norm_vec << " vp: " << vp << std::endl << std::endl;
 
       time += norm_vec / vp;
     }
 
-    std::array<double, 3> vec{trajectory[number_of_unknowns - 1][0] -
-                                  trajectory[number_of_unknowns - 2][0],
-                              trajectory[number_of_unknowns - 1][1] -
-                                  trajectory[number_of_unknowns - 2][1],
-                              trajectory[number_of_unknowns - 1][2] -
-                                  trajectory[number_of_unknowns - 2][2]};
-
-    double norm_vec = sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
-    double vp = vp_array[velocity_model->getLayersCount() - 1];
-
-    time += norm_vec / vp;
-
+    std::cerr << "time: " << time << std::endl;
     return time;
   }
 };

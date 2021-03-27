@@ -3,16 +3,17 @@
 #ifndef TPRT_RAY_HPP
 #define TPRT_RAY_HPP
 
+#include <algorithm>
+#include <cmath>
+#include <iostream>
+#include <vector>
+#include <Eigen/Dense>
+
 #include "../Layer.hpp"
 #include "../Receiver.hpp"
 #include "../Source.hpp"
 #include "../VelocityModel.hpp"
 #include "WaveType.h"
-
-#include <algorithm>
-#include <cmath>
-#include <iostream>
-#include <vector>
 
 namespace ray_tracing {
 
@@ -50,6 +51,33 @@ public:
   VelocityModel *getModel() { return velocity_model; }
   Receiver getReceiver() { return receiver; }
   Source getSource() { return source; }
+
+  std::vector<Eigen::Vector3f> getVectors() {
+    std::vector<Eigen::Vector3f> vectors;
+    for (int i = 0; i < trajectory.size() - 1; i++) {
+        Eigen::Vector3f vector;
+        for (int j = 0; j < 3; j++) {
+            vector(j) = trajectory[i][j] - trajectory[i + 1][j];
+        }
+        vector = vector.normalized().cwiseAbs();
+        vectors.emplace_back(vector);
+    }
+    return vectors;
+  }
+
+  std::vector<float> getVels() {
+      std::vector<float> vels;
+      if (WaveType::PWave == waveType) {
+          for (int i = 0; i < velocity_model->getLayersCount() - 2; i++) {
+              vels.push_back(velocity_model->getLayer(i)->getVp());
+          }
+      } else {
+          for (int i = 0; i < velocity_model->getLayersCount() - 2; i++) {
+              vels.push_back(velocity_model->getLayer(i)->getVs());
+          }
+      }
+      return vels;
+  }
 
   Ray(Source source, Receiver receiver, VelocityModel *_model,
       const std::vector<std::array<int, 3>>& iray_code)

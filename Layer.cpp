@@ -37,7 +37,7 @@ std::unique_ptr<Layer> Layer::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "Layer::fromJSON() - document should be an object");
 
-  std::vector<std::string> required_fields = {"LType", "Vp",   "Vs", /*"Density",*/
+  std::vector<std::string> required_fields = {"LType", "Vp",   "Vs", "Density",
                                               "Top",   "Name", "HType"};
 
   for (const auto &field : required_fields) {
@@ -58,10 +58,10 @@ std::unique_ptr<Layer> Layer::fromJSON(const rapidjson::Value &doc) {
     throw std::runtime_error(
         "Layer::fromJSON() - invalid JSON, `Vs` should be a float");
 
-//  if (!doc["Density"].IsFloat()) {
-//      throw std::runtime_error(
-//              "Layer::fromJSON - invalid JSON, 'Density' should be a float");
-//  }
+  if (!doc["Density"].IsFloat()) {
+      throw std::runtime_error(
+              "Layer::fromJSON - invalid JSON, 'Density' should be a float");
+  }
 
   if (!doc["Name"].IsString())
     throw std::runtime_error(
@@ -75,7 +75,7 @@ std::unique_ptr<Layer> Layer::fromJSON(const rapidjson::Value &doc) {
 
   float vp = doc["Vp"].GetFloat();
   float vs = doc["Vs"].GetFloat();
-  float density = 2;
+  float density = doc["Density"].GetFloat();
 
   std::string name = doc["Name"].GetString();
   std::string htype = doc["HType"].GetString();

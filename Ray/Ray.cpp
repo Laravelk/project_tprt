@@ -1,4 +1,5 @@
 #include "Ray.hpp"
+#include <Eigen/Dense>
 #include <algorithm>
 #include <nlopt.hpp>
 
@@ -30,19 +31,18 @@ void Ray::optimizeTrajectory() {
   opt.set_lower_bounds(lb);
   opt.set_upper_bounds(ub);
   opt.set_min_objective(Optimize::myfunc, ray_data);
-  opt.set_xtol_abs(1e-9);
-  opt.set_maxeval(50);
+  opt.set_ftol_abs(1e-3);
 
   double minf;
   nlopt::result result = opt.optimize(vector, minf);
-  std::cout << "The result is" << std::endl;
-  std::cout << result << std::endl;
-  std::cout << "Minimal function value " << minf << std::endl;
+//  std::cout << "The result is" << std::endl;
+//  std::cout << result << std::endl;
+//  std::cout << "Minimal function value " << minf << std::endl;
   this->trajectory = ray_data->trajectory;
-  for (auto tr : ray_data->trajectory) {
-    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-              << "] " << std::endl;
-  }
+//  for (auto tr : this->trajectory) {
+//    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+//              << "] " << std::endl;
+//  }
   delete ray_data;
 }
 
@@ -152,6 +152,15 @@ rapidjson::Document Ray::toJSON() {
 }
 
 void Ray::rayPolarization() {
+  using namespace Eigen;
+
+  // TODO: delete it's for test
+  trajectory = {{0, 0, 0},
+                {25.27, 25.29, 50},
+                {61.68, 61.95, 103.86},
+                {172.65, 173.44, 203.17},
+                {318.4, 319.66, 300},
+                {777, 777, 400}};
 
   float vel0 = velocity_model->getLayer(0)->Vp;
   float rho0 = velocity_model->getLayer(0)->density;
@@ -159,8 +168,43 @@ void Ray::rayPolarization() {
   Eigen::Vector3d polariz0 =
       source.unitPolarization(receiver.getLocation(), waveType);
 
-  for (int i = 1; i < velocity_model->getLayersCount(); i++) {
+  if (velocity_model->getLayersCount() > 1) {
+    auto vecs = getVectors();
+    auto vels = getVels();
+
+    for (auto vec: vecs) {
+        std::cerr << vec << std::endl;
+    }
+
+    MatrixX3f inc_slows = MatrixX3f::Random(vecs.size() - 1, 3);
+    for (int i = 0; i < vecs.size() - 1; i++) {
+      inc_slows.row(i) = vecs[i] / vels[i];
+    }
   }
+
+  std::vector<Layer::Properties> props;
+  for (int i = 0; i < velocity_model->getLayersCount() - 1; i++) {
+      Layer::Properties prop(velocity_model->getLayers()[i]->Vp, velocity_model->getLayers()[i]->Vs, velocity_model->getLayers()[i]->density);
+      props.push_back(prop);
+  }
+
+  std::vector<std::vector<float>> normals; // ezs
+  for (int i = 1; i < velocity_model->getLayersCount() - 1; i++) {
+    std::vector<float> normal = velocity_model->getLayers()[i]->top->getNormal({trajectory[i][0], trajectory[i][1]});
+    for (int j = 0; j < 3; j++) {
+        normal[j] *= -1;
+    }
+    normals.push_back(normal);
+
+    std::cerr << "points" << std::endl;
+      Matrix3Xd matrix(3,4);
+    matrix = Matrix3Xd::Random();
+    std::cerr << "points" << matrix << std::endl;
+  }
+
+
+
+
 }
 // namespace ray_tracing
 

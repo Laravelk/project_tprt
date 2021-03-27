@@ -32,7 +32,7 @@ public:
   FlatHorizon(FlatHorizon &copy)
       : dip(copy.getDip()), azimuth(copy.getAzimuth()),
         depth(copy.getDepthValue()), anchor(copy.getAnchor()),
-        normal(copy.getNormal()), region(copy.region) {
+        normal(copy.getNormal({0, 0})), region(copy.region) {
     this->name = copy.getName();
   }
 
@@ -60,7 +60,7 @@ public:
   std::vector<float> getAnchor() const;
   void setAnchor(const std::vector<float> &value);
 
-  std::vector<float> getNormal() const;
+  std::vector<float> getNormal(std::array<float, 2>) const override;
   void setNormal(const std::vector<float> &value);
 };
 

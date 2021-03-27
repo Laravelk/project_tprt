@@ -7,6 +7,7 @@
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
 #include <array>
 #include <float.h>
+#include <Eigen/Dense>
 #include <string>
 
 namespace ray_tracing {
@@ -69,6 +70,8 @@ public:
   void setInterpolator(const _2D::BicubicInterpolator<float> &value);
 
   std::vector<std::tuple<float, float, float>> getPoints() const;
+
+  std::vector<float> getNormal(std::array<float, 2> cord) const;
 };
 } // namespace ray_tracing
 

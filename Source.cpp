@@ -210,7 +210,7 @@ Eigen::Vector3d Source::unitPolarization(std::array<float, 3> xyz_target, WaveTy
     if (resultVector.all() == 0) {
         return resultVector;
     } else {
-        return resultVector.normalized();
+        return resultVector.normalized().cwiseAbs();
     }
 }
 } // namespace ray_tracing

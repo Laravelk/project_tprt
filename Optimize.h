@@ -112,13 +112,13 @@ private:
           sqrt(vec[0] * vec[0] + vec[1] * vec[1] + vec[2] * vec[2]);
       float vp = vp_array[ray_code[i].layerNumber];
 
-      std::cerr << trajectory[i + 1][2] << " " << trajectory[i][2] << " " << i << std::endl;
-      std::cerr << "lenght: " << norm_vec << " vp: " << vp << std::endl << std::endl;
+//      std::cerr << trajectory[i + 1][2] << " " << trajectory[i][2] << " " << i << std::endl;
+//      std::cerr << "lenght: " << norm_vec << " vp: " << vp << std::endl << std::endl;
 
       time += norm_vec / vp;
     }
 
-    std::cerr << "time: " << time << std::endl;
+//    std::cerr << "time: " << time << std::endl;
     return time;
   }
 };

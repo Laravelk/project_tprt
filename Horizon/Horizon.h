@@ -5,6 +5,7 @@
 
 #include <array>
 #include <string>
+#include <Eigen/Dense>
 
 #include "../rapidjson/pointer.h"
 
@@ -25,6 +26,8 @@ public:
 
   const std::string getName() const { return name; }
   void setName(std::string new_name) { name = new_name; }
+
+  virtual std::vector<float> getNormal(std::array<float, 2>) const = 0;
 
 protected:
   std::string name;

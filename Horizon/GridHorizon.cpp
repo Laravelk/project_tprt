@@ -186,4 +186,14 @@ std::vector<float> GridHorizon::calculateGradientInPoint(float x,
       Derivative::derivative_y(x, y, interpolator)
   };
 }
+
+    std::vector<float> GridHorizon::getNormal(std::array<float, 2> cord) const {
+    std::vector<float> grad = calculateGradientInPoint(cord[0], cord[1]);
+    std::vector<float> n = { grad[0], grad[1], 1 };
+    float norm = pow(grad[0] * grad[0] + grad[1] * grad[1] + 1,2);
+    for (auto norm_el: n) {
+        norm_el = norm_el / norm;
+    }
+    return n;
+    }
 } // namespace ray_tracing

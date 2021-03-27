@@ -42,7 +42,7 @@ std::vector<float> FlatHorizon::getAnchor() const { return anchor; }
 
 void FlatHorizon::setAnchor(const std::vector<float> &value) { anchor = value; }
 
-std::vector<float> FlatHorizon::getNormal() const { return normal; }
+std::vector<float> FlatHorizon::getNormal(std::array<float, 2> cord = {0, 0}) const { return normal; }
 
 void FlatHorizon::setNormal(const std::vector<float> &value) { normal = value; }
 

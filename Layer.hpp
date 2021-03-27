@@ -13,6 +13,13 @@
 namespace ray_tracing {
 class Layer {
 public:
+    struct Properties {
+        Properties(float _vp, float _vs, float _density) : vp(_vp), vs(_vs), density(_density) { }
+        float vp;
+        float vs;
+        float density;
+    };
+
   float Vp;
   float Vs;
   float density;

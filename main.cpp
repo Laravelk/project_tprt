@@ -124,12 +124,16 @@ int main(int argc, char *argv[]) {
 
   for (long i = 0; i < N; i++) {
     rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
+    for (auto value: source.getLocation()) {
+        value = value + 1;
+    }
   }
 
   auto start = std::chrono::steady_clock::now();
   for (long i = 0; i < N; i++) {
-    rays[i].computePathWithRayCode();
-    std::cerr << i << std::endl;
+//    rays[i].computePathWithRayCode();
+    rays[i].rayPolarization();
+//    std::cerr << i << std::endl;
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;

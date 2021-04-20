@@ -36,8 +36,8 @@ public:
     this->name = copy.getName();
   }
 
-  [[nodiscard]] std::array<double, 2> getGradientInPoint(double x, double y) const override;
-  [[nodiscard]] std::array<double, 2>
+  std::array<float, 2> getGradientInPoint(double x, double y) const override;
+  std::array<float, 2>
   getGradientInPoint(std::array<double, 2> cord) const override;
 
   ~FlatHorizon() override = default;

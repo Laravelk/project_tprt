@@ -1,0 +1,3 @@
+/home/laravelk/repositories/mnsk_tests_1/CMakeFiles/rebuild_cache.dir
+/home/laravelk/repositories/mnsk_tests_1/CMakeFiles/edit_cache.dir
+/home/laravelk/repositories/mnsk_tests_1/CMakeFiles/tprt.dir

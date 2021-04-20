@@ -1,211 +1,640 @@
 #include "Ray.hpp"
 #include <Eigen/Dense>
 #include <algorithm>
+#include <cmath>
 #include <nlopt.hpp>
+#include <unsupported/Eigen/CXX11/Tensor>
 
+#include "../Math/C_IJ_Matrix.h"
 #include "../Optimize.h"
 #include "RayData.h"
 
-typedef unsigned long ulong;
+/// this namespace contains classes which worked with ray_code and trajectory
+#include "Ray.hpp"
+#include <Eigen/Dense>
+#include <algorithm>
+#include <nlopt.hpp>
+#include <unsupported/Eigen/CXX11/Tensor>
+
+#include "../Math/C_IJ_Matrix.h"
+#include "../Optimize.h"
+#include "RayData.h"
 
 /// this namespace contains classes which worked with ray_code and trajectory
 namespace ray_tracing {
-void Ray::optimizeTrajectory() {
-  std::vector<double> vector;
+    void Ray::optimizeTrajectory() {
+        std::vector<double> vector;
 
-  for (unsigned long i = 1; i < trajectory.size() - 1; i++) {
-    vector.push_back(trajectory.at(i)[0]);
-    vector.push_back(trajectory.at(i)[1]);
-  }
+        for (unsigned long i = 1; i < trajectory.size() - 1; i++) {
+            vector.push_back(trajectory.at(i)[0]);
+            vector.push_back(trajectory.at(i)[1]);
+        }
 
-  auto *ray_data = new RayData(this);
+        auto *ray_data = new RayData(this);
 
-  std::vector<double> lb(vector.size());
-  std::vector<double> ub(vector.size());
-  for (int i = 0; i < vector.size(); i++) {
-    lb[i] = -1000;
-    ub[i] = 1000;
-  }
+        std::vector<double> lb(vector.size());
+        std::vector<double> ub(vector.size());
+        for (int i = 0; i < vector.size(); i++) {
+            lb[i] = -1000;
+            ub[i] = 1000;
+        }
+        nlopt::opt opt(nlopt::LD_MMA, vector.size());
+        opt.set_lower_bounds(lb);
+        opt.set_upper_bounds(ub);
+        opt.set_ftol_abs(1e-3);
+        opt.set_min_objective(Optimize::myfunc, ray_data);
 
-  nlopt::opt opt(nlopt::LD_LBFGS, vector.size());
-  opt.set_lower_bounds(lb);
-  opt.set_upper_bounds(ub);
-  opt.set_min_objective(Optimize::myfunc, ray_data);
-  opt.set_ftol_abs(1e-3);
+        double minf;
+        nlopt::result result = opt.optimize(vector, minf);
+//        std::cout << "The result is" << std::endl;
+//        std::cout << result << std::endl;
+//        std::cout << "Minimal function value " << minf << std::endl;
 
-  double minf;
-  nlopt::result result = opt.optimize(vector, minf);
-//  std::cout << "The result is" << std::endl;
-//  std::cout << result << std::endl;
-//  std::cout << "Minimal function value " << minf << std::endl;
-  this->trajectory = ray_data->trajectory;
+        this->trajectory = ray_data->trajectory;
 //  for (auto tr : this->trajectory) {
 //    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
 //              << "] " << std::endl;
 //  }
-  delete ray_data;
-}
+
+        delete ray_data;
+    }
 
 /// compute ray in layer and create segments
-void Ray::computeSegmentsRay() {
-  auto source_location = source.getLocation();
-  auto receiver_location = receiver.getLocation();
+    void Ray::computeSegmentsRay() {
+        auto source_location = source.getLocation();
+        auto receiver_location = receiver.getLocation();
 
-  float diff_x = receiver_location[0] - source_location[0];
-  float diff_y = receiver_location[1] - source_location[1];
-  ulong trajectory_part_count = ray_code.size();
-  float step_x = diff_x / trajectory_part_count;
-  float step_y = diff_y / trajectory_part_count;
-  float x = 0, y = 0, z = 0;
-  x = source_location[0];
-  y = source_location[1];
+        float diff_x = receiver_location[0] - source_location[0];
+        float diff_y = receiver_location[1] - source_location[1];
+        ulong trajectory_part_count = ray_code.size();
+        float step_x = diff_x / trajectory_part_count;
+        float step_y = diff_y / trajectory_part_count;
+        float x = 0, y = 0, z = 0;
+        x = source_location[0];
+        y = source_location[1];
 
-  trajectory.push_back({x, y, source_location[2]});
-  for (ulong i = 0; i < trajectory_part_count - 1; i++) {
-    x += step_x;
-    y += step_y;
-    Horizon *hor =
-        velocity_model->getLayer(ray_code.at(i + 1).layerNumber)->getTop();
-    z = hor->getDepth({x, y});
-    trajectory.push_back({x, y, z});
-  }
-  trajectory.push_back(
-      {receiver_location[0], receiver_location[1], receiver_location[2]});
-}
+        trajectory.push_back({x, y, source_location[2]});
+        for (ulong i = 0; i < trajectory_part_count - 1; i++) {
+            x += step_x;
+            y += step_y;
+            Horizon *hor =
+                    velocity_model->getLayer(ray_code.at(i + 1).layerNumber)->getTop();
+            z = hor->getDepth({x, y});
+            trajectory.push_back({x, y, z});
+        }
+        trajectory.push_back(
+                {receiver_location[0], receiver_location[1], receiver_location[2]});
 
-void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
-  for (auto ray_element : rayCode) {
-    Direction direction;
-    WaveType type;
-    if (Direction::DOWN == ray_element[1]) {
-      direction = Direction::DOWN;
-    } else {
-      direction = Direction::UP;
-    }
-    if (WaveType::SWave == ray_element[2]) {
-      type = WaveType::SWave;
-    } else {
-      type = WaveType::PWave;
-    }
-    Code code(ray_element[0], direction, type);
-    ray_code.push_back(code);
-  }
-}
-
-void Ray::computePathWithRayCode() {
-  computeSegmentsRay();
-  optimizeTrajectory();
-}
-
-rapidjson::Document Ray::toJSON() {
-  rapidjson::Document doc;
-  /*rapidjson::Value json_val;
-  rapidjson::Value tmp_json_val;
-  doc.SetObject();
-
-  auto &allocator = doc.GetAllocator();
-
-  json_val.CopyFrom(source.toJSON(), allocator);
-  doc.AddMember("Source", json_val, allocator);
-
-  json_val.CopyFrom(receiver.toJSON(), allocator);
-  doc.AddMember("Receiver", json_val, allocator);
-
-  json_val.SetArray();
-  auto trajectory = getTrajectoryP();
-  for (const auto &tr_seg : trajectory) {
-    tmp_json_val.SetArray();
-    tmp_json_val.PushBack(tr_seg[0], allocator)
-        .PushBack(tr_seg[1], allocator)
-        .PushBack(tr_seg[2], allocator);
-    json_val.PushBack(tmp_json_val, allocator);
-  }
-  doc.AddMember("TrajectoryP", json_val, allocator);
-
-  json_val.SetArray();
-  trajectory = getTrajectoryS();
-  for (const auto &tr_seg : trajectory) {
-    tmp_json_val.SetArray();
-    tmp_json_val.PushBack(tr_seg[0], allocator)
-        .PushBack(tr_seg[1], allocator)
-        .PushBack(tr_seg[2], allocator);
-    json_val.PushBack(tmp_json_val, allocator);
-  }
-  doc.AddMember("TrajectoryS", json_val, allocator);
-
-  json_val.SetFloat(amplitudeP);
-  doc.AddMember("AmplitudeP", json_val, allocator);
-
-  json_val.SetFloat(timeP);
-  doc.AddMember("TimeP", json_val, allocator);
-
-  json_val.SetFloat(amplitudeS);
-  doc.AddMember("AmplitudeS", json_val, allocator);
-
-  json_val.SetFloat(timeS);
-  doc.AddMember("TimeS", json_val, allocator);
-
-  json_val.SetString("NONE");
-  doc.AddMember("Record", json_val, allocator);
-  */
-  return doc;
-}
-
-void Ray::rayPolarization() {
-  using namespace Eigen;
-
-  // TODO: delete it's for test
-  trajectory = {{0, 0, 0},
-                {25.27, 25.29, 50},
-                {61.68, 61.95, 103.86},
-                {172.65, 173.44, 203.17},
-                {318.4, 319.66, 300},
-                {777, 777, 400}};
-
-  float vel0 = velocity_model->getLayer(0)->Vp;
-  float rho0 = velocity_model->getLayer(0)->density;
-  float sou_factor = pow(1 / (4 * M_PI) * (1000 / rho0) * (1000 / vel0), 3);
-  Eigen::Vector3d polariz0 =
-      source.unitPolarization(receiver.getLocation(), waveType);
-
-  if (velocity_model->getLayersCount() > 1) {
-    auto vecs = getVectors();
-    auto vels = getVels();
-
-    for (auto vec: vecs) {
-        std::cerr << vec << std::endl;
+//        for (int i = 0; i < trajectory.size(); i++) {
+//            std::cerr << trajectory[i][0] << " " << trajectory[i][1] << " "
+//                      << trajectory[i][2] << std::endl;
+//        }
     }
 
-    MatrixX3f inc_slows = MatrixX3f::Random(vecs.size() - 1, 3);
-    for (int i = 0; i < vecs.size() - 1; i++) {
-      inc_slows.row(i) = vecs[i] / vels[i];
+    void Ray::generateCode(const std::vector<std::array<int, 3>> rayCode) {
+        for (auto ray_element : rayCode) {
+            Direction direction;
+            WaveType type;
+            if (Direction::DOWN == ray_element[1]) {
+                direction = Direction::DOWN;
+            } else {
+                direction = Direction::UP;
+            }
+            if (WaveType::SWave == ray_element[2]) {
+                type = WaveType::SWave;
+            } else {
+                type = WaveType::PWave;
+            }
+            Code code(ray_element[0], direction, type);
+            ray_code.push_back(code);
+        }
     }
-  }
 
-  std::vector<Layer::Properties> props;
-  for (int i = 0; i < velocity_model->getLayersCount() - 1; i++) {
-      Layer::Properties prop(velocity_model->getLayers()[i]->Vp, velocity_model->getLayers()[i]->Vs, velocity_model->getLayers()[i]->density);
-      props.push_back(prop);
-  }
-
-  std::vector<std::vector<float>> normals; // ezs
-  for (int i = 1; i < velocity_model->getLayersCount() - 1; i++) {
-    std::vector<float> normal = velocity_model->getLayers()[i]->top->getNormal({trajectory[i][0], trajectory[i][1]});
-    for (int j = 0; j < 3; j++) {
-        normal[j] *= -1;
+    void Ray::computePathWithRayCode() {
+        computeSegmentsRay();
+        optimizeTrajectory();
     }
-    normals.push_back(normal);
 
-    std::cerr << "points" << std::endl;
-      Matrix3Xd matrix(3,4);
-    matrix = Matrix3Xd::Random();
-    std::cerr << "points" << matrix << std::endl;
-  }
+    rapidjson::Document Ray::toJSON() {
+        rapidjson::Document doc;
+        /*rapidjson::Value json_val;
+        rapidjson::Value tmp_json_val;
+        doc.SetObject();
+
+        auto &allocator = doc.GetAllocator();
+
+        json_val.CopyFrom(source.toJSON(), allocator);
+        doc.AddMember("Source", json_val, allocator);
+
+        json_val.CopyFrom(receiver.toJSON(), allocator);
+        doc.AddMember("Receiver", json_val, allocator);
+
+        json_val.SetArray();
+        auto trajectory = getTrajectoryP();
+        for (const auto &tr_seg : trajectory) {
+          tmp_json_val.SetArray();
+          tmp_json_val.PushBack(tr_seg[0], allocator)
+              .PushBack(tr_seg[1], allocator)
+              .PushBack(tr_seg[2], allocator);
+          json_val.PushBack(tmp_json_val, allocator);
+        }
+        doc.AddMember("TrajectoryP", json_val, allocator);
+
+        json_val.SetArray();
+        trajectory = getTrajectoryS();
+        for (const auto &tr_seg : trajectory) {
+          tmp_json_val.SetArray();
+          tmp_json_val.PushBack(tr_seg[0], allocator)
+              .PushBack(tr_seg[1], allocator)
+              .PushBack(tr_seg[2], allocator);
+          json_val.PushBack(tmp_json_val, allocator);
+        }
+        doc.AddMember("TrajectoryS", json_val, allocator);
+
+        json_val.SetFloat(amplitudeP);
+        doc.AddMember("AmplitudeP", json_val, allocator);
+
+        json_val.SetFloat(timeP);
+        doc.AddMember("TimeP", json_val, allocator);
+
+        json_val.SetFloat(amplitudeS);
+        doc.AddMember("AmplitudeS", json_val, allocator);
+
+        json_val.SetFloat(timeS);
+        doc.AddMember("TimeS", json_val, allocator);
+
+        json_val.SetString("NONE");
+        doc.AddMember("Record", json_val, allocator);
+        */
+        return doc;
+    }
+
+    Vector3f Ray::rayPolarization() {
+        using namespace Eigen;
+
+        // TODO: delete it's for test
+        trajectory = {{0, 0, 0},
+                      {25.27, 25.29, 50},
+                      {61.68, 61.95, 103.86},
+                      {172.65, 173.44, 203.17},
+                      {318.4, 319.66, 300},
+                      {777, 777, 400}};
+
+        int row_count = velocity_model->getLayersCount() - 2;
+
+        float vel0 = velocity_model->getLayer(0)->Vp;
+        float rho0 = velocity_model->getLayer(0)->density;
+        float sou_factor = pow(1 / (4 * M_PI) * (1000 / rho0) * (1000 / vel0), 3);
+        Vector3f polariz0 = source.unitPolarization(trajectory[1], waveType);
+
+        if (velocity_model->getLayersCount() > 1) {
+            auto vecs = getVectors();
+            auto vels = getVels();
+
+            MatrixX3f inc_slows = MatrixX3f::Zero(vecs.size() - 1, 3);
+
+            for (int i = 0; i < vecs.size() - 1; i++) {
+                inc_slows.row(i) = vecs[i] / vels[i];
+            }
+
+//            for (int i = 0; i < vecs.size(); i++) {
+//                std::cerr << vecs[i] << std::endl << std::endl;
+//            }
+
+//            for (int i = 0; i < vecs.size(); i++) {
+//                std::cerr << vels[i] << std::endl << std::endl;
+//            }
+
+//            std::cerr << inc_slows << std::endl << std::endl;
+            std::vector<Layer::Properties> props;
+            for (int i = 0; i < velocity_model->getLayersCount() - 1; i++) {
+                Layer::Properties prop(velocity_model->getLayers()[i]->Vp,
+                                       velocity_model->getLayers()[i]->Vs,
+                                       velocity_model->getLayers()[i]->density);
+                props.push_back(prop);
+            }
+
+            MatrixX3f ezs = MatrixX3f::Zero(row_count, 3);
+
+            for (int i = 1; i < velocity_model->getLayersCount() - 1; i++) {
+                std::vector<float> normal =
+                        velocity_model->getLayers()[i]->top->getNormal(
+                                {trajectory[i][0], trajectory[i][1]});
+                for (int j = 0; j < 3; j++) {
+                    ezs(i - 1, j) = normal[j] * (-1);
+                }
+            }
+
+            ////////// EXS Block
+            MatrixXf exs = MatrixXf::Random(
+                    row_count, 3); // NOTE: It's working, diff in derivatives
+
+            for (int i = 0; i < row_count; i++) {
+                for (int j = 0; j < 3; j++) {
+                    for (int k = 0; k < 3; k++) {
+                        exs(i, k) = vecs[i][j] * ezs(i, j) * ezs(i, k);
+                    }
+                }
+            }
+
+            for (int i = 0; i < row_count; i++) {
+                for (int j = 0; j < 3; j++) {
+                    exs(i, j) = vecs[i][j] - exs(i, j);
+                }
+            }
+
+            MatrixX3f new_ezs = MatrixX3f::Zero(row_count, 3);
+            for (int i = 0; i < velocity_model->getLayersCount() - 2; i++) {
+                new_ezs(i, 0) = ezs(i, 2);
+                new_ezs(i, 1) = 0;
+                new_ezs(i, 2) = ezs(i, 0) * (-1);
+            }
+
+            VectorXf all_exs_vector = VectorXf::Zero(row_count);
+
+            for (int i = 0; i < row_count; i++) {
+                for (int j = 0; j < 3; j++) {
+                    new_ezs(i, j) = all_exs_vector(i) * new_ezs(i, j);
+                }
+            }
+
+            for (int i = 0; i < row_count; i++) {
+                for (int j = 0; j < 3; j++) {
+                    exs(i, j) = exs(i, j) + new_ezs(i, j);
+                }
+            }
+
+            for (int i = 0; i < row_count; i++) {
+                float norm = exs.row(i).norm();
+                for (int j = 0; j < 3; j++) {
+                    exs(i, j) = exs(i, j) / norm;
+                }
+            }
+
+            MatrixX3f eys = MatrixX3f::Zero(row_count, 3);
+            for (int i = 0; i < row_count; i++) {
+                Vector3f vector1 = ezs.row(i);
+                Vector3f vector2 = exs.row(i);
+                eys.row(i) = vector1.cross(vector2);
+            }
+
+            MatrixX3f out_ps = MatrixX3f::Zero(row_count, 3);
+            MatrixX3f out_shs = eys;
+
+            for (int i = 1; i < vecs.size(); i++) {
+                for (int j = 0; j < 3; j++) {
+                    out_ps(i - 1, j) = vecs[i][j];
+                }
+            }
+
+            MatrixX3f out_svs = MatrixX3f::Zero(row_count, 3);
+            for (int i = 0; i < row_count; i++) {
+                Vector3f vector1 = out_shs.row(i);
+                Vector3f vector2 = out_ps.row(i);
+                out_svs.row(i) = vector1.cross(vector2);
+            }
+
+            //      std::cerr << out_ps << std::endl << std::endl;
+            //      std::cerr << out_svs << std::endl << std::endl;
+            //      std::cerr << out_shs << std::endl << std::endl;
+
+            std::vector<MatrixX3f> tensor_matrix_vector = {out_ps, out_svs, out_shs};
+            Tensor<float, 3> out_triplets(row_count, tensor_matrix_vector.size(), 3);
+
+            for (int i = 0; i < row_count; i++) {
+                for (int j = 0; j < tensor_matrix_vector.size(); j++) {
+                    for (int k = 0; k < 3; k++) {
+                        out_triplets(i, k, j) = tensor_matrix_vector[j](i, k);
+                    }
+                }
+            }
+
+//            std::cerr << out_triplets << std::endl << std::endl;
+
+            MatrixX3f wave_ids = MatrixX3f::Zero(trajectory.size() - 1, 3);
+            for (int k = 0; k < trajectory.size() - 1;
+                 k++) { // TODO: get WaveType from layer and choice
+                //          WaveType type = velocity_model->getLayer(i).
+                WaveType type = WaveType::PWave;
+                if (WaveType::PWave == type) {
+                    wave_ids(k, 0) = 1;
+                    wave_ids(k, 1) = 0;
+                    wave_ids(k, 2) = 0;
+                } else {
+                    wave_ids(k, 0) = 0;
+                    wave_ids(k, 1) = 1;
+                    wave_ids(k, 2) = 1;
+                }
+            }
+
+            for (int k = 0; k < inc_slows.rows(); k++) {
+                Vector3f slow = inc_slows.row(k);
+                Vector3f res = rt_coeffs_iso(slow, polariz0, ezs.row(k), eys.row(k), 1, props[k],
+                              props[k + 1]);
+                Matrix3Xf matrix_from_tensor = Matrix3f::Zero(3, 3);
+                for (int j = 0; j < 3; j++) {
+                    for (int g = 0; g < 3; g++) {
+                        matrix_from_tensor(j, g) = out_triplets(k, j, g) * wave_ids.row(k)(g) * sqrt((polariz0.transpose() * polariz0).sum());
+                    }
+                }
+//                std::cerr << matrix_from_tensor  << std::endl << std::endl;
+//                std::cerr << res << std::endl << std::endl;
+//                std::cerr << wave_ids.row(k).transpose() << std::endl << std::endl;
+//                std::cerr << sqrt((polariz0.transpose() * polariz0).sum()) << std::endl << std::endl;
+                for (int j = 0; j < 3; j++) {
+                    float s = res.dot(matrix_from_tensor.row(j));
+                    std::cerr << s << std::endl;
+                    polariz0[j] = s;
+                }
+                std::cerr << std::endl;
+            }
+        }
 
 
+        polariz0 = sou_factor * polariz0 * (source.getMagnitude() / 100.0f);
+        return polariz0;
 
+        //////////// End EXS Block
+    }
 
-}
-// namespace ray_tracing
+    Vector3f Ray::rt_coeffs_iso(Vector3f inc_slow, Vector3f inc_polariz,
+                                Vector3f ez, Vector3f ey, int rt_sign,
+                                Layer::Properties lr_props_1,
+                                Layer::Properties lr_props_2) {
+        if (inc_polariz.isZero()) {
+             return Vector3f::Zero();
+        }
+        inc_polariz = inc_polariz / (inc_polariz.transpose() * inc_polariz);
+
+        float ez_sum = (inc_slow.transpose() * ez).sum();
+        if (ez_sum != 0) {
+            if (ez_sum > 0) {
+                ez_sum = 1.0;
+            } else {
+                ez_sum = -1.0;
+            }
+            ez = ez_sum * ez;
+        }
+
+        float vp1 = lr_props_1.vp;
+        float vs1 = lr_props_1.vs;
+        float rho1 = lr_props_1.density;
+
+        float vp2 = lr_props_2.vp;
+        float vs2 = lr_props_2.vs;
+        float rho2 = lr_props_2.density;
+
+        Vector3f tang_slow = inc_slow - (inc_slow.transpose() * ez).sum() * ez;
+        Vector3f refl_p_slow =
+                tang_slow -
+                (sqrt(1.0 / pow(vp1, 2) - (tang_slow.transpose() * tang_slow).sum()) *
+                 ez);
+        Vector3f refl_s_slow;
+        if (vs1 != 0) {
+            refl_s_slow = tang_slow - sqrt(1.0 / pow(vs1, 2) -
+                                           (tang_slow.transpose() * tang_slow).sum()) *
+                                      ez;
+        } else {
+            refl_s_slow = Vector3f::Zero();
+        }
+
+        Vector3f refl_p_polariz = refl_p_slow * vp1;
+        Vector3f refl_sh_polariz = ey * (vs1 != 0);
+        Vector3f refl_sv_polariz = refl_sh_polariz.cross(refl_s_slow * vs1);
+
+        Vector3f trans_p_slow;
+        Vector3f trans_s_slow;
+        if (vp2 != 0) {
+            trans_p_slow = tang_slow + sqrt(1.0 / pow(vp2, 2) -
+                                            (tang_slow.transpose() * tang_slow).sum()) *
+                                       ez;
+        } else {
+            trans_p_slow = Vector3f::Zero();
+        }
+
+        if (vs2 != 0) {
+            trans_s_slow = tang_slow + sqrt(1.0 / pow(vs2, 2) -
+                                            (tang_slow.transpose() * tang_slow).sum()) *
+                                       ez;
+        } else {
+            trans_s_slow = Vector3f::Zero();
+        }
+
+        Vector3f trans_p_polariz = trans_p_slow * vp2;
+        Vector3f trans_sh_polariz = ey * (vs2 != 0);
+        Vector3f trans_sv_polariz = trans_sh_polariz.cross(trans_s_slow * vs2);
+
+        // Stiffness tensors:
+        MatrixXf c_ij1 = CIJMatrix::iso_c_ij(vp1, vs1, rho1);
+        MatrixXf c_ij2 = CIJMatrix::iso_c_ij(vp2, vs2, rho2);
+
+        Tensor<float, 4> c_ijkl1 = CIJMatrix::c_ijkl(c_ij1);
+        Tensor<float, 4> c_ijkl2 = CIJMatrix::c_ijkl(c_ij2);
+
+        Vector3f refl_p_factors = Vector3f::Zero();
+        Vector3f refl_sv_factors = Vector3f::Zero();
+        Vector3f refl_sh_factors = Vector3f::Zero();
+
+        Vector3f trans_p_factors = Vector3f::Zero();
+        Vector3f trans_sv_factors = Vector3f::Zero();
+        Vector3f trans_sh_factors = Vector3f::Zero();
+
+        // Elements of the future matrix:
+        Vector3f inc_factors = Vector3f::Zero();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                for (int p = 0; p < 3; p++) {
+                    for (int q = 0; q < 3; q++) {
+                        inc_factors[i] = inc_factors[i] + c_ijkl1(i, j, p, q) * ez[j] *
+                                                          inc_slow[p] * inc_polariz[q];
+
+                        refl_p_factors[i] =
+                                (refl_p_factors[i] + c_ijkl1(i, j, p, q) * ez[j] *
+                                                     refl_p_slow[p] * refl_p_polariz[q]);
+                        refl_sv_factors[i] =
+                                (refl_sv_factors[i] + c_ijkl1(i, j, p, q) * ez[j] *
+                                                      refl_s_slow[p] * refl_sv_polariz[q]);
+                        refl_sh_factors[i] = (refl_sh_factors[i] +
+                                              c_ijkl1(i, j, p, q) * ez[j] * refl_s_slow[p] *
+                                              refl_sh_polariz[q]); // ????
+
+                        trans_p_factors[i] =
+                                (trans_p_factors[i] + c_ijkl2(i, j, p, q) * ez[j] *
+                                                      trans_p_slow[p] * trans_p_polariz[q]);
+                        trans_sv_factors[i] =
+                                (trans_sv_factors[i] + c_ijkl2(i, j, p, q) * ez[j] *
+                                                       trans_s_slow[p] * trans_sv_polariz[q]);
+                        trans_sh_factors[i] =
+                                (trans_sh_factors[i] + c_ijkl2(i, j, p, q) * ez[j] *
+                                                       trans_s_slow[p] * trans_sh_polariz[q]);
+                    }
+                }
+            }
+        }
+
+        MatrixXf matrix_upper_none_transpose = MatrixXf::Zero(6, 3);
+        matrix_upper_none_transpose.row(0) = refl_p_polariz;
+        matrix_upper_none_transpose.row(1) = refl_sv_polariz;
+        matrix_upper_none_transpose.row(2) = refl_sh_polariz;
+        matrix_upper_none_transpose.row(3) = (-1) * trans_p_polariz;
+        matrix_upper_none_transpose.row(4) = (-1) * trans_sv_polariz;
+        matrix_upper_none_transpose.row(5) = (-1) * trans_sh_polariz;
+
+        MatrixXf matrix_upper = matrix_upper_none_transpose.transpose();
+
+        MatrixXf matrix_lower_none_transpose = MatrixXf::Zero(6, 3);
+        matrix_lower_none_transpose.row(0) = refl_p_factors;
+        matrix_lower_none_transpose.row(1) = refl_sv_factors;
+        matrix_lower_none_transpose.row(2) = refl_sh_factors;
+        matrix_lower_none_transpose.row(3) = (-1) * trans_p_factors;
+        matrix_lower_none_transpose.row(4) = (-1) * trans_sv_factors;
+        matrix_lower_none_transpose.row(5) = (-1) * trans_sh_factors;
+
+        MatrixXf matrix_lower = matrix_lower_none_transpose.transpose();
+        MatrixXf matrix = MatrixXf::Zero(6, 6);
+        matrix.block(0, 0, 3, 6) = matrix_upper;
+        matrix.block(3, 0, 3, 6) = matrix_lower;
+
+//        std::cerr << matrix << std::endl << std::endl;
+
+        VectorXf right_part = VectorXf(6);
+        right_part.head(3) = (-1) * inc_polariz;
+        right_part.tail(3) = (-1) * inc_factors;
+
+        std::vector<int> rows;
+        if (vp1 != 0 && vs1 != 0 && vp2 != 0 && vs2 != 0) {
+            rows.push_back(0);
+            rows.push_back(1);
+            rows.push_back(2);
+            rows.push_back(3);
+            rows.push_back(4);
+            rows.push_back(5);
+        } else if (vs1 != 0 && vp2 != 0 && vs2 == 0) {
+            rows.push_back(2);
+            rows.push_back(3);
+            rows.push_back(4);
+            rows.push_back(5);
+        } else if (vs1 == 0 && vp2 != 0 && vs2 == 0) {
+            rows.push_back(2);
+            rows.push_back(5);
+        } else if (vs1 != 0 && vp2 == 0 && vs2 == 0) {
+            rows.push_back(3);
+            rows.push_back(4);
+            rows.push_back(5);
+        } else {
+            rows.push_back(5);
+        }
+
+        // Determine which columns to preserve
+        std::vector<bool> cols = {vp1 != 0, vs1 != 0, vs1 != 0,
+                                  vp2 != 0, vs2 != 0, vs2 != 0 };
+
+        int count_of_cols = 0;
+        for (auto && col : cols) {
+            if (col) {
+                count_of_cols += 1;
+            }
+        }
+
+        MatrixXf left_part = MatrixXf(rows.size(), count_of_cols);
+        for (int i = 0; i < count_of_cols; i++) {
+            if (cols[i]) {
+                left_part.col(i) = matrix.col(i);
+            }
+        }
+
+        VectorXf new_right_part = VectorXf(rows.size());
+
+        for (int i = 0; i < rows.size(); i++) {
+            if (cols[i]) {
+                new_right_part(i) = right_part(i);
+            }
+        }
+
+        VectorXf coeffs = VectorXf::Zero(rows.size());
+
+//        std::cerr << left_part << std::endl << std::endl;
+//        std::cerr << right_part << std::endl << std::endl;
+
+        coeffs = left_part.colPivHouseholderQr().solve(right_part);
+        auto left_inverse = left_part.inverse();
+        auto res = left_inverse * right_part;
+
+//        std::cerr << coeffs << std::endl << std::endl;
+//        std::cerr << res << std::endl << std::endl;
+
+        Vector3f res_coeff = Vector3f::Zero();
+
+        if (rt_sign == 1) {
+            return res_coeff = coeffs.tail(3);
+        } else {
+            return res_coeff = coeffs.head(3);
+        }
+    }
+
+    void Ray::computeAmplitude() {
+        Vector3f polariz = rayPolarization();
+        raySpreading();
+    }
+
+    void Ray::raySpreading() {
+        Vector3f vec0 = {trajectory[1][0] - trajectory[0][0],
+                        trajectory[1][1] - trajectory[0][1],
+                        trajectory[1][2] - trajectory[0][2]
+        };
+
+        vec0 = vec0 / (sqrt(pow(vec0(0), 2) + pow(vec0(1), 2) + pow(vec0(2), 2)) + 1e-15);
+        float vel0 = velocity_model->getLayer(0)->Vp;
+        float theta = atan2(sqrt(pow(vec0(0), 2) + pow(vec0(1), 2)), vec0[2]);
+        float phi = atan2(vec0[1], vec0[0]);
+
+        Matrix3f qq0 = Matrix3f();
+        qq0 << 0, 0, sin(theta) * cos(phi),
+                0, 0, sin(theta) * cos(phi),
+                (-1.0f) * sin(theta), 0, 0;
+
+        Matrix3f pp0 = Matrix3f();
+        pp0 << cos(theta) * cos(phi), (-1.0f) * sin(phi), 0,
+                cos(theta) * sin(phi), cos(phi), 0,
+                (-1.0f) * sin(theta), 0, 0;
+
+        if (1 < velocity_model->getLayersCount()) {
+            auto vecs = getVectors();
+            auto vels = getVels();
+            auto dists = getDistance();
+
+            MatrixX3f points = MatrixX3f(trajectory.size() - 1, 3);
+            for (int i = 1; i < trajectory.size(); i++) {
+                points.row(i - 1) = Vector3f(trajectory[i][0], trajectory[i][1], trajectory[i][2]);
+            }
+            std::cerr << "points" << std::endl << points << std::endl << std::endl;
+
+            MatrixXf grads = MatrixXf(trajectory.size() - 2, 2);
+            for (int i = 1; i < trajectory.size() - 1; i++) {
+                std::array<float, 2> grad =
+                        velocity_model->getLayer(i)->getTop()->getGradientInPoint(points(i - 1, 0), points(i - 1,1));
+                std::cerr << points(i - 1, 0) << " " <<  points(i - 1,1) << std::endl;
+                std::cerr << grad[0] << " " <<  grad[1] << std::endl;
+                VectorXf grad_vector = VectorXf(2);
+                grad_vector << grad[0], grad[1];
+                grads.row(i - 1) = grad_vector;
+            }
+            std::cerr << "grads: " << std::endl << grads << std::endl << std::endl;
+
+            float b = 2.0;
+        }
+    }
+
+    std::vector<float> Ray::getDistance() {
+        std::vector<float> dists;
+        dists.reserve(trajectory.size() - 1);
+        for (int i = 0; i < trajectory.size() - 1; i++) {
+            dists.emplace_back(sqrt(pow(trajectory[i+1][0] - trajectory[i][0], 2) +
+                    pow(trajectory[i+1][1] - trajectory[i][1], 2) +
+                    pow(trajectory[i+1][2] - trajectory[i][2], 2)));
+
+        }
+        return dists;
+    }
 
 } // namespace ray_tracing

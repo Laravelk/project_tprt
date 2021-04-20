@@ -6,7 +6,6 @@
 #include "Horizon.h"
 #include "libInterpolate/Interpolators/_2D/BicubicInterpolator.hpp"
 #include <array>
-#include <float.h>
 #include <Eigen/Dense>
 #include <string>
 
@@ -26,7 +25,7 @@ private:
    * y: y cord
    * @return gradient in (x,y)
    * */
-  std::vector<float> calculateGradientInPoint(float x, float y) const;
+  std::array<float, 2> calculateGradientInPoint(float x, float y) const;
 
   constexpr static double EPS = 0.000001;
 
@@ -54,8 +53,8 @@ public:
   float getDepth(std::array<float, 2> cord) const override;
   float getDepth(float x, float y) const;
 
-  std::array<double, 2> getGradientInPoint(double x, double y) const override;
-  std::array<double, 2>
+  std::array<float, 2> getGradientInPoint(double x, double y) const override;
+  std::array<float, 2>
   getGradientInPoint(std::array<double, 2> cord) const override;
 
   /* get GridHorizon from JSON file */

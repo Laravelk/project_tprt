@@ -27,6 +27,10 @@ public:
 
   Receiver(std::array<float, 3> location) : location(location) {}
 
+    void change_x_loc(float x) {
+        location[0] = x;
+    }
+
   static std::vector<Receiver> fromFile(std::ifstream file);
 
   [[nodiscard]] const std::array<float, 3> &getLocation() const { return location; }

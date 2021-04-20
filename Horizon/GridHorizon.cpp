@@ -48,16 +48,14 @@ float GridHorizon::getDepth(std::array<float, 2> cord) const {
   return interpolator(cord.at(0), cord.at(1));
 }
 
-std::array<double, 2>
+std::array<float, 2>
 GridHorizon::getGradientInPoint(std::array<double, 2> cord) const {
   return getGradientInPoint(cord[0], cord[1]);
 }
 
-std::array<double, 2> GridHorizon::getGradientInPoint(double x,
+std::array<float, 2> GridHorizon::getGradientInPoint(double x,
                                                       double y) const {
-  std::vector<float> d = calculateGradientInPoint(x, y); // TODO: delete
-
-  return {d[0], d[1]};
+  return calculateGradientInPoint(x, y);
 }
 
 std::unique_ptr<GridHorizon>
@@ -150,13 +148,10 @@ bool GridHorizon::checkGrid(std::vector<float> &x, std::vector<float> &y,
   return true;
 }
 
-bool GridHorizon::interpolation(
-    const std::vector<std::tuple<float, float, float>> &points_array) {
+bool GridHorizon::interpolation(const std::vector<std::tuple<float, float, float>> &points_array) {
   const int MIN_POINTS_COUNT = 4;
   assert(points_array.size() >= MIN_POINTS_COUNT);
 
-  gradient_step =
-      abs(std::get<0>(points_array[0]) - std::get<0>(points_array[1]));
   long size = points_array.size();
   _2D::BicubicInterpolator<float>::VectorType xx(size), yy(size), zz(size);
 
@@ -179,7 +174,7 @@ float GridHorizon::getDepth(float x, float y) const {
   return interpolator(x, y);
 }
 
-std::vector<float> GridHorizon::calculateGradientInPoint(float x,
+std::array<float, 2> GridHorizon::calculateGradientInPoint(float x,
                                                          float y) const {
   return {
       Derivative::derivative_x(x, y, interpolator),
@@ -188,11 +183,11 @@ std::vector<float> GridHorizon::calculateGradientInPoint(float x,
 }
 
     std::vector<float> GridHorizon::getNormal(std::array<float, 2> cord) const {
-    std::vector<float> grad = calculateGradientInPoint(cord[0], cord[1]);
-    std::vector<float> n = { grad[0], grad[1], 1 };
+    std::array<float, 2> grad = calculateGradientInPoint(cord[0], cord[1]);
+    std::vector<float> n = { grad[0], grad[1], -1 };
     float norm = pow(grad[0] * grad[0] + grad[1] * grad[1] + 1,2);
-    for (auto norm_el: n) {
-        norm_el = norm_el / norm;
+    for (int i = 0; i < 3; i++) {
+        n[i] = n[i] / norm;
     }
     return n;
     }

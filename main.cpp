@@ -122,22 +122,28 @@ int main(int argc, char *argv[]) {
   std::vector<ray_tracing::Ray> rays;
   const long N = 1;
 
+  source.change_x_loc(0);
   for (long i = 0; i < N; i++) {
-    rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
-    for (auto value: source.getLocation()) {
-        value = value + 1;
-    }
+      rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
   }
 
   auto start = std::chrono::steady_clock::now();
-  for (long i = 0; i < N; i++) {
-//    rays[i].computePathWithRayCode();
-    rays[i].rayPolarization();
-//    std::cerr << i << std::endl;
+//#pragma omp parallel for schedule(guided)
+    for (long i = 0; i < N; i++) {
+        rays[i].computeAmplitude();
+//        rays[i].computePathWithRayCode();
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;
   std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
+
+//  for (int j = 0; j < rays.size(); j++) {
+//      for (int i = 0; i < rays[j].getTrajectory().size(); i++) {
+//          std::cerr << rays[0].getTrajectory()[i][0] << " " << rays[0].getTrajectory()[i][1] << " "
+//                    << rays[0].getTrajectory()[i][2] << std::endl;
+//      }
+//      std::cerr << std::endl << std::endl;
+//  }
 
   // compute path with ray code
 

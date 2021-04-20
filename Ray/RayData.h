@@ -22,28 +22,22 @@ public:
     }
   }
 
-  void setTrajectory(std::vector<double> raw_trajectory) {
+  void setTrajectory(const std::vector<double> &raw_trajectory) {
     std::vector<std::array<float, 3>> new_trajectory;
     int size = trajectory.size();
     trajectory.clear();
     trajectory.push_back(source.getLocation());
     for (int i = 1; i <= size - 2; i++) {
+        float x = static_cast<float>(raw_trajectory[2 * (i - 1)]);
+        float y = static_cast<float>(raw_trajectory[2 * (i - 1) + 1]);
       trajectory.push_back(
-          {static_cast<float>(raw_trajectory[2 * (i - 1)]),
-           static_cast<float>(raw_trajectory[2 * (i - 1) + 1]),
-           velocity_model->getLayer(ray_code[i].layerNumber)
-               ->getTop()
-               ->getDepth(
-                   {static_cast<float>(raw_trajectory[2 * (i - 1)]),
-                    static_cast<float>(raw_trajectory[2 * (i - 1) + 1])})});
+          { x, y,velocity_model->getLayer(ray_code[i].layerNumber)
+               ->getTop()->getDepth({x, y})});
+//      std::cerr << x << " " << y << " " << velocity_model->getLayer(ray_code[i].layerNumber)
+//              ->getTop()->getDepth({x, y}) << std::endl;
     }
-    trajectory.push_back(receiver.getLocation());
-
-//    std::cerr << "trajectory" << std::endl;
-//    for (auto part : trajectory) {
-//      std::cerr << part[0] << " " << part[1] << " " << part[2] << std::endl;
-//    }
 //    std::cerr << std::endl;
+    trajectory.push_back(receiver.getLocation());
   }
 
   std::vector<std::array<float, 3>> trajectory;

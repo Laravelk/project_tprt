@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+ <rdmgr>
+  <timestamp type="u64_t">1615216487</timestamp>
+  <hostname type="string">laravelkpc</hostname>
+  <os type="string">linux</os>
+  <product type="string">Intel® oneAPI VTune™ Profiler 2021.1.1 Gold</product>
+  <buildNumber type="s32_t">613804</buildNumber>
+  <logicalCPUCount type="s32_t">12</logicalCPUCount>
+  <physicalCoreCount type="s32_t">6</physicalCoreCount>
+  <processorPackageCount type="s32_t">1</processorPackageCount>
+  <CPUFrequency type="s64_t">4305000000</CPUFrequency>
+  <CPUFamily type="s32_t">6</CPUFamily>
+  <CPUModel type="s32_t">158</CPUModel>
+  <CPUStepping type="s32_t">10</CPUStepping>
+  <CPUBrandName type="string">Intel(R) Core(TM) i7-8700K CPU @ 3.70GHz</CPUBrandName>
+  <isa type="string">avx2</isa>
+  <collectionTimeBegin type="u64_t">1615216487</collectionTimeBegin>
+  <variables>
+   <at type="string">hs</at>
+  </variables>
+ </rdmgr>
+</root>

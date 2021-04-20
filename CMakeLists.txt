@@ -1,10 +1,12 @@
 cmake_minimum_required(VERSION 3.11)
 project(tprt)
 
+include(FindOpenMP)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
-set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g")
+set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g ${OpenMP_CXX_FLAGS} -march=native")
+#set(CMAKE_BUILD_TYPE Release)
 
 #set(CMAKE_CXX_COMPILER /home/laravelk/intel/oneapi/compiler/2021.1.1/linux/bin/icpx)
 #set(CMAKE_C_COMPILER /home/laravelk/intel/oneapi/compiler/2021.1.1/linux/bin/icpx)
@@ -53,7 +55,9 @@ add_executable(tprt main.cpp
         Math/Derivative.cpp
         Math/Derivative.h
         Optimize.h
-        Ray/WaveType.h)
+        Ray/WaveType.h
+        Math/C_IJ_Matrix.h
+        )
 
 target_link_libraries(tprt LINK_PUBLIC NLopt::nlopt Eigen3::Eigen libInterpolate::Interpolate)
 

@@ -15,8 +15,9 @@
 #include "../VelocityModel.hpp"
 #include "WaveType.h"
 
-namespace ray_tracing {
+using namespace Eigen;
 
+namespace ray_tracing {
 enum Direction { DOWN = -1, UP = 0 };
 
 struct Code {
@@ -59,6 +60,7 @@ public:
         for (int j = 0; j < 3; j++) {
             vector(j) = trajectory[i][j] - trajectory[i + 1][j];
         }
+
         vector = vector.normalized().cwiseAbs();
         vectors.emplace_back(vector);
     }
@@ -99,7 +101,10 @@ public:
     generateCode(iray_code);
   }
 
-  void rayPolarization();
+    Vector3f rayPolarization();
+    void computeAmplitude();
+    void raySpreading();
+    Eigen::Vector3f rt_coeffs_iso(Vector3f, Vector3f, Vector3f, Vector3f, int, Layer::Properties, Layer::Properties);
 
   void setTrajectory(std::vector<double> raw_trajectory) {
     std::vector<std::array<float, 3>> new_trajectory;
@@ -117,8 +122,9 @@ public:
     new_trajectory.push_back(receiver.getLocation());
     trajectory = new_trajectory;
   }
-  void computePathWithRayCode();
 
+  std::vector<float> getDistance();
+  void computePathWithRayCode();
   rapidjson::Document toJSON();
 };
 

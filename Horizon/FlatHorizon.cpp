@@ -46,13 +46,12 @@ std::vector<float> FlatHorizon::getNormal(std::array<float, 2> cord = {0, 0}) co
 
 void FlatHorizon::setNormal(const std::vector<float> &value) { normal = value; }
 
-std::array<double, 2>
+std::array<float, 2>
 FlatHorizon::getGradientInPoint(std::array<double, 2> cord) const {
   return getGradientInPoint(cord[0], cord[1]);
 }
 
-// TODO: сменить название
-std::array<double, 2> FlatHorizon::getGradientInPoint(double x,
+std::array<float, 2> FlatHorizon::getGradientInPoint(double x,
                                                       double y) const {
   return {(-1) * normal[0] / normal[2], (-1) * normal[1] / normal[2]};
 }

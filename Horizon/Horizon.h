@@ -19,9 +19,9 @@ public:
 
   virtual float getDepth(std::array<float, 2> x) const = 0;
 
-  virtual std::array<double, 2> getGradientInPoint(double x,
+  virtual std::array<float, 2> getGradientInPoint(double x,
                                                    double y) const = 0;
-  virtual std::array<double, 2>
+  virtual std::array<float, 2>
   getGradientInPoint(std::array<double, 2> cord) const = 0;
 
   const std::string getName() const { return name; }

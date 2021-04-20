@@ -5,6 +5,7 @@
 #include "Source.hpp"
 #include <fstream>
 #include <vector>
+#include <iostream>
 #include <Eigen/Dense>
 
 namespace ray_tracing {
@@ -143,22 +144,27 @@ Source Source::fromJSON(const rapidjson::Value &doc) {
   return Source(location, moment, magnitude, t0, stype);
 }
 
-Eigen::Vector3d Source::unitPolarization(std::array<float, 3> xyz_target, WaveType waveType) {
-    Eigen::Matrix3d moment; // TODO: moment -> source in json file
+Eigen::Vector3f Source::unitPolarization(std::array<float, 3> xyz_target, WaveType waveType) {
+    Eigen::MatrixX3f moment_vec = Eigen::MatrixX3f::Zero(3, 3);
+    for (int i = 0; i < 3; i++) {
+        moment_vec(i, 0) = moment[i][0];
+        moment_vec(i, 1) = moment[i][1];
+        moment_vec(i, 2) = moment[i][2];
+    }
 
     float norm =
             pow(pow(xyz_target[0] - location[0], 2) +
             pow(xyz_target[1] - location[1], 2) +
-            pow(xyz_target[2] - location[2], 2), 1 / 2);
+            pow(xyz_target[2] - location[2], 2), 1.0 / 2);
 
     Eigen::Vector3d unit = { (xyz_target[0] - location[0]) / norm,
                              (xyz_target[1] - location[1]) / norm,
                              (xyz_target[2] - location[2]) / norm };
 
-    std::array<Eigen::Matrix3d, 3> matrix_array;
+    std::array<Eigen::Matrix3f, 3> matrix_array;
     if (WaveType::PWave == waveType) { // np.einsum("i, k, l", n, n, n)
         for (int i = 0; i < 3; i++) {
-            Eigen::Matrix3d matrix;
+            Eigen::Matrix3f matrix;
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
                     matrix(j, k) = unit[i] * unit[j] * unit[k];
@@ -167,11 +173,11 @@ Eigen::Vector3d Source::unitPolarization(std::array<float, 3> xyz_target, WaveTy
             matrix_array[i] = matrix;
         }
     } else { // np.einsum("ik, l", np.eye(3), n) - np.einsum("i, k, l", n, n, n)
-        std::array<Eigen::Matrix3d, 3> firstMatrixArray; // np.einsum("i, k, l", n, n, n)
-        std::array<Eigen::Matrix3d, 3> secondMatrixArray; // np.einsum("ik, l", np.eye(3), n)
+        std::array<Eigen::Matrix3f, 3> firstMatrixArray; // np.einsum("i, k, l", n, n, n)
+        std::array<Eigen::Matrix3f, 3> secondMatrixArray; // np.einsum("ik, l", np.eye(3), n)
 
         for (int i = 0; i < 3; i++) {
-            Eigen::Matrix3d matrix;
+            Eigen::Matrix3f matrix;
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
                     matrix(j, k) = unit[i] * unit[j] * unit[k];
@@ -180,9 +186,9 @@ Eigen::Vector3d Source::unitPolarization(std::array<float, 3> xyz_target, WaveTy
             firstMatrixArray[i] = matrix;
         }
 
-        const Eigen::Matrix3d identity = Eigen::Matrix3d::Identity(3, 3);
+        const Eigen::Matrix3f identity = Eigen::Matrix3f::Identity(3, 3);
         for (int i = 0; i < 3; i++) {
-            Eigen::Matrix3d matrix;
+            Eigen::Matrix3f matrix;
             for (int j = 0; j < 3; j++) {
                 for (int k = 0; k < 3; k++) {
                     matrix(j, k) = unit[j] * identity(i, k);
@@ -196,12 +202,12 @@ Eigen::Vector3d Source::unitPolarization(std::array<float, 3> xyz_target, WaveTy
         }
     }
 
-    Eigen::Vector3d resultVector;
+    Eigen::Vector3f resultVector;
     for (int i = 0; i < 3; i++) {
         double valueSum = 0;
         for (int j = 0; j < 3; j++) {
             for (int k = 0; k < 3; k++) {
-                valueSum += moment(j, k) * matrix_array[i](j, k);
+                valueSum += moment_vec(j, k) * matrix_array[i](j, k);
             }
         }
         resultVector[i] = valueSum;

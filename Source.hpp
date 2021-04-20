@@ -29,7 +29,13 @@ public:
 
   Source(std::array<float, 3> location) : location(location) {}
 
-  Eigen::Vector3d unitPolarization(std::array<float, 3> xyz_target, WaveType type);
+  void change_x_loc(float x) {
+      location[0] = x;
+  }
+
+  float getMagnitude() { return magnitude; }
+
+  Eigen::Vector3f unitPolarization(std::array<float, 3> xyz_target, WaveType type);
 
   [[nodiscard]] const std::array<float, 3> &getLocation() const;
 

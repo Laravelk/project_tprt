@@ -71,6 +71,9 @@ public:
   std::vector<std::tuple<float, float, float>> getPoints() const;
 
   std::vector<float> getNormal(std::array<float, 2> cord) const;
+
+  Eigen::Matrix2f getHessian(const float x, const float y) const;
+
 };
 } // namespace ray_tracing
 

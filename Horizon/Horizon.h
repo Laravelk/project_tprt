@@ -29,6 +29,7 @@ public:
 
   virtual std::vector<float> getNormal(std::array<float, 2>) const = 0;
 
+  virtual Eigen::Matrix2f getHessian(const float x, const float y) const = 0;
 protected:
   std::string name;
 };

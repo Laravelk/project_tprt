@@ -30,7 +30,7 @@
 
     "Source": {
         "Location": [
-            0.0,
+            5.0,
             0.0,
             0.0
         ],
@@ -60,9 +60,9 @@
     "Velocity model": [
     {
             "LType": "ISO",
-            "Vp": 2100.0,
-            "Vs": 1200.0,
-            "Density": 2300,
+            "Vp": 2500.0,
+            "Vs": 1250.0,
+            "Density": 2400.0,
             "HType": "flat",
             "Top": {
                 "Dip": 0.0,
@@ -84,27 +84,27 @@
         },
         {
             "LType": "ISO",
-            "Vp": 2500.0,
-            "Vs": 1250.0,
-            "Density": 2400,
+            "Vp": 3000.0,
+            "Vs": 1500.0,
+            "Density": 2500.0,
             "HType": "grid",
             "Top": {
-                "PointsFileName": "points2.txt",
+                "PointsFileName": "points3.txt",
                 "Step": 2.0,
                 "Cardinal": "END",
-                "Name": "Usg-43",
+                "Name": "Usg-100",
                 "Region": [
                     [-1000, -1000],
                     [1000, 1000]
                 ]
             },
-            "Name": "Usg-43"
+            "Name": "Usg-100"
         },
         {
             "LType": "ISO",
-            "Vp": 3000.0,
-            "Vs": 1500.0,
-            "Density": 2500,
+            "Vp": 3200.0,
+            "Vs": 1900.0,
+            "Density": 2600.0,
             "HType": "flat",
             "Top": {
                 "Dip": 1.0,
@@ -126,9 +126,9 @@
         },
         {
             "LType": "ISO",
-            "Vp": 3200.0,
-            "Vs": 1900.0,
-            "Density": 2600,
+            "Vp": 3500.0,
+            "Vs": 2200.0,
+            "Density": 2700.0,
             "HType": "flat",
             "Top": {
                 "Dip": 0.0,

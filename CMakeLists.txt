@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-Wall -Wextra")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -g ${OpenMP_CXX_FLAGS} -march=native")
-#set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_BUILD_TYPE Release)
 
 #set(CMAKE_CXX_COMPILER /home/laravelk/intel/oneapi/compiler/2021.1.1/linux/bin/icpx)
 #set(CMAKE_C_COMPILER /home/laravelk/intel/oneapi/compiler/2021.1.1/linux/bin/icpx)
@@ -52,7 +52,6 @@ add_executable(tprt main.cpp
         Horizon/Horizon.h
         Horizon/GridHorizon.cpp
         Horizon/GridHorizon.h
-        Math/Derivative.cpp
         Math/Derivative.h
         Optimize.h
         Ray/WaveType.h

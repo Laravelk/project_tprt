@@ -2,7 +2,6 @@ file(REMOVE_RECURSE
   "CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o"
   "CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o"
   "CMakeFiles/tprt.dir/Layer.cpp.o"
-  "CMakeFiles/tprt.dir/Math/Derivative.cpp.o"
   "CMakeFiles/tprt.dir/Ray/Ray.cpp.o"
   "CMakeFiles/tprt.dir/Ray/RayData.cpp.o"
   "CMakeFiles/tprt.dir/Receiver.cpp.o"

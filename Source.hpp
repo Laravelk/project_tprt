@@ -41,7 +41,7 @@ public:
 
   rapidjson::Document toJSON();
 
-  static std::vector<Source> fromFile(std::ifstream file);
+  static std::vector<Source> fromFile(std::ifstream &file);
   static Source fromJSON(const rapidjson::Value &doc);
 };
 } // namespace ray_tracing

@@ -171,4 +171,8 @@ FlatHorizon::fromJSON(const rapidjson::Value &doc) {
   return std::make_unique<FlatHorizon>(depth, dip, azimuth, region, anchor);
 }
 
+    Eigen::Matrix2f FlatHorizon::getHessian(const float x, const float y) const {
+        return Eigen::Matrix2f::Zero();
+    }
+
 } // namespace ray_tracing

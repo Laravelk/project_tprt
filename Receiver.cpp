@@ -2,7 +2,7 @@
 #include <iostream>
 
 namespace ray_tracing {
-std::vector<Receiver> Receiver::fromFile(std::ifstream file) {
+std::vector<Receiver> Receiver::fromFile(std::ifstream &file) {
   std::vector<std::array<float, 3>> receivers_cord;
 
   while (!file.eof()) {
@@ -10,7 +10,7 @@ std::vector<Receiver> Receiver::fromFile(std::ifstream file) {
     file >> x;
     file >> y;
     file >> z;
-    std::array<float, 3> location = {x, y, z};
+    std::array<float, 3> location = {x, y, 0}; // TODO: change to z
     receivers_cord.push_back(location);
   }
 

@@ -58,19 +58,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/clion/149/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /snap/clion/151/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /snap/clion/149/bin/cmake/linux/bin/cmake -E rm -f
+RM = /snap/clion/151/bin/cmake/linux/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/laravelk/repositories/mnsk_tests_1
+CMAKE_SOURCE_DIR = /home/laravelk/project_tprt
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/laravelk/repositories/mnsk_tests_1
+CMAKE_BINARY_DIR = /home/laravelk/project_tprt
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -78,7 +78,7 @@ CMAKE_BINARY_DIR = /home/laravelk/repositories/mnsk_tests_1
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/snap/clion/149/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/snap/clion/151/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -89,7 +89,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/snap/clion/149/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	/snap/clion/151/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -99,9 +99,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/repositories/mnsk_tests_1/CMakeFiles /home/laravelk/repositories/mnsk_tests_1//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/project_tprt/CMakeFiles /home/laravelk/project_tprt//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/repositories/mnsk_tests_1/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/project_tprt/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -222,33 +222,6 @@ Layer.s: Layer.cpp.s
 Layer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Layer.cpp.s
 .PHONY : Layer.cpp.s
-
-Math/Derivative.o: Math/Derivative.cpp.o
-
-.PHONY : Math/Derivative.o
-
-# target to build an object file
-Math/Derivative.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Math/Derivative.cpp.o
-.PHONY : Math/Derivative.cpp.o
-
-Math/Derivative.i: Math/Derivative.cpp.i
-
-.PHONY : Math/Derivative.i
-
-# target to preprocess a source file
-Math/Derivative.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Math/Derivative.cpp.i
-.PHONY : Math/Derivative.cpp.i
-
-Math/Derivative.s: Math/Derivative.cpp.s
-
-.PHONY : Math/Derivative.s
-
-# target to generate assembly for a file
-Math/Derivative.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Math/Derivative.cpp.s
-.PHONY : Math/Derivative.cpp.s
 
 Ray/Ray.o: Ray/Ray.cpp.o
 
@@ -430,9 +403,6 @@ help:
 	@echo "... Layer.o"
 	@echo "... Layer.i"
 	@echo "... Layer.s"
-	@echo "... Math/Derivative.o"
-	@echo "... Math/Derivative.i"
-	@echo "... Math/Derivative.s"
 	@echo "... Ray/Ray.o"
 	@echo "... Ray/Ray.i"
 	@echo "... Ray/Ray.s"

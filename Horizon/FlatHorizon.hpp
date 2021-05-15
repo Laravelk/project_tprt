@@ -62,6 +62,9 @@ public:
 
   std::vector<float> getNormal(std::array<float, 2>) const override;
   void setNormal(const std::vector<float> &value);
+
+  Eigen::Matrix2f getHessian(const float x, const float y) const;
+
 };
 
 } // namespace ray_tracing

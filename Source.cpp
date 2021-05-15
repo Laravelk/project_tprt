@@ -50,7 +50,7 @@ rapidjson::Document Source::toJSON() {
   return doc;
 }
 
-std::vector<Source> Source::fromFile(std::ifstream file) {
+std::vector<Source> Source::fromFile(std::ifstream &file) {
   std::vector<std::array<float, 3>> sources_cord;
 
   while (!file.eof()) {
@@ -58,7 +58,7 @@ std::vector<Source> Source::fromFile(std::ifstream file) {
     file >> x;
     file >> y;
     file >> z;
-    std::array<float, 3> location = {x, y, z};
+    std::array<float, 3> location = {x, y, 0}; // TODO: change to z
     sources_cord.push_back(location);
   }
 

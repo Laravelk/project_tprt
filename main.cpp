@@ -14,6 +14,30 @@
 
 #include <chrono>
 
+std::vector<std::array<int, 3>> bigTest() {
+    std::vector<std::array<int, 3>> ray_code;
+    std::array<int, 3> f = {0, 1, 0};
+    std::array<int, 3> f1 = {1, 1, 0};
+    std::array<int, 3> f2 = {2, 1, 0};
+    std::array<int, 3> f3 = {3, 1, 0};
+    std::array<int, 3> f4 = {4, 1, 0};
+    std::array<int, 3> f5 = {3, -1, 0};
+    std::array<int, 3> f6 = {2, -1, 0};
+    std::array<int, 3> f7 = {1, -1, 0};
+
+
+    ray_code.push_back(f);
+    ray_code.push_back(f1);
+    ray_code.push_back(f2);
+    ray_code.push_back(f3);
+    ray_code.push_back(f4);
+    ray_code.push_back(f5);
+    ray_code.push_back(f6);
+    ray_code.push_back(f7);
+
+    return ray_code;
+}
+
 std::vector<std::array<int, 3>> getRayCode2() {
   std::vector<std::array<int, 3>> ray_code;
   std::array<int, 3> f = {0, 1, 0};
@@ -103,47 +127,43 @@ int main(int argc, char *argv[]) {
 
   // auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
 
-  std::ifstream sources_file("sources.txt");
-  std::ifstream receivers_file("receivers.txt");
+  std::ifstream sources_file = std::ifstream("sources.txt");
+  std::ifstream receivers_file= std::ifstream("receivers.txt");
 
   // source
 //  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
   auto source = ray_tracing::Source::fromJSON(doc["Source"]);
+  auto sources = ray_tracing::Source::fromFile(sources_file);
   // get info about receiver
 //  auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
     auto receiver = ray_tracing::Receiver::fromJSON(doc["Receiver"]);
-  // get info about velocity model
+    auto receivers = ray_tracing::Receiver::fromFile(receivers_file);
+
+    // get info about velocity model
   auto velocity_model =
       ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
 
   // for ray code test
-  std::vector<std::array<int, 3>> ray_code = getRayCode2();
+  std::vector<std::array<int, 3>> ray_code = bigTest();
   // create the ray
   std::vector<ray_tracing::Ray> rays;
   const long N = 1;
 
-  source.change_x_loc(0);
+//  source.change_x_loc(0);
   for (long i = 0; i < N; i++) {
-      rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
+      rays.emplace_back(sources[i], receivers[i], velocity_model.get(), ray_code);
+//      source.change_x_loc(source.getLocation().at(0) + 5);
   }
 
   auto start = std::chrono::steady_clock::now();
 //#pragma omp parallel for schedule(guided)
     for (long i = 0; i < N; i++) {
-        rays[i].computeAmplitude();
-//        rays[i].computePathWithRayCode();
+//        rays[i].computeAmplitude();
+        rays[i].computePathWithRayCode();
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;
   std::cout << "elapsed time: " << elapsed_seconds.count() << "s\n";
-
-//  for (int j = 0; j < rays.size(); j++) {
-//      for (int i = 0; i < rays[j].getTrajectory().size(); i++) {
-//          std::cerr << rays[0].getTrajectory()[i][0] << " " << rays[0].getTrajectory()[i][1] << " "
-//                    << rays[0].getTrajectory()[i][2] << std::endl;
-//      }
-//      std::cerr << std::endl << std::endl;
-//  }
 
   // compute path with ray code
 

@@ -157,9 +157,9 @@ bool GridHorizon::interpolation(const std::vector<std::tuple<float, float, float
 
 
   for (long i = 0; i < size; i++) {
-    xx(i) = std::get<0>(points_array[i]);
-    yy(i) = std::get<1>(points_array[i]);
-    zz(i) = std::get<2>(points_array[i]);
+    xx(i) = std::get<0>(points_array[i]) / 2.7;
+    yy(i) = std::get<1>(points_array[i]) / 2.7;
+    zz(i) = std::get<2>(points_array[i]) / 2.7;
   }
 
   interpolator.setData(xx, yy, zz);
@@ -190,5 +190,9 @@ std::array<float, 2> GridHorizon::calculateGradientInPoint(float x,
         n[i] = n[i] / norm;
     }
     return n;
+    }
+
+    Eigen::Matrix2f GridHorizon::getHessian(const float x, const float y) const {
+        return Derivative::calculate_hessian(x, y, interpolator);
     }
 } // namespace ray_tracing

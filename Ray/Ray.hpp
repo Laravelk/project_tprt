@@ -67,14 +67,14 @@ public:
     return vectors;
   }
 
-  std::vector<float> getVels() {
+  std::vector<float> getVels(int count) {
       std::vector<float> vels;
       if (WaveType::PWave == waveType) {
-          for (int i = 0; i < velocity_model->getLayersCount() - 2; i++) {
+          for (int i = 0; i < count; i++) {
               vels.push_back(velocity_model->getLayer(i)->getVp());
           }
       } else {
-          for (int i = 0; i < velocity_model->getLayersCount() - 2; i++) {
+          for (int i = 0; i < count; i++) {
               vels.push_back(velocity_model->getLayer(i)->getVs());
           }
       }

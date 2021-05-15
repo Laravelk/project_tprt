@@ -31,7 +31,7 @@ public:
         location[0] = x;
     }
 
-  static std::vector<Receiver> fromFile(std::ifstream file);
+  static std::vector<Receiver> fromFile(std::ifstream &file);
 
   [[nodiscard]] const std::array<float, 3> &getLocation() const { return location; }
 

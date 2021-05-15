@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Ray/Ray.hpp"
-#include "Ray/RayData.h"
+#include "../Ray/Ray.hpp"
+#include "../Ray/RayData.h"
 
 namespace ray_tracing {
 class Optimize {

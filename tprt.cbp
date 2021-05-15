@@ -5,7 +5,7 @@
 		<Option title="tprt"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\usr\;CMake Files\..\..\..\usr\local\;CMake Files\..\..\..\usr\local\share\;CMake Files\..\..\..\usr\local\share\eigen3\;CMake Files\..\..\..\usr\local\share\eigen3\cmake\;CMake Files\..\..\..\usr\local\lib\;CMake Files\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\usr\local\lib\cmake\nlopt\;CMake Files\..\..\..\usr\local\cmake\;CMake Files\..\..\..\usr\lib\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Boost-1.71.0\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\cmake\boost_headers-1.71.0\;CMake Files\..\..\..\usr\lib\cmake\;CMake Files\..\..\..\usr\lib\cmake\RapidJSON\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\usr\;CMake Files\..\..\..\usr\local\;CMake Files\..\..\..\usr\local\share\;CMake Files\..\..\..\usr\local\share\eigen3\;CMake Files\..\..\..\usr\local\share\eigen3\cmake\;CMake Files\..\..\..\usr\local\share\segyio\;CMake Files\..\..\..\usr\local\share\segyio\cmake\;CMake Files\..\..\..\usr\local\lib\;CMake Files\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\usr\local\lib\cmake\nlopt\;CMake Files\..\..\..\usr\local\cmake\;CMake Files\..\..\..\usr\lib\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\cmake\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\cmake\Boost-1.71.0\;CMake Files\..\..\..\usr\lib\x86_64-linux-gnu\cmake\boost_headers-1.71.0\;CMake Files\..\..\..\usr\lib\cmake\;CMake Files\..\..\..\usr\lib\cmake\RapidJSON\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/laravelk/project_tprt"/>
@@ -88,25 +88,46 @@
 				</MakeCommands>
 			</Target>
 		</Build>
-		<Unit filename="/home/laravelk/project_tprt/Horizon/FlatHorizon.cpp">
+		<Unit filename="/home/laravelk/project_tprt/Data/Horizon/FlatHorizon.cpp">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Horizon/FlatHorizon.hpp">
+		<Unit filename="/home/laravelk/project_tprt/Data/Horizon/FlatHorizon.hpp">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Horizon/GridHorizon.cpp">
+		<Unit filename="/home/laravelk/project_tprt/Data/Horizon/GridHorizon.cpp">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Horizon/GridHorizon.h">
+		<Unit filename="/home/laravelk/project_tprt/Data/Horizon/GridHorizon.h">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Horizon/Horizon.h">
+		<Unit filename="/home/laravelk/project_tprt/Data/Horizon/Horizon.h">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Layer.cpp">
+		<Unit filename="/home/laravelk/project_tprt/Data/Layer.cpp">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Layer.hpp">
+		<Unit filename="/home/laravelk/project_tprt/Data/Layer.hpp">
+			<Option target="tprt"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/Data/Model/ModelTransformation.h">
+			<Option target="tprt"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/Data/Receiver.cpp">
+			<Option target="tprt"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/Data/Receiver.hpp">
+			<Option target="tprt"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/Data/Source.cpp">
+			<Option target="tprt"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/Data/Source.hpp">
+			<Option target="tprt"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/Data/VelocityModel.cpp">
+			<Option target="tprt"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/Data/VelocityModel.hpp">
 			<Option target="tprt"/>
 		</Unit>
 		<Unit filename="/home/laravelk/project_tprt/Math/C_IJ_Matrix.h">
@@ -115,7 +136,7 @@
 		<Unit filename="/home/laravelk/project_tprt/Math/Derivative.h">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Optimize.h">
+		<Unit filename="/home/laravelk/project_tprt/Math/Optimize.h">
 			<Option target="tprt"/>
 		</Unit>
 		<Unit filename="/home/laravelk/project_tprt/Ray/Ray.cpp">
@@ -124,31 +145,16 @@
 		<Unit filename="/home/laravelk/project_tprt/Ray/Ray.hpp">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Ray/RayData.cpp">
-			<Option target="tprt"/>
-		</Unit>
 		<Unit filename="/home/laravelk/project_tprt/Ray/RayData.h">
 			<Option target="tprt"/>
 		</Unit>
 		<Unit filename="/home/laravelk/project_tprt/Ray/WaveType.h">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Receiver.cpp">
+		<Unit filename="/home/laravelk/project_tprt/Test/TestCase.cpp">
 			<Option target="tprt"/>
 		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Receiver.hpp">
-			<Option target="tprt"/>
-		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Source.cpp">
-			<Option target="tprt"/>
-		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/Source.hpp">
-			<Option target="tprt"/>
-		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/VelocityModel.cpp">
-			<Option target="tprt"/>
-		</Unit>
-		<Unit filename="/home/laravelk/project_tprt/VelocityModel.hpp">
+		<Unit filename="/home/laravelk/project_tprt/Test/TestCase.h">
 			<Option target="tprt"/>
 		</Unit>
 		<Unit filename="/home/laravelk/project_tprt/main.cpp">
@@ -165,6 +171,12 @@
 		</Unit>
 		<Unit filename="/home/laravelk/project_tprt/../../../usr/local/share/eigen3/cmake/Eigen3Targets.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\usr\local\share\eigen3\cmake\"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/../../../usr/local/share/segyio/cmake/segyio-config-release.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\usr\local\share\segyio\cmake\"/>
+		</Unit>
+		<Unit filename="/home/laravelk/project_tprt/../../../usr/local/share/segyio/cmake/segyio-config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\usr\local\share\segyio\cmake\"/>
 		</Unit>
 		<Unit filename="/home/laravelk/project_tprt/../../../usr/local/lib/cmake/nlopt/NLoptConfig.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\usr\local\lib\cmake\nlopt\"/>

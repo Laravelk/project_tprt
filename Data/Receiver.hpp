@@ -3,7 +3,7 @@
 #ifndef TPRT_RECIEVER_HPP
 #define TPRT_RECIEVER_HPP
 
-#include "rapidjson/document.h"
+#include "../rapidjson/document.h"
 #include <array>
 #include <fstream>
 #include <string>

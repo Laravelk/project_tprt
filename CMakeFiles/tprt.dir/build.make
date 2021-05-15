@@ -89,35 +89,22 @@ CMakeFiles/tprt.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/main.cpp -o CMakeFiles/tprt.dir/main.cpp.s
 
-CMakeFiles/tprt.dir/Ray/RayData.cpp.o: CMakeFiles/tprt.dir/flags.make
-CMakeFiles/tprt.dir/Ray/RayData.cpp.o: Ray/RayData.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/tprt.dir/Ray/RayData.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Ray/RayData.cpp.o -c /home/laravelk/project_tprt/Ray/RayData.cpp
+CMakeFiles/tprt.dir/Data/Source.cpp.o: CMakeFiles/tprt.dir/flags.make
+CMakeFiles/tprt.dir/Data/Source.cpp.o: Data/Source.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/tprt.dir/Data/Source.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Data/Source.cpp.o -c /home/laravelk/project_tprt/Data/Source.cpp
 
-CMakeFiles/tprt.dir/Ray/RayData.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Ray/RayData.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Ray/RayData.cpp > CMakeFiles/tprt.dir/Ray/RayData.cpp.i
+CMakeFiles/tprt.dir/Data/Source.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Data/Source.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Data/Source.cpp > CMakeFiles/tprt.dir/Data/Source.cpp.i
 
-CMakeFiles/tprt.dir/Ray/RayData.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Ray/RayData.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Ray/RayData.cpp -o CMakeFiles/tprt.dir/Ray/RayData.cpp.s
-
-CMakeFiles/tprt.dir/Source.cpp.o: CMakeFiles/tprt.dir/flags.make
-CMakeFiles/tprt.dir/Source.cpp.o: Source.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/tprt.dir/Source.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Source.cpp.o -c /home/laravelk/project_tprt/Source.cpp
-
-CMakeFiles/tprt.dir/Source.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Source.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Source.cpp > CMakeFiles/tprt.dir/Source.cpp.i
-
-CMakeFiles/tprt.dir/Source.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Source.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Source.cpp -o CMakeFiles/tprt.dir/Source.cpp.s
+CMakeFiles/tprt.dir/Data/Source.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Data/Source.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Data/Source.cpp -o CMakeFiles/tprt.dir/Data/Source.cpp.s
 
 CMakeFiles/tprt.dir/Ray/Ray.cpp.o: CMakeFiles/tprt.dir/flags.make
 CMakeFiles/tprt.dir/Ray/Ray.cpp.o: Ray/Ray.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/tprt.dir/Ray/Ray.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/tprt.dir/Ray/Ray.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Ray/Ray.cpp.o -c /home/laravelk/project_tprt/Ray/Ray.cpp
 
 CMakeFiles/tprt.dir/Ray/Ray.cpp.i: cmake_force
@@ -128,97 +115,111 @@ CMakeFiles/tprt.dir/Ray/Ray.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Ray/Ray.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Ray/Ray.cpp -o CMakeFiles/tprt.dir/Ray/Ray.cpp.s
 
-CMakeFiles/tprt.dir/Receiver.cpp.o: CMakeFiles/tprt.dir/flags.make
-CMakeFiles/tprt.dir/Receiver.cpp.o: Receiver.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/tprt.dir/Receiver.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Receiver.cpp.o -c /home/laravelk/project_tprt/Receiver.cpp
+CMakeFiles/tprt.dir/Data/Receiver.cpp.o: CMakeFiles/tprt.dir/flags.make
+CMakeFiles/tprt.dir/Data/Receiver.cpp.o: Data/Receiver.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/tprt.dir/Data/Receiver.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Data/Receiver.cpp.o -c /home/laravelk/project_tprt/Data/Receiver.cpp
 
-CMakeFiles/tprt.dir/Receiver.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Receiver.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Receiver.cpp > CMakeFiles/tprt.dir/Receiver.cpp.i
+CMakeFiles/tprt.dir/Data/Receiver.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Data/Receiver.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Data/Receiver.cpp > CMakeFiles/tprt.dir/Data/Receiver.cpp.i
 
-CMakeFiles/tprt.dir/Receiver.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Receiver.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Receiver.cpp -o CMakeFiles/tprt.dir/Receiver.cpp.s
+CMakeFiles/tprt.dir/Data/Receiver.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Data/Receiver.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Data/Receiver.cpp -o CMakeFiles/tprt.dir/Data/Receiver.cpp.s
 
-CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o: CMakeFiles/tprt.dir/flags.make
-CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o: Horizon/FlatHorizon.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o -c /home/laravelk/project_tprt/Horizon/FlatHorizon.cpp
+CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.o: CMakeFiles/tprt.dir/flags.make
+CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.o: Data/Horizon/FlatHorizon.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.o -c /home/laravelk/project_tprt/Data/Horizon/FlatHorizon.cpp
 
-CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Horizon/FlatHorizon.cpp > CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.i
+CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Data/Horizon/FlatHorizon.cpp > CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.i
 
-CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Horizon/FlatHorizon.cpp -o CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.s
+CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Data/Horizon/FlatHorizon.cpp -o CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.s
 
-CMakeFiles/tprt.dir/Layer.cpp.o: CMakeFiles/tprt.dir/flags.make
-CMakeFiles/tprt.dir/Layer.cpp.o: Layer.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tprt.dir/Layer.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Layer.cpp.o -c /home/laravelk/project_tprt/Layer.cpp
+CMakeFiles/tprt.dir/Data/Layer.cpp.o: CMakeFiles/tprt.dir/flags.make
+CMakeFiles/tprt.dir/Data/Layer.cpp.o: Data/Layer.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Building CXX object CMakeFiles/tprt.dir/Data/Layer.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Data/Layer.cpp.o -c /home/laravelk/project_tprt/Data/Layer.cpp
 
-CMakeFiles/tprt.dir/Layer.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Layer.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Layer.cpp > CMakeFiles/tprt.dir/Layer.cpp.i
+CMakeFiles/tprt.dir/Data/Layer.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Data/Layer.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Data/Layer.cpp > CMakeFiles/tprt.dir/Data/Layer.cpp.i
 
-CMakeFiles/tprt.dir/Layer.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Layer.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Layer.cpp -o CMakeFiles/tprt.dir/Layer.cpp.s
+CMakeFiles/tprt.dir/Data/Layer.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Data/Layer.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Data/Layer.cpp -o CMakeFiles/tprt.dir/Data/Layer.cpp.s
 
-CMakeFiles/tprt.dir/VelocityModel.cpp.o: CMakeFiles/tprt.dir/flags.make
-CMakeFiles/tprt.dir/VelocityModel.cpp.o: VelocityModel.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tprt.dir/VelocityModel.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/VelocityModel.cpp.o -c /home/laravelk/project_tprt/VelocityModel.cpp
+CMakeFiles/tprt.dir/Data/VelocityModel.cpp.o: CMakeFiles/tprt.dir/flags.make
+CMakeFiles/tprt.dir/Data/VelocityModel.cpp.o: Data/VelocityModel.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_7) "Building CXX object CMakeFiles/tprt.dir/Data/VelocityModel.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Data/VelocityModel.cpp.o -c /home/laravelk/project_tprt/Data/VelocityModel.cpp
 
-CMakeFiles/tprt.dir/VelocityModel.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/VelocityModel.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/VelocityModel.cpp > CMakeFiles/tprt.dir/VelocityModel.cpp.i
+CMakeFiles/tprt.dir/Data/VelocityModel.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Data/VelocityModel.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Data/VelocityModel.cpp > CMakeFiles/tprt.dir/Data/VelocityModel.cpp.i
 
-CMakeFiles/tprt.dir/VelocityModel.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/VelocityModel.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/VelocityModel.cpp -o CMakeFiles/tprt.dir/VelocityModel.cpp.s
+CMakeFiles/tprt.dir/Data/VelocityModel.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Data/VelocityModel.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Data/VelocityModel.cpp -o CMakeFiles/tprt.dir/Data/VelocityModel.cpp.s
 
-CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o: CMakeFiles/tprt.dir/flags.make
-CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o: Horizon/GridHorizon.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o -c /home/laravelk/project_tprt/Horizon/GridHorizon.cpp
+CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.o: CMakeFiles/tprt.dir/flags.make
+CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.o: Data/Horizon/GridHorizon.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_8) "Building CXX object CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.o -c /home/laravelk/project_tprt/Data/Horizon/GridHorizon.cpp
 
-CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Horizon/GridHorizon.cpp > CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.i
+CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Data/Horizon/GridHorizon.cpp > CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.i
 
-CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Horizon/GridHorizon.cpp -o CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.s
+CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Data/Horizon/GridHorizon.cpp -o CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.s
+
+CMakeFiles/tprt.dir/Test/TestCase.cpp.o: CMakeFiles/tprt.dir/flags.make
+CMakeFiles/tprt.dir/Test/TestCase.cpp.o: Test/TestCase.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_9) "Building CXX object CMakeFiles/tprt.dir/Test/TestCase.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/tprt.dir/Test/TestCase.cpp.o -c /home/laravelk/project_tprt/Test/TestCase.cpp
+
+CMakeFiles/tprt.dir/Test/TestCase.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/tprt.dir/Test/TestCase.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/laravelk/project_tprt/Test/TestCase.cpp > CMakeFiles/tprt.dir/Test/TestCase.cpp.i
+
+CMakeFiles/tprt.dir/Test/TestCase.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/tprt.dir/Test/TestCase.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/laravelk/project_tprt/Test/TestCase.cpp -o CMakeFiles/tprt.dir/Test/TestCase.cpp.s
 
 # Object files for target tprt
 tprt_OBJECTS = \
 "CMakeFiles/tprt.dir/main.cpp.o" \
-"CMakeFiles/tprt.dir/Ray/RayData.cpp.o" \
-"CMakeFiles/tprt.dir/Source.cpp.o" \
+"CMakeFiles/tprt.dir/Data/Source.cpp.o" \
 "CMakeFiles/tprt.dir/Ray/Ray.cpp.o" \
-"CMakeFiles/tprt.dir/Receiver.cpp.o" \
-"CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o" \
-"CMakeFiles/tprt.dir/Layer.cpp.o" \
-"CMakeFiles/tprt.dir/VelocityModel.cpp.o" \
-"CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o"
+"CMakeFiles/tprt.dir/Data/Receiver.cpp.o" \
+"CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.o" \
+"CMakeFiles/tprt.dir/Data/Layer.cpp.o" \
+"CMakeFiles/tprt.dir/Data/VelocityModel.cpp.o" \
+"CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.o" \
+"CMakeFiles/tprt.dir/Test/TestCase.cpp.o"
 
 # External object files for target tprt
 tprt_EXTERNAL_OBJECTS =
 
 tprt: CMakeFiles/tprt.dir/main.cpp.o
-tprt: CMakeFiles/tprt.dir/Ray/RayData.cpp.o
-tprt: CMakeFiles/tprt.dir/Source.cpp.o
+tprt: CMakeFiles/tprt.dir/Data/Source.cpp.o
 tprt: CMakeFiles/tprt.dir/Ray/Ray.cpp.o
-tprt: CMakeFiles/tprt.dir/Receiver.cpp.o
-tprt: CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o
-tprt: CMakeFiles/tprt.dir/Layer.cpp.o
-tprt: CMakeFiles/tprt.dir/VelocityModel.cpp.o
-tprt: CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o
+tprt: CMakeFiles/tprt.dir/Data/Receiver.cpp.o
+tprt: CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.o
+tprt: CMakeFiles/tprt.dir/Data/Layer.cpp.o
+tprt: CMakeFiles/tprt.dir/Data/VelocityModel.cpp.o
+tprt: CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.o
+tprt: CMakeFiles/tprt.dir/Test/TestCase.cpp.o
 tprt: CMakeFiles/tprt.dir/build.make
 tprt: /usr/local/lib/libnlopt.so.0.11.0
+tprt: /usr/local/lib/libsegyio.so.1
 tprt: CMakeFiles/tprt.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/laravelk/project_tprt/CMakeFiles --progress-num=$(CMAKE_PROGRESS_10) "Linking CXX executable tprt"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/tprt.dir/link.txt --verbose=$(VERBOSE)

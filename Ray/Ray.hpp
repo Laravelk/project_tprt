@@ -9,10 +9,10 @@
 #include <vector>
 #include <Eigen/Dense>
 
-#include "../Layer.hpp"
-#include "../Receiver.hpp"
-#include "../Source.hpp"
-#include "../VelocityModel.hpp"
+#include "../Data/Layer.hpp"
+#include "../Data/Receiver.hpp"
+#include "../Data/Source.hpp"
+#include "../Data/VelocityModel.hpp"
 #include "WaveType.h"
 
 using namespace Eigen;
@@ -44,6 +44,7 @@ private:
   void optimizeTrajectory();
   void computeSegmentsRay();
 
+  void createDefaultRayCode(WaveType);
   void generateCode(std::vector<std::array<int, 3>> ray_code);
 
 public:
@@ -85,25 +86,29 @@ public:
       const std::vector<std::array<int, 3>>& iray_code)
       : source(std::move(source)),
         receiver(std::move(receiver)), velocity_model(_model),
-        timeP(INFINITY) /*amplitudeP(1), timeS(INFINITY), amplitudeS(1)*/ {
+        timeP(INFINITY) {
     generateCode(iray_code);
+  }
+
+  Ray(Source source, Receiver receiver, VelocityModel *_model, bool isNeedDefaultRayCode, WaveType type):
+  source(source), receiver(receiver), velocity_model(_model), timeP(INFINITY) {
+      if (isNeedDefaultRayCode) {
+          createDefaultRayCode(type);
+      }
   }
 
   Ray(std::vector<Source> _sources, std::vector<Receiver> _receivers,
       VelocityModel *_model, const std::vector<std::array<int, 3>>& iray_code)
       :
         source(source), receiver(receiver),
-        velocity_model(_model), timeP(INFINITY) /*amplitudeP(1),
-        timeS(INFINITY)*/
+        velocity_model(_model), timeP(INFINITY)
   {
-    source = source;
-    receiver = receiver;
     generateCode(iray_code);
   }
 
     Vector3f rayPolarization();
     void computeAmplitude();
-    void raySpreading();
+    double raySpreading();
     Eigen::Vector3f rt_coeffs_iso(Vector3f, Vector3f, Vector3f, Vector3f, int, Layer::Properties, Layer::Properties);
 
   void setTrajectory(std::vector<double> raw_trajectory) {

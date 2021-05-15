@@ -1,7 +1,7 @@
 #ifndef TPRT_SOURCE_HPP
 #define TPRT_SOURCE_HPP
 
-#include "rapidjson/document.h"
+#include "../rapidjson/document.h"
 #include <array>
 #include <fstream>
 #include <string>
@@ -9,7 +9,7 @@
 #include <Eigen/Dense>
 
 #include "Receiver.hpp"
-#include "Ray/WaveType.h"
+#include "../Ray/WaveType.h"
 
 namespace ray_tracing {
 class Source {

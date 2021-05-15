@@ -265,6 +265,9 @@ boost_headers_DIR:PATH=/usr/lib/x86_64-linux-gnu/cmake/boost_headers-1.71.0
 //The directory containing a CMake configuration file for libInterpolate.
 libInterpolate_DIR:PATH=/usr/local/cmake
 
+//The directory containing a CMake configuration file for segyio.
+segyio_DIR:PATH=/usr/local/share/segyio/cmake
+
 //Value Computed by CMake
 tprt_BINARY_DIR:STATIC=/home/laravelk/project_tprt
 

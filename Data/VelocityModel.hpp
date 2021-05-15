@@ -4,7 +4,7 @@
 #define TPRT_VELOCITYMODEL_HPP
 
 #include "Horizon/FlatHorizon.hpp"
-#include "Data/Layer.hpp"
+#include "Layer.hpp"
 #include <array>
 #include <limits>
 #include <memory>

@@ -3,10 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#include "Horizon/FlatHorizon.hpp"
-#include "Horizon/GridHorizon.h"
+#include "Data/Horizon/FlatHorizon.hpp"
 #include "Ray/Ray.hpp"
-#include "VelocityModel.hpp"
+#include "Data/VelocityModel.hpp"
 #include "rapidjson/error/en.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/ostreamwrapper.h"
@@ -24,7 +23,6 @@ std::vector<std::array<int, 3>> bigTest() {
     std::array<int, 3> f5 = {3, -1, 0};
     std::array<int, 3> f6 = {2, -1, 0};
     std::array<int, 3> f7 = {1, -1, 0};
-
 
     ray_code.push_back(f);
     ray_code.push_back(f1);
@@ -93,6 +91,19 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
+  std::vector<std::string> filesName = {
+          "/home/laravelk/project_tprt/Test/TestData/res1.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res2.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res3.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res4.txt"
+  };
+//  auto *modelTranformation = new ModelTranformation(filesName,"/home/laravelk/Загрузки/T4_VELOCITY_ISO.sgy");
+//  auto vec = modelTranformation->layer_speed_from_sgy();
+
+//  for (auto &value: vec) {
+//      std::cerr << value << std::endl << std::endl;
+//  }
+
   std::string argv1 = argv[1];
   std::string argv2 = argv[2];
 
@@ -127,8 +138,8 @@ int main(int argc, char *argv[]) {
 
   // auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
 
-  std::ifstream sources_file = std::ifstream("sources.txt");
-  std::ifstream receivers_file= std::ifstream("receivers.txt");
+  std::ifstream sources_file = std::ifstream("/home/laravelk/project_tprt/Test/TestData/sources.txt");
+  std::ifstream receivers_file= std::ifstream("/home/laravelk/project_tprt/Test/TestData/receivers.txt");
 
   // source
 //  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
@@ -151,7 +162,7 @@ int main(int argc, char *argv[]) {
 
 //  source.change_x_loc(0);
   for (long i = 0; i < N; i++) {
-      rays.emplace_back(sources[i], receivers[i], velocity_model.get(), ray_code);
+      rays.emplace_back(sources[i], receivers[i], velocity_model.get(), true, WaveType::PWave);
 //      source.change_x_loc(source.getLocation().at(0) + 5);
   }
 

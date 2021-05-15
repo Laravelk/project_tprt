@@ -3,10 +3,9 @@
 #include <iostream>
 #include <vector>
 
-#include "Horizon/FlatHorizon.hpp"
-#include "Horizon/GridHorizon.h"
+#include "Data/Horizon/FlatHorizon.hpp"
 #include "Ray/Ray.hpp"
-#include "VelocityModel.hpp"
+#include "Data/VelocityModel.hpp"
 #include "rapidjson/error/en.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/ostreamwrapper.h"
@@ -14,13 +13,36 @@
 
 #include <chrono>
 
+std::vector<std::array<int, 3>> bigTest() {
+    std::vector<std::array<int, 3>> ray_code;
+    std::array<int, 3> f = {0, 1, 0};
+    std::array<int, 3> f1 = {1, 1, 0};
+    std::array<int, 3> f2 = {2, 1, 0};
+    std::array<int, 3> f3 = {3, 1, 0};
+    std::array<int, 3> f4 = {4, 1, 0};
+    std::array<int, 3> f5 = {3, -1, 0};
+    std::array<int, 3> f6 = {2, -1, 0};
+    std::array<int, 3> f7 = {1, -1, 0};
+
+    ray_code.push_back(f);
+    ray_code.push_back(f1);
+    ray_code.push_back(f2);
+    ray_code.push_back(f3);
+    ray_code.push_back(f4);
+    ray_code.push_back(f5);
+    ray_code.push_back(f6);
+    ray_code.push_back(f7);
+
+    return ray_code;
+}
+
 std::vector<std::array<int, 3>> getRayCode2() {
   std::vector<std::array<int, 3>> ray_code;
-  std::array<int, 3> f = {1, -1, 0};
-  std::array<int, 3> f1 = {2, -1, 0};
-  std::array<int, 3> f2 = {3, -1, 0};
-  std::array<int, 3> f3 = {4, -1, 0};
-  std::array<int, 3> f4 = {5, -1, 0};
+  std::array<int, 3> f = {0, 1, 0};
+  std::array<int, 3> f1 = {1, 1, 0};
+  std::array<int, 3> f2 = {2, 1, 0};
+  std::array<int, 3> f3 = {3, 1, 0};
+  std::array<int, 3> f4 = {4, 1, 0};
 
   ray_code.push_back(f);
   ray_code.push_back(f1);
@@ -69,6 +91,19 @@ int main(int argc, char *argv[]) {
     return EXIT_FAILURE;
   }
 
+  std::vector<std::string> filesName = {
+          "/home/laravelk/project_tprt/Test/TestData/res1.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res2.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res3.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res4.txt"
+  };
+//  auto *modelTranformation = new ModelTranformation(filesName,"/home/laravelk/Загрузки/T4_VELOCITY_ISO.sgy");
+//  auto vec = modelTranformation->layer_speed_from_sgy();
+
+//  for (auto &value: vec) {
+//      std::cerr << value << std::endl << std::endl;
+//  }
+
   std::string argv1 = argv[1];
   std::string argv2 = argv[2];
 
@@ -103,30 +138,39 @@ int main(int argc, char *argv[]) {
 
   // auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
 
-  std::ifstream sources_file("sources.txt");
-  std::ifstream receivers_file("receivers.txt");
+  std::ifstream sources_file = std::ifstream("/home/laravelk/project_tprt/Test/TestData/sources.txt");
+  std::ifstream receivers_file= std::ifstream("/home/laravelk/project_tprt/Test/TestData/receivers.txt");
 
   // source
-  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
+//  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
+  auto source = ray_tracing::Source::fromJSON(doc["Source"]);
+  auto sources = ray_tracing::Source::fromFile(sources_file);
   // get info about receiver
-  auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
-  // get info about velocity model
+//  auto receivers = ray_tracing::Receiver::fromFile(std::move(receivers_file));
+    auto receiver = ray_tracing::Receiver::fromJSON(doc["Receiver"]);
+    auto receivers = ray_tracing::Receiver::fromFile(receivers_file);
+
+    // get info about velocity model
   auto velocity_model =
       ray_tracing::VelocityModel::fromJSON(doc["Velocity model"]);
 
   // for ray code test
-  std::vector<std::array<int, 3>> ray_code = getRayCode4();
+  std::vector<std::array<int, 3>> ray_code = bigTest();
   // create the ray
   std::vector<ray_tracing::Ray> rays;
-  const long N = 100;
+  const long N = 1;
 
+//  source.change_x_loc(0);
   for (long i = 0; i < N; i++) {
-    rays.emplace_back(sources[i], receivers[i], velocity_model.get(), ray_code);
+      rays.emplace_back(sources[i], receivers[i], velocity_model.get(), true, WaveType::PWave);
+//      source.change_x_loc(source.getLocation().at(0) + 5);
   }
 
   auto start = std::chrono::steady_clock::now();
-  for (long i = 0; i < N; i++) {
-    rays[i].computePathWithRayCode();
+//#pragma omp parallel for schedule(guided)
+    for (long i = 0; i < N; i++) {
+//        rays[i].computeAmplitude();
+        rays[i].computePathWithRayCode();
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;

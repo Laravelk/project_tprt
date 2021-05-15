@@ -1,0 +1,153 @@
+{
+    "Receiver": {
+        "Location": [
+            777.0,
+            777.0,
+            400.0
+        ],
+        "Nc": 3,
+        "Orientation": [
+            [
+                1.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                1.0
+            ]
+        ],
+        "Cardinal": "END",
+        "Sampling": 0.25,
+        "Name": "STH"
+    },
+
+    "Source": {
+        "Location": [
+            5.0,
+            0.0,
+            0.0
+        ],
+        "Moment": [
+            [
+                1.0,
+                0.0,
+                0.0
+            ],
+            [
+                0.0,
+                1.0,
+                0.0
+            ],
+            [
+                0.0,
+                0.0,
+                1.0
+            ]
+        ],
+        "Cardinal": "END",
+        "Magnitude": 1.0,
+        "T0": 0.0,
+        "SType": "event"
+    },
+
+    "Velocity model": [
+    {
+            "LType": "ISO",
+            "Vp": 2500.0,
+            "Vs": 1250.0,
+            "Density": 2400.0,
+            "HType": "flat",
+            "Top": {
+                "Dip": 0.0,
+                "Azimuth": 0.0,
+                "Depth": 50.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Region": [
+                    [-1000, -1000],
+                    [1000, 1000]
+                ],
+                "Cardinal": "END",
+                "Name": "Usf-50"
+            },
+            "Name": "Usf-50"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 3000.0,
+            "Vs": 1500.0,
+            "Density": 2500.0,
+            "HType": "grid",
+            "Top": {
+                "PointsFileName": "points3.txt",
+                "Step": 2.0,
+                "Cardinal": "END",
+                "Name": "Usg-100",
+                "Region": [
+                    [-1000, -1000],
+                    [1000, 1000]
+                ]
+            },
+            "Name": "Usg-100"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 3200.0,
+            "Vs": 1900.0,
+            "Density": 2600.0,
+            "HType": "flat",
+            "Top": {
+                "Dip": 1.0,
+                "Azimuth": 3.0,
+                "Depth": 200.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Region": [
+                    [-1000, -1000],
+                    [1000, 1000]
+                ],
+                "Cardinal": "END",
+                "Name": "Usf-200"
+            },
+            "Name": "Usf-200"
+        },
+        {
+            "LType": "ISO",
+            "Vp": 3500.0,
+            "Vs": 2200.0,
+            "Density": 2700.0,
+            "HType": "flat",
+            "Top": {
+                "Dip": 0.0,
+                "Azimuth": 0.0,
+                "Depth": 300.0,
+                "Anchor": [
+                    0.0,
+                    0.0,
+                    1.0
+                ],
+                "Region": [
+                    [-1000, -1000],
+                    [1000, 1000]
+                ],
+
+                "Cardinal": "END",
+                "Name": "Usf-300"
+            },
+            "Name": "Usf-300"
+        }
+    ]
+}

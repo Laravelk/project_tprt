@@ -4,8 +4,8 @@
 #include <memory>
 #include <vector>
 
+#include "../Data/VelocityModel.hpp"
 #include "Ray.hpp"
-#include "../VelocityModel.hpp"
 
 namespace ray_tracing {
 struct RayData {
@@ -20,6 +20,24 @@ public:
       horizons.push_back(layer->getTop());
       vp.push_back(layer->getVp());
     }
+  }
+
+  void setTrajectory(const std::vector<double> &raw_trajectory) {
+    std::vector<std::array<float, 3>> new_trajectory;
+    int size = trajectory.size();
+    trajectory.clear();
+    trajectory.push_back(source.getLocation());
+    for (int i = 1; i <= size - 2; i++) {
+        float x = static_cast<float>(raw_trajectory[2 * (i - 1)]);
+        float y = static_cast<float>(raw_trajectory[2 * (i - 1) + 1]);
+      trajectory.push_back(
+          { x, y,velocity_model->getLayer(ray_code[i].layerNumber)
+               ->getTop()->getDepth({x, y})});
+//      std::cerr << x << " " << y << " " << velocity_model->getLayer(ray_code[i].layerNumber)
+//              ->getTop()->getDepth({x, y}) << std::endl;
+    }
+//    std::cerr << std::endl;
+    trajectory.push_back(receiver.getLocation());
   }
 
   std::vector<std::array<float, 3>> trajectory;

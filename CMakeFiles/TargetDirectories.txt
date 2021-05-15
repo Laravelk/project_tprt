@@ -1,0 +1,3 @@
+/home/laravelk/project_tprt/CMakeFiles/rebuild_cache.dir
+/home/laravelk/project_tprt/CMakeFiles/edit_cache.dir
+/home/laravelk/project_tprt/CMakeFiles/tprt.dir

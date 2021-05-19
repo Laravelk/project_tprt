@@ -157,12 +157,13 @@ bool GridHorizon::interpolation(const std::vector<std::tuple<float, float, float
 
 
   for (long i = 0; i < size; i++) {
-    xx(i) = std::get<0>(points_array[i]) / 2.7;
-    yy(i) = std::get<1>(points_array[i]) / 2.7;
-    zz(i) = std::get<2>(points_array[i]) / 2.7;
+    xx(i) = (int)std::get<0>(points_array[i]);
+    yy(i) = (int)std::get<1>(points_array[i]);
+    zz(i) = (int)std::get<2>(points_array[i]);
   }
 
   interpolator.setData(xx, yy, zz);
+
   return true;
 }
 

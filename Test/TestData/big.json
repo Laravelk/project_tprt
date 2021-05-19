@@ -65,7 +65,7 @@
             "Density": 2500.0,
             "HType": "grid",
             "Top": {
-                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res1.txt",
+                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res1_out.txt",
                 "Step": 108.0,
                 "Cardinal": "END",
                 "Name": "Usg-100",
@@ -83,7 +83,7 @@
             "Density": 2500.0,
             "HType": "grid",
             "Top": {
-                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res2.txt",
+                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res2_out.txt",
                 "Step": 108.0,
                 "Cardinal": "END",
                 "Name": "Usg-100",
@@ -101,7 +101,7 @@
             "Density": 2500.0,
             "HType": "grid",
             "Top": {
-                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res3.txt",
+                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res3_out.txt",
                 "Step": 108.0,
                 "Cardinal": "END",
                 "Name": "Usg-100",
@@ -119,7 +119,7 @@
             "Density": 2500.0,
             "HType": "grid",
             "Top": {
-                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res4.txt",
+                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/res4_out.txt",
                 "Step": 108.0,
                 "Cardinal": "END",
                 "Name": "Usg-100",

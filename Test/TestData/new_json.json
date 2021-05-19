@@ -30,7 +30,7 @@
 
     "Source": {
         "Location": [
-            5.0,
+            0.0,
             0.0,
             0.0
         ],
@@ -89,7 +89,7 @@
             "Density": 2500.0,
             "HType": "grid",
             "Top": {
-                "PointsFileName": "points3.txt",
+                "PointsFileName": "/home/laravelk/project_tprt/Test/TestData/points3.txt",
                 "Step": 2.0,
                 "Cardinal": "END",
                 "Name": "Usg-100",

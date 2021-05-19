@@ -32,29 +32,27 @@ namespace ray_tracing {
 
         auto *ray_data = new RayData(this);
 
-        std::vector<double> lb(vector.size());
-        std::vector<double> ub(vector.size());
-        for (int i = 0; i < vector.size(); i++) {
-            lb[i] = -20000000;
-            ub[i] = 20000000;
+        std::vector<double> lb;
+        std::vector<double> ub;
+        for (long i = 0; i < vector.size(); i++) {
+            lb.push_back(-20000000);
+            ub.push_back(20000000);
         }
-        nlopt::opt opt(nlopt::LD_LBFGS, vector.size());
-        opt.set_lower_bounds(lb);
-        opt.set_upper_bounds(ub);
-        opt.set_ftol_abs(1e-3);
+        nlopt::opt opt(nlopt::LD_SLSQP, vector.size());
+//        opt.set_lower_bounds(lb);
+//        opt.set_upper_bounds(ub);
+        opt.set_ftol_abs(1e-5);
         opt.set_min_objective(Optimize::myfunc, ray_data);
 
         double minf;
         nlopt::result result = opt.optimize(vector, minf);
-//        std::cout << "The result is" << std::endl;
-//        std::cout << result << std::endl;
         std::cout << "Minimal function value " << minf << std::endl;
 
         this->trajectory = ray_data->trajectory;
-  for (auto tr : this->trajectory) {
-    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-              << "] " << std::endl;
-  }
+          for (auto tr : this->trajectory) {
+            std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+                      << "] " << std::endl;
+          }
 
         delete ray_data;
     }
@@ -819,7 +817,7 @@ namespace ray_tracing {
         ray_code.clear();
         ray_code.reserve((layers_count * 2));
 
-        for (int i = 0; i < layers_count; i++) {
+        for (int i = 0; i < layers_count - 2; i++) {
             ray_code.emplace_back(Code(i, Direction::DOWN, type));
         }
 

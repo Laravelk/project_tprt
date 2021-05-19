@@ -1,4 +1,4 @@
-/snap/clion/151/bin/cmake/linux/bin/cmake -G "CodeBlocks - Unix Makefiles" /home/laravelk/project_tprt
+/snap/clion/151/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" /home/laravelk/project_tprt
 -- RapidJSON found. Headers: /usr/include
 status,
 -- Configuring done

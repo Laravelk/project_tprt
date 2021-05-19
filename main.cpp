@@ -19,16 +19,14 @@ std::vector<std::array<int, 3>> bigTest() {
     std::array<int, 3> f1 = {1, 1, 0};
     std::array<int, 3> f2 = {2, 1, 0};
     std::array<int, 3> f3 = {3, 1, 0};
-    std::array<int, 3> f4 = {4, 1, 0};
-    std::array<int, 3> f5 = {3, -1, 0};
-    std::array<int, 3> f6 = {2, -1, 0};
-    std::array<int, 3> f7 = {1, -1, 0};
+    std::array<int, 3> f5 = {2, -1, 0};
+    std::array<int, 3> f6 = {1, -1, 0};
+    std::array<int, 3> f7 = {0, -1, 0};
 
     ray_code.push_back(f);
     ray_code.push_back(f1);
     ray_code.push_back(f2);
     ray_code.push_back(f3);
-    ray_code.push_back(f4);
     ray_code.push_back(f5);
     ray_code.push_back(f6);
     ray_code.push_back(f7);
@@ -92,17 +90,11 @@ int main(int argc, char *argv[]) {
   }
 
   std::vector<std::string> filesName = {
-          "/home/laravelk/project_tprt/Test/TestData/res1.txt",
-          "/home/laravelk/project_tprt/Test/TestData/res2.txt",
-          "/home/laravelk/project_tprt/Test/TestData/res3.txt",
-          "/home/laravelk/project_tprt/Test/TestData/res4.txt"
+          "/home/laravelk/project_tprt/Test/TestData/res1_out.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res2_out.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res3_out.txt",
+          "/home/laravelk/project_tprt/Test/TestData/res4_out.txt"
   };
-//  auto *modelTranformation = new ModelTranformation(filesName,"/home/laravelk/Загрузки/T4_VELOCITY_ISO.sgy");
-//  auto vec = modelTranformation->layer_speed_from_sgy();
-
-//  for (auto &value: vec) {
-//      std::cerr << value << std::endl << std::endl;
-//  }
 
   std::string argv1 = argv[1];
   std::string argv2 = argv[2];
@@ -138,8 +130,8 @@ int main(int argc, char *argv[]) {
 
   // auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
 
-  std::ifstream sources_file = std::ifstream("/home/laravelk/project_tprt/Test/TestData/sources.txt");
-  std::ifstream receivers_file= std::ifstream("/home/laravelk/project_tprt/Test/TestData/receivers.txt");
+  std::ifstream sources_file = std::ifstream("/home/laravelk/project_tprt/Test/TestData/sources_out.txt");
+  std::ifstream receivers_file= std::ifstream("/home/laravelk/project_tprt/Test/TestData/receivers_out.txt");
 
   // source
 //  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
@@ -160,10 +152,9 @@ int main(int argc, char *argv[]) {
   std::vector<ray_tracing::Ray> rays;
   const long N = 1;
 
-//  source.change_x_loc(0);
   for (long i = 0; i < N; i++) {
       rays.emplace_back(sources[i], receivers[i], velocity_model.get(), true, WaveType::PWave);
-//      source.change_x_loc(source.getLocation().at(0) + 5);
+//      rays.emplace_back(source, receiver, velocity_model.get(), true, WaveType::PWave);
   }
 
   auto start = std::chrono::steady_clock::now();

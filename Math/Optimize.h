@@ -115,7 +115,7 @@ public:
                 time += norm_vec / vp;
             }
 
-//            std::cerr << "time: " << time << std::endl;
+            std::cerr << "time: " << time << std::endl;
             return time;
         }
 

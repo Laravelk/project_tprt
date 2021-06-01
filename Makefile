@@ -58,19 +58,19 @@ cmake_force:
 SHELL = /bin/sh
 
 # The CMake executable.
-CMAKE_COMMAND = /snap/clion/151/bin/cmake/linux/bin/cmake
+CMAKE_COMMAND = /snap/clion/149/bin/cmake/linux/bin/cmake
 
 # The command to remove a file.
-RM = /snap/clion/151/bin/cmake/linux/bin/cmake -E rm -f
+RM = /snap/clion/149/bin/cmake/linux/bin/cmake -E rm -f
 
 # Escaping for special characters.
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/laravelk/project_tprt
+CMAKE_SOURCE_DIR = /home/laravelk/repositories/mnsk_tests_1
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/laravelk/project_tprt
+CMAKE_BINARY_DIR = /home/laravelk/repositories/mnsk_tests_1
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -78,7 +78,7 @@ CMAKE_BINARY_DIR = /home/laravelk/project_tprt
 # Special rule for the target rebuild_cache
 rebuild_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running CMake to regenerate build system..."
-	/snap/clion/151/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
+	/snap/clion/149/bin/cmake/linux/bin/cmake --regenerate-during-build -S$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR)
 .PHONY : rebuild_cache
 
 # Special rule for the target rebuild_cache
@@ -89,7 +89,7 @@ rebuild_cache/fast: rebuild_cache
 # Special rule for the target edit_cache
 edit_cache:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "No interactive CMake dialog available..."
-	/snap/clion/151/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
+	/snap/clion/149/bin/cmake/linux/bin/cmake -E echo No\ interactive\ CMake\ dialog\ available.
 .PHONY : edit_cache
 
 # Special rule for the target edit_cache
@@ -99,9 +99,9 @@ edit_cache/fast: edit_cache
 
 # The main all target
 all: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/project_tprt/CMakeFiles /home/laravelk/project_tprt//CMakeFiles/progress.marks
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/repositories/mnsk_tests_1/CMakeFiles /home/laravelk/repositories/mnsk_tests_1//CMakeFiles/progress.marks
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/project_tprt/CMakeFiles 0
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/laravelk/repositories/mnsk_tests_1/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
@@ -142,167 +142,113 @@ tprt/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/build
 .PHONY : tprt/fast
 
-Data/Horizon/FlatHorizon.o: Data/Horizon/FlatHorizon.cpp.o
+Horizon/FlatHorizon.o: Horizon/FlatHorizon.cpp.o
 
-.PHONY : Data/Horizon/FlatHorizon.o
-
-# target to build an object file
-Data/Horizon/FlatHorizon.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.o
-.PHONY : Data/Horizon/FlatHorizon.cpp.o
-
-Data/Horizon/FlatHorizon.i: Data/Horizon/FlatHorizon.cpp.i
-
-.PHONY : Data/Horizon/FlatHorizon.i
-
-# target to preprocess a source file
-Data/Horizon/FlatHorizon.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.i
-.PHONY : Data/Horizon/FlatHorizon.cpp.i
-
-Data/Horizon/FlatHorizon.s: Data/Horizon/FlatHorizon.cpp.s
-
-.PHONY : Data/Horizon/FlatHorizon.s
-
-# target to generate assembly for a file
-Data/Horizon/FlatHorizon.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Horizon/FlatHorizon.cpp.s
-.PHONY : Data/Horizon/FlatHorizon.cpp.s
-
-Data/Horizon/GridHorizon.o: Data/Horizon/GridHorizon.cpp.o
-
-.PHONY : Data/Horizon/GridHorizon.o
+.PHONY : Horizon/FlatHorizon.o
 
 # target to build an object file
-Data/Horizon/GridHorizon.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.o
-.PHONY : Data/Horizon/GridHorizon.cpp.o
+Horizon/FlatHorizon.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.o
+.PHONY : Horizon/FlatHorizon.cpp.o
 
-Data/Horizon/GridHorizon.i: Data/Horizon/GridHorizon.cpp.i
+Horizon/FlatHorizon.i: Horizon/FlatHorizon.cpp.i
 
-.PHONY : Data/Horizon/GridHorizon.i
+.PHONY : Horizon/FlatHorizon.i
 
 # target to preprocess a source file
-Data/Horizon/GridHorizon.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.i
-.PHONY : Data/Horizon/GridHorizon.cpp.i
+Horizon/FlatHorizon.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.i
+.PHONY : Horizon/FlatHorizon.cpp.i
 
-Data/Horizon/GridHorizon.s: Data/Horizon/GridHorizon.cpp.s
+Horizon/FlatHorizon.s: Horizon/FlatHorizon.cpp.s
 
-.PHONY : Data/Horizon/GridHorizon.s
+.PHONY : Horizon/FlatHorizon.s
 
 # target to generate assembly for a file
-Data/Horizon/GridHorizon.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Horizon/GridHorizon.cpp.s
-.PHONY : Data/Horizon/GridHorizon.cpp.s
+Horizon/FlatHorizon.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Horizon/FlatHorizon.cpp.s
+.PHONY : Horizon/FlatHorizon.cpp.s
 
-Data/Layer.o: Data/Layer.cpp.o
+Horizon/GridHorizon.o: Horizon/GridHorizon.cpp.o
 
-.PHONY : Data/Layer.o
+.PHONY : Horizon/GridHorizon.o
 
 # target to build an object file
-Data/Layer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Layer.cpp.o
-.PHONY : Data/Layer.cpp.o
+Horizon/GridHorizon.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.o
+.PHONY : Horizon/GridHorizon.cpp.o
 
-Data/Layer.i: Data/Layer.cpp.i
+Horizon/GridHorizon.i: Horizon/GridHorizon.cpp.i
 
-.PHONY : Data/Layer.i
+.PHONY : Horizon/GridHorizon.i
 
 # target to preprocess a source file
-Data/Layer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Layer.cpp.i
-.PHONY : Data/Layer.cpp.i
+Horizon/GridHorizon.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.i
+.PHONY : Horizon/GridHorizon.cpp.i
 
-Data/Layer.s: Data/Layer.cpp.s
+Horizon/GridHorizon.s: Horizon/GridHorizon.cpp.s
 
-.PHONY : Data/Layer.s
+.PHONY : Horizon/GridHorizon.s
 
 # target to generate assembly for a file
-Data/Layer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Layer.cpp.s
-.PHONY : Data/Layer.cpp.s
+Horizon/GridHorizon.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Horizon/GridHorizon.cpp.s
+.PHONY : Horizon/GridHorizon.cpp.s
 
-Data/Receiver.o: Data/Receiver.cpp.o
+Layer.o: Layer.cpp.o
 
-.PHONY : Data/Receiver.o
+.PHONY : Layer.o
 
 # target to build an object file
-Data/Receiver.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Receiver.cpp.o
-.PHONY : Data/Receiver.cpp.o
+Layer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Layer.cpp.o
+.PHONY : Layer.cpp.o
 
-Data/Receiver.i: Data/Receiver.cpp.i
+Layer.i: Layer.cpp.i
 
-.PHONY : Data/Receiver.i
+.PHONY : Layer.i
 
 # target to preprocess a source file
-Data/Receiver.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Receiver.cpp.i
-.PHONY : Data/Receiver.cpp.i
+Layer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Layer.cpp.i
+.PHONY : Layer.cpp.i
 
-Data/Receiver.s: Data/Receiver.cpp.s
+Layer.s: Layer.cpp.s
 
-.PHONY : Data/Receiver.s
+.PHONY : Layer.s
 
 # target to generate assembly for a file
-Data/Receiver.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Receiver.cpp.s
-.PHONY : Data/Receiver.cpp.s
+Layer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Layer.cpp.s
+.PHONY : Layer.cpp.s
 
-Data/Source.o: Data/Source.cpp.o
+Math/Derivative.o: Math/Derivative.cpp.o
 
-.PHONY : Data/Source.o
+.PHONY : Math/Derivative.o
 
 # target to build an object file
-Data/Source.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Source.cpp.o
-.PHONY : Data/Source.cpp.o
+Math/Derivative.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Math/Derivative.cpp.o
+.PHONY : Math/Derivative.cpp.o
 
-Data/Source.i: Data/Source.cpp.i
+Math/Derivative.i: Math/Derivative.cpp.i
 
-.PHONY : Data/Source.i
-
-# target to preprocess a source file
-Data/Source.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Source.cpp.i
-.PHONY : Data/Source.cpp.i
-
-Data/Source.s: Data/Source.cpp.s
-
-.PHONY : Data/Source.s
-
-# target to generate assembly for a file
-Data/Source.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/Source.cpp.s
-.PHONY : Data/Source.cpp.s
-
-Data/VelocityModel.o: Data/VelocityModel.cpp.o
-
-.PHONY : Data/VelocityModel.o
-
-# target to build an object file
-Data/VelocityModel.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/VelocityModel.cpp.o
-.PHONY : Data/VelocityModel.cpp.o
-
-Data/VelocityModel.i: Data/VelocityModel.cpp.i
-
-.PHONY : Data/VelocityModel.i
+.PHONY : Math/Derivative.i
 
 # target to preprocess a source file
-Data/VelocityModel.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/VelocityModel.cpp.i
-.PHONY : Data/VelocityModel.cpp.i
+Math/Derivative.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Math/Derivative.cpp.i
+.PHONY : Math/Derivative.cpp.i
 
-Data/VelocityModel.s: Data/VelocityModel.cpp.s
+Math/Derivative.s: Math/Derivative.cpp.s
 
-.PHONY : Data/VelocityModel.s
+.PHONY : Math/Derivative.s
 
 # target to generate assembly for a file
-Data/VelocityModel.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Data/VelocityModel.cpp.s
-.PHONY : Data/VelocityModel.cpp.s
+Math/Derivative.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Math/Derivative.cpp.s
+.PHONY : Math/Derivative.cpp.s
 
 Ray/Ray.o: Ray/Ray.cpp.o
 
@@ -331,32 +277,113 @@ Ray/Ray.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Ray/Ray.cpp.s
 .PHONY : Ray/Ray.cpp.s
 
-Test/TestCase.o: Test/TestCase.cpp.o
+Ray/RayData.o: Ray/RayData.cpp.o
 
-.PHONY : Test/TestCase.o
+.PHONY : Ray/RayData.o
 
 # target to build an object file
-Test/TestCase.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Test/TestCase.cpp.o
-.PHONY : Test/TestCase.cpp.o
+Ray/RayData.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Ray/RayData.cpp.o
+.PHONY : Ray/RayData.cpp.o
 
-Test/TestCase.i: Test/TestCase.cpp.i
+Ray/RayData.i: Ray/RayData.cpp.i
 
-.PHONY : Test/TestCase.i
+.PHONY : Ray/RayData.i
 
 # target to preprocess a source file
-Test/TestCase.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Test/TestCase.cpp.i
-.PHONY : Test/TestCase.cpp.i
+Ray/RayData.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Ray/RayData.cpp.i
+.PHONY : Ray/RayData.cpp.i
 
-Test/TestCase.s: Test/TestCase.cpp.s
+Ray/RayData.s: Ray/RayData.cpp.s
 
-.PHONY : Test/TestCase.s
+.PHONY : Ray/RayData.s
 
 # target to generate assembly for a file
-Test/TestCase.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Test/TestCase.cpp.s
-.PHONY : Test/TestCase.cpp.s
+Ray/RayData.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Ray/RayData.cpp.s
+.PHONY : Ray/RayData.cpp.s
+
+Receiver.o: Receiver.cpp.o
+
+.PHONY : Receiver.o
+
+# target to build an object file
+Receiver.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Receiver.cpp.o
+.PHONY : Receiver.cpp.o
+
+Receiver.i: Receiver.cpp.i
+
+.PHONY : Receiver.i
+
+# target to preprocess a source file
+Receiver.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Receiver.cpp.i
+.PHONY : Receiver.cpp.i
+
+Receiver.s: Receiver.cpp.s
+
+.PHONY : Receiver.s
+
+# target to generate assembly for a file
+Receiver.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Receiver.cpp.s
+.PHONY : Receiver.cpp.s
+
+Source.o: Source.cpp.o
+
+.PHONY : Source.o
+
+# target to build an object file
+Source.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Source.cpp.o
+.PHONY : Source.cpp.o
+
+Source.i: Source.cpp.i
+
+.PHONY : Source.i
+
+# target to preprocess a source file
+Source.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Source.cpp.i
+.PHONY : Source.cpp.i
+
+Source.s: Source.cpp.s
+
+.PHONY : Source.s
+
+# target to generate assembly for a file
+Source.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/Source.cpp.s
+.PHONY : Source.cpp.s
+
+VelocityModel.o: VelocityModel.cpp.o
+
+.PHONY : VelocityModel.o
+
+# target to build an object file
+VelocityModel.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/VelocityModel.cpp.o
+.PHONY : VelocityModel.cpp.o
+
+VelocityModel.i: VelocityModel.cpp.i
+
+.PHONY : VelocityModel.i
+
+# target to preprocess a source file
+VelocityModel.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/VelocityModel.cpp.i
+.PHONY : VelocityModel.cpp.i
+
+VelocityModel.s: VelocityModel.cpp.s
+
+.PHONY : VelocityModel.s
+
+# target to generate assembly for a file
+VelocityModel.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/tprt.dir/build.make CMakeFiles/tprt.dir/VelocityModel.cpp.s
+.PHONY : VelocityModel.cpp.s
 
 main.o: main.cpp.o
 
@@ -394,30 +421,33 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... tprt"
-	@echo "... Data/Horizon/FlatHorizon.o"
-	@echo "... Data/Horizon/FlatHorizon.i"
-	@echo "... Data/Horizon/FlatHorizon.s"
-	@echo "... Data/Horizon/GridHorizon.o"
-	@echo "... Data/Horizon/GridHorizon.i"
-	@echo "... Data/Horizon/GridHorizon.s"
-	@echo "... Data/Layer.o"
-	@echo "... Data/Layer.i"
-	@echo "... Data/Layer.s"
-	@echo "... Data/Receiver.o"
-	@echo "... Data/Receiver.i"
-	@echo "... Data/Receiver.s"
-	@echo "... Data/Source.o"
-	@echo "... Data/Source.i"
-	@echo "... Data/Source.s"
-	@echo "... Data/VelocityModel.o"
-	@echo "... Data/VelocityModel.i"
-	@echo "... Data/VelocityModel.s"
+	@echo "... Horizon/FlatHorizon.o"
+	@echo "... Horizon/FlatHorizon.i"
+	@echo "... Horizon/FlatHorizon.s"
+	@echo "... Horizon/GridHorizon.o"
+	@echo "... Horizon/GridHorizon.i"
+	@echo "... Horizon/GridHorizon.s"
+	@echo "... Layer.o"
+	@echo "... Layer.i"
+	@echo "... Layer.s"
+	@echo "... Math/Derivative.o"
+	@echo "... Math/Derivative.i"
+	@echo "... Math/Derivative.s"
 	@echo "... Ray/Ray.o"
 	@echo "... Ray/Ray.i"
 	@echo "... Ray/Ray.s"
-	@echo "... Test/TestCase.o"
-	@echo "... Test/TestCase.i"
-	@echo "... Test/TestCase.s"
+	@echo "... Ray/RayData.o"
+	@echo "... Ray/RayData.i"
+	@echo "... Ray/RayData.s"
+	@echo "... Receiver.o"
+	@echo "... Receiver.i"
+	@echo "... Receiver.s"
+	@echo "... Source.o"
+	@echo "... Source.i"
+	@echo "... Source.s"
+	@echo "... VelocityModel.o"
+	@echo "... VelocityModel.i"
+	@echo "... VelocityModel.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

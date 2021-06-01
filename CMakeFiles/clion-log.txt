@@ -1,6 +1,6 @@
-/snap/clion/151/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Release -G "CodeBlocks - Unix Makefiles" /home/laravelk/project_tprt
+/snap/clion/151/bin/cmake/linux/bin/cmake -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - Unix Makefiles" /home/laravelk/repositories/mnsk_tests_1
 -- RapidJSON found. Headers: /usr/include
 status,
 -- Configuring done
 -- Generating done
--- Build files have been written to: /home/laravelk/project_tprt
+-- Build files have been written to: /home/laravelk/repositories/mnsk_tests_1

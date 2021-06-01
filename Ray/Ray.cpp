@@ -6,7 +6,7 @@
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "../Math/C_IJ_Matrix.h"
-#include "../Math/Optimize.h"
+#include "../Optimize.h"
 #include "RayData.h"
 
 /// this namespace contains classes which worked with ray_code and trajectory
@@ -17,7 +17,7 @@
 #include <unsupported/Eigen/CXX11/Tensor>
 
 #include "../Math/C_IJ_Matrix.h"
-#include "../Math/Optimize.h"
+#include "../Optimize.h"
 #include "RayData.h"
 
 /// this namespace contains classes which worked with ray_code and trajectory
@@ -32,27 +32,29 @@ namespace ray_tracing {
 
         auto *ray_data = new RayData(this);
 
-        std::vector<double> lb;
-        std::vector<double> ub;
-        for (long i = 0; i < vector.size(); i++) {
-            lb.push_back(-20000000);
-            ub.push_back(20000000);
+        std::vector<double> lb(vector.size());
+        std::vector<double> ub(vector.size());
+        for (int i = 0; i < vector.size(); i++) {
+            lb[i] = -20000000;
+            ub[i] = 20000000;
         }
-        nlopt::opt opt(nlopt::LD_SLSQP, vector.size());
-//        opt.set_lower_bounds(lb);
-//        opt.set_upper_bounds(ub);
-        opt.set_ftol_abs(1e-5);
+        nlopt::opt opt(nlopt::LD_LBFGS, vector.size());
+        opt.set_lower_bounds(lb);
+        opt.set_upper_bounds(ub);
+        opt.set_ftol_abs(1e-3);
         opt.set_min_objective(Optimize::myfunc, ray_data);
 
         double minf;
         nlopt::result result = opt.optimize(vector, minf);
+//        std::cout << "The result is" << std::endl;
+//        std::cout << result << std::endl;
         std::cout << "Minimal function value " << minf << std::endl;
 
         this->trajectory = ray_data->trajectory;
-          for (auto tr : this->trajectory) {
-            std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
-                      << "] " << std::endl;
-          }
+  for (auto tr : this->trajectory) {
+    std::cerr << "[ " << tr.at(0) << ", " << tr.at(1) << ", " << tr.at(2)
+              << "] " << std::endl;
+  }
 
         delete ray_data;
     }
@@ -570,12 +572,22 @@ namespace ray_tracing {
         }
     }
 
-    void Ray::computeAmplitude() {
+    Vector3f Ray::computeAmplitude() {
         Vector3f polariz = rayPolarization();
-        raySpreading();
+        auto props = raySpreading();
+        return polariz * props.discont_factor / props.spread * exp( -1.0 / 2 * M_PI * props.kmah_indx);
     }
 
-    double Ray::raySpreading() {
+    Ray::SpreadingProps Ray::raySpreading() {
+//        trajectory = {{0, 0, 0}, {26.00572894, 25.6057179, 50}, {62.90760896, 62.87855549, 103.92602698},
+//                      {172.54222579, 172.20260416, 203.16492009}, {320.54480742, 320.38921938, 300}, {777, 777, 400}};
+        trajectory = {{0,0,0},
+                {25.86029,25.33111,50.00000},
+                      {63.47457,61.83787,103.91143},
+                      {175.50665,171.42991,203.21589},
+                      {323.34407,317.36033,300.00000},
+                      {777.00000,777.00000,400.00000}};
+
         Vector3f vec0 = {trajectory[1][0] - trajectory[0][0],
                         trajectory[1][1] - trajectory[0][1],
                         trajectory[1][2] - trajectory[0][2]
@@ -586,6 +598,7 @@ namespace ray_tracing {
         float theta = atan2(sqrt(pow(vec0(0), 2) + pow(vec0(1), 2)), vec0[2]);
         float phi = atan2(vec0[1], vec0[0]);
 
+//        std::cerr << theta << " " << std::endl << phi << std::endl;
         Matrix3f qq0 = Matrix3f();
         qq0 << 0, 0, sin(theta) * cos(phi),
                 0, 0, sin(theta) * sin(phi),
@@ -596,49 +609,101 @@ namespace ray_tracing {
                 cos(theta) * sin(phi) / vel0, cos(phi) / vel0, 0,
                 (-1.0f) * sin(theta) / vel0, 0, 0;
 
+//        std::cerr << pp0 << std::endl;
+        std::vector<MatrixXf> qq_pps;
+        int kmah_index = 0;
+        float discont_factor = 1;
+
         if (1 < velocity_model->getLayersCount()) {
             auto vecs = getVectors();
 
+            std::cerr << "vecs" << std::endl;
+            for (int i = 0; i < vecs.size(); i++) {
+               std::cerr << vecs[i] << std::endl << std::endl;
+            }
             auto vels = getVels(velocity_model->getLayersCount() - 1);
             auto dists = getDistance();
+            std::cerr << "dist" << std::endl;
+            for (int i = 0; i < dists.size(); i++) {
+                std::cerr << dists[i] << std::endl << std::endl;
+            }
 
             MatrixX3f points = MatrixX3f(trajectory.size() - 1, 3);
             for (int i = 1; i < trajectory.size(); i++) {
                 points.row(i - 1) = Vector3f(trajectory[i][0], trajectory[i][1], trajectory[i][2]);
             }
+            std::cerr << "points" << std::endl << points << std::endl << std::endl;
 
             MatrixX3f grads_f = MatrixX3f(vecs.size() - 1, 3);
             std::vector<Matrix2f> hessians;
             std::vector<Matrix3f> hessians_f;
 
+            Matrix2f h1;
+            Matrix2f h2;
+            Matrix2f h3;
+            Matrix2f h4;
+            h1 << 0, 0, 0, 0;
+            h2 << -9.7086542e-06, -9.7086542e-06, -9.7086542e-06, -9.7086542e-06;
+            h3 << 0, 0, 0, 0;
+            h4 << 0, 0, 0, 0;
+
+            hessians.push_back(h1); // TODO: delete it
+            hessians.push_back(h2);
+            hessians.push_back(h3);
+            hessians.push_back(h4);
+
             std::vector<Vector3f> grads_vectors;
+
+            Vector3f grad1;
+            Vector3f grad2;
+            Vector3f grad3;
+            Vector3f grad4;
+
+            grad1 << (-1.0f) * 0, (-1.0f) * 0, 1.0f;
+            grad2 << (-1.0f) * 0.03080193, (-1.0f) * 0.03080193, 1.0f;
+            grad3 << (-1.0f) * 0.01743114, (-1.0f) * 0.00091353, 1.0f;
+            grad4 << (-1.0f) * 0, (-1.0f) * 0, 1.0f;
+
+            grads_vectors.push_back(grad1); // TODO: delete it
+            grads_vectors.push_back(grad2);
+            grads_vectors.push_back(grad3);
+            grads_vectors.push_back(grad4);
+
 
             for (int i = 0; i < hessians.size(); i++) {
                 Matrix3f hessian_f;
                 hessian_f << hessians[i](0, 0), hessians[i](0, 1), 0.0f,
                         hessians[i](1, 0), hessians[i](1, 1), 0.0f,
                         0.0f, 0.0f, 0.0f;
+//                std::cerr << "hessian_f: " << std::endl << hessian_f << std::endl << std::endl;
                 hessians_f.push_back(hessian_f);
                 VectorXf grad_vector = VectorXf(3);
                 grads_f.row(i) = grads_vectors[i];
             }
 
-            for (int i = 1; i < trajectory.size() - 1; i++) {
-                std::array<float, 2> grad =
-                        velocity_model->getLayer(i)->getTop()->getGradientInPoint(points(i - 1, 0), points(i - 1, 1));
-                VectorXf grad_vector = VectorXf(3);
-                grad_vector << (-1.0f) * grad[0], (-1.0f) * grad[1], 1.0f;
-                grads_f.row(i - 1) = grad_vector;
-                Matrix2f hessian = velocity_model->getLayer(i)->getTop()->getHessian(points(i - 1, 0),
-                                                                                     points(i - 1, 1));
-                hessians.push_back(hessian);
-                Matrix3f hessian_f;
-                hessian_f << hessian(0, 0), hessian(0, 1), 0.0f,
-                        hessian(1, 0), hessian(1, 1), 0.0f,
-                        0.0f, 0.0f, 0.0f;
-                hessians_f.push_back(hessian_f);
-            }
+//            for (int i = 1; i < trajectory.size() - 1; i++) {
+//                std::array<float, 2> grad =
+//                        velocity_model->getLayer(i)->getTop()->getGradientInPoint(points(i - 1, 0), points(i - 1, 1));
+//                VectorXf grad_vector = VectorXf(3);
+//                grad_vector << (-1.0f) * grad[0], (-1.0f) * grad[1], 1.0f;
+//                grads_f.row(i - 1) = grad_vector;
+////                std::cerr << "grad: " << std::endl << grad_vector << std::endl << std::endl;
+//                Matrix2f hessian = velocity_model->getLayer(i)->getTop()->getHessian(points(i - 1, 0),
+//                                                                                     points(i - 1, 1));
+//                hessians.push_back(hessian);
+//                Matrix3f hessian_f;
+//                hessian_f << hessian(0, 0), hessian(0, 1), 0.0f,
+//                        hessian(1, 0), hessian(1, 1), 0.0f,
+//                        0.0f, 0.0f, 0.0f;
+////                std::cerr << "hessian_f: " << std::endl << hessian_f << std::endl << std::endl;
+//                hessians_f.push_back(hessian_f);
+//            }
+//            std::cerr << "grads_f" << std::endl << grads_f << std::endl << std::endl;
 
+            std::cerr << "grads_f: " << std::endl;
+            std::cerr << grads_f << std::endl << std::endl;
+
+            std::cerr << "hessian_f: " << std::endl;
             for (int i = 0; i < hessians_f.size(); i++) {
                 std::cerr << hessians_f[i] << std::endl << std::endl;
             }
@@ -648,15 +713,26 @@ namespace ray_tracing {
 
             for (int i = 0; i < vecs.size() - 1; i++) {
                 inc_slows.row(i) = vecs[i] / vels[i];
+//                std::cerr << vecs[i] << std::endl << std::endl;
+//                std::cerr << vels[i] << std::endl << std::endl;
             }
+
+            std::cerr << "inc_slows" << std::endl;
+            std::cerr << inc_slows << std::endl << std::endl;
 
             for (int i = 1; i < vecs.size(); i++) {
                 out_slows.row(i - 1) = vecs[i] / vels[i];
             }
 
+            std::cerr << "out_slows" << std::endl;
+            std::cerr << out_slows << std::endl << std::endl;
+
             VectorXf a1 = VectorXf::Zero(vecs.size() - 1);
+//            std::cerr << inc_slows << std::endl << std::endl;
+//            std::cerr << out_slows << std::endl << std::endl;
 
             auto tmp_matrix = inc_slows - out_slows;
+//            std::cerr << tmp_matrix << std::endl << std::endl;
             for (int i = 0; i < vecs.size() - 1; i++) {
                 float norm = 1.0f / grads_f.row(i).norm();
                 for (int j = 0; j < 3; j++) {
@@ -664,6 +740,8 @@ namespace ray_tracing {
                 }
                 a1(i) = a1(i) * norm * norm;
             }
+            std::cerr << "a1" << std::endl;
+            std::cerr << a1 << std::endl << std::endl;
 
             std::vector<Matrix3f> inc_phis;
             inc_phis.reserve(vecs.size() - 1);
@@ -674,6 +752,10 @@ namespace ray_tracing {
                     tmp_tmp_matrix(i, j) = inc_slows(i, j) * vels[i];
                 }
             }
+            std::cerr << "tmp " << std::endl;
+            std::cerr << tmp_tmp_matrix << std::endl << std::endl;
+            std::cerr << "grads_f" << std::endl;
+            std::cerr << grads_f << std::endl << std::endl;
 
             for (int i = 0; i < vecs.size() - 1; i++) {
                 Matrix3f matrix = Matrix3f::Zero();
@@ -702,6 +784,13 @@ namespace ray_tracing {
                 out_phis.push_back(matrix);
             }
 
+//            // TODO: delete it
+//            std::cerr << "inc_phis & out_phis:" << std::endl;
+//            for (int i = 0; i < inc_phis.size(); i++) {
+//                std::cerr << inc_phis[i] << std::endl << std::endl;
+//                std::cerr << out_phis[i] << std::endl << std::endl << std::endl;
+//            }
+
             std::vector<Matrix3f> bd_props11_additional;
             VectorXf inc_trace_vector = VectorXf::Zero(inc_phis.size());
 
@@ -711,6 +800,7 @@ namespace ray_tracing {
 
             for (int i = 0; i < vecs.size() - 1; i++) {
                 Matrix3f additional_difference = inc_phis[i] - out_phis[i];
+//                std::cerr << additional_difference << std::endl << std::endl;
                 Matrix3f res_matrix = Matrix3f::Zero();
                 for (int j = 0; j < 3; j++) {
                     res_matrix = Matrix3f::Identity() - additional_difference * inc_trace_vector(i);
@@ -727,6 +817,7 @@ namespace ray_tracing {
 
             for (int i = 0; i < vecs.size() - 1; i++) {
                 Matrix3f additional_difference = out_phis[i] - inc_phis[i];
+//                std::cerr << additional_difference << std::endl << std::endl;
                 Matrix3f res_matrix = Matrix3f::Zero();
                 for (int j = 0; j < 3; j++) {
                     res_matrix = (Matrix3f::Identity() - additional_difference * out_trace_vector(i)).transpose();
@@ -759,14 +850,15 @@ namespace ray_tracing {
             std::vector<MatrixXf> bd_props;
             for (int i = 0; i < a1.size(); i++) {
                 MatrixXf matrix = MatrixXf::Zero(6, 6);
+//                std::cerr << bd_props11_additional[i] << std::endl << std::endl;
                 matrix.block(0, 0, 3, 3) = bd_props11_additional[i];
                 matrix.block(0, 3, 3, 3) = Matrix3f::Zero();
                 matrix.block(3, 0, 3, 3) = bd_props21[i];
                 matrix.block(3,3,3,3) = bd_props22_additional[i];
                 bd_props.push_back(matrix);
+//                std::cerr << std::endl << matrix << std::endl;
             }
 
-            std::vector<MatrixXf> qq_pps;
             MatrixXf qq_pps1 = MatrixXf::Zero(6,6);
 
             qq_pps1.block(0, 0, 3, 3) = qq0;
@@ -774,28 +866,83 @@ namespace ray_tracing {
             qq_pps1.block(0,3,3,3) = qq0 + vels[0] * dists[0] * pp0;
             qq_pps1.block(3,3,3,3) = pp0;
             qq_pps.push_back(qq_pps1);
+//            std::cerr << "qq_pps1" << std::endl;
+//            std::cerr << qq_pps1 << std::endl << std::endl;
 
             for (int i = 1; i < vels.size(); i++) {
                 float vel = vels[i];
                 float dist = dists[i];
                 MatrixXf bd_prop = bd_props[i - 1];
 
+//                std::cerr << bd_prop << std::endl << std::endl;
+//                std::cerr << qq_pps[qq_pps.size() - 1].block(0,3, 6, 3) << std::endl << std::endl;
+
                 MatrixX3f qq_pp = MatrixX3f::Zero(6, 3);
                 qq_pp = bd_prop * qq_pps[qq_pps.size() - 1].block(0,3, 6, 3);
+//                std::cerr << qq_pp << std::endl << std::endl;
                 MatrixXf new_qq_pps = MatrixXf::Zero(6,6);
                 new_qq_pps.block(0,0,6,3) =  qq_pp;
                 new_qq_pps.block(0, 3, 3, 3) = qq_pp.block(0, 0, 3, 3)
                         + vel * dist  * qq_pp.block(3, 0, 3, 3);
                 new_qq_pps.block(3, 3, 3, 3) = qq_pp.block(3, 0, 3 ,3);
                 qq_pps.push_back(new_qq_pps);
+
+                Matrix3f qq1 = qq_pps[qq_pps.size() - 1].block(0,0,3,3);
+                Matrix3f qq2 = qq_pps[qq_pps.size() - 1].block(3,0,3,3);
+
+                std::cerr << qq_pps[qq_pps.size() - 1] << std::endl;
+                std::cerr << std::endl << std::endl;
+                std::cerr << qq1 << std::endl << std::endl;
+                std::cerr << qq2 << std::endl;
+
+                if (qq1.determinant() * qq2.determinant() < 0) {
+                    kmah_index += 1;
+                } else {
+                    float value = 0;
+                    Matrix3f inverse_qq2 = qq2.inverse();
+                    for (int i = 0; i < 3; i++) {
+                        for (int j = 0; j < 3; j++) {
+                            value += qq1(i, j) * inverse_qq2(i, j);
+                        }
+                    }
+                    if (value * qq1.determinant() * qq2.determinant() < 0) {
+                        kmah_index += 2;
+                    }
+                }
+
+//                std::cerr << "new_qq_pps " << std::endl;
+//                std::cerr << new_qq_pps << std::endl << std::endl;
             }
 
+//            std::cerr << qq_pps[qq_pps.size() - 1] << std::endl << std::endl;
             Matrix3f qq = qq_pps[qq_pps.size() - 1].block(0,3, 3, 3);
-            float ray_jac = qq.determinant();
-            float spread = sqrt(abs(ray_jac));
 
-            return spread;
+            std::vector<float> disconts;
+            for (int i = 0; i < out_phis.size(); i++) {
+                discont_factor *= abs(out_phis[i].trace() / inc_phis[i].trace());
+            }
+            discont_factor = sqrt(discont_factor);
+        } else {
+            auto dists = getDistance();
+            auto vels = getVels(velocity_model->getLayersCount() - 1);
+
+            float dist0 = dists[0];
+            float vels0 = vels[0];
+
+            MatrixXf qq_pps1 = MatrixXf::Zero(6,6);
+
+            qq_pps1.block(0, 0, 3, 3) = qq0;
+            qq_pps1.block(3,0,3,3) = pp0;
+            qq_pps1.block(0,3,3,3) = qq0 + vels0 * dist0 * pp0;
+            qq_pps1.block(3,3,3,3) = pp0;
+            qq_pps.push_back(qq_pps1);
         }
+
+        Matrix3f qq = qq_pps[qq_pps.size() - 1].block(0,3, 3, 3);
+        float ray_jac = qq.determinant();
+        float spread = sqrt(abs(ray_jac));
+
+        return Ray::SpreadingProps(discont_factor, kmah_index, spread);
     }
 
     std::vector<float> Ray::getDistance() {
@@ -808,22 +955,6 @@ namespace ray_tracing {
 
         }
         return dists;
-    }
-
-    void Ray::createDefaultRayCode(WaveType type) {
-        const int wave_type = type == WaveType::PWave ? 0 : 1;
-        const int layers_count = velocity_model->getLayersCount();
-
-        ray_code.clear();
-        ray_code.reserve((layers_count * 2));
-
-        for (int i = 0; i < layers_count - 2; i++) {
-            ray_code.emplace_back(Code(i, Direction::DOWN, type));
-        }
-
-        for (int i = layers_count - 2; i >= 1; i--) {
-            ray_code.emplace_back(Code(i, Direction::UP, type));
-        }
     }
 
 } // namespace ray_tracing

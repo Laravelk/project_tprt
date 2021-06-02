@@ -4,7 +4,7 @@
 #include <memory>
 #include <vector>
 
-#include "../VelocityModel.hpp"
+#include "../Data/VelocityModel.hpp"
 #include "Ray.hpp"
 
 namespace ray_tracing {

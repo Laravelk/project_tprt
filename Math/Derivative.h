@@ -9,7 +9,7 @@
 
 class Derivative {
 private:
-  constexpr static float EPS = 1;
+  constexpr static float EPS = 3;
   constexpr static float REVERSE_EPS_MUL_TWO = 1.0f / (2.0f * EPS);
   Derivative() {}
 

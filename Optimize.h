@@ -11,8 +11,15 @@ public:
         static double myfunc(const std::vector<double> &x, std::vector<double> &grad,
                              void *my_func_data) {
             auto *ray_data = static_cast<ray_tracing::RayData *>(my_func_data);
+            ray_data->setTrajectory(x);
 
             const auto &trajectory = ray_data->trajectory;
+
+            for (int i = 0; i < trajectory.size(); i++) {
+                std::cerr << trajectory[i][0] << " " << trajectory[i][1] << " " << trajectory[i][2] << std::endl;
+            }
+            std::cerr << std::endl << std::endl;
+
             const auto &ray_code = ray_data->ray_code;
             const auto &horizons = ray_data->horizons;
             const auto &vp = ray_data->vp;
@@ -88,7 +95,6 @@ public:
 
                 }
             }
-            ray_data->setTrajectory(x);
             return calculate_full_time(ray_data);
         }
 

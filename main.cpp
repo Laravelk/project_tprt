@@ -3,10 +3,10 @@
 #include <iostream>
 #include <vector>
 
-#include "Horizon/FlatHorizon.hpp"
-#include "Horizon/GridHorizon.h"
+#include "Data/Horizon/FlatHorizon.hpp"
+#include "Data/Horizon/GridHorizon.h"
 #include "Ray/Ray.hpp"
-#include "VelocityModel.hpp"
+#include "Data/VelocityModel.hpp"
 #include "rapidjson/error/en.h"
 #include "rapidjson/istreamwrapper.h"
 #include "rapidjson/ostreamwrapper.h"
@@ -127,8 +127,8 @@ int main(int argc, char *argv[]) {
 
   // auto grid_json = ray_tracing::GridHorizon::fromJSON(doc);
 
-  std::ifstream sources_file = std::ifstream("sources.txt");
-  std::ifstream receivers_file= std::ifstream("receivers.txt");
+  std::ifstream sources_file = std::ifstream("/home/laravelk/projects/project_tprt-feature-develop/Test/TestData/sources_out.txt");
+  std::ifstream receivers_file= std::ifstream("/home/laravelk/projects/project_tprt-feature-develop/Test/TestData/receivers_out.txt");
 
   // source
 //  auto sources = ray_tracing::Source::fromFile(std::move(sources_file));
@@ -147,19 +147,19 @@ int main(int argc, char *argv[]) {
   std::vector<std::array<int, 3>> ray_code = bigTest();
   // create the ray
   std::vector<ray_tracing::Ray> rays;
-  const long N = 1;
+  const long N = 100;
 
 //  source.change_x_loc(0);
   for (long i = 0; i < N; i++) {
-      rays.emplace_back(source, receiver, velocity_model.get(), ray_code);
-      source.change_x_loc(source.getLocation().at(0) + 5);
+      rays.emplace_back(source, receiver, velocity_model.get(), true, WaveType::PWave);
+//      source.change_x_loc(source.getLocation().at(0) + 5);
   }
 
   auto start = std::chrono::steady_clock::now();
 //#pragma omp parallel for schedule(guided)
     for (long i = 0; i < N; i++) {
-        auto amplitude = rays[i].computeAmplitude();
-//        rays[i].computePathWithRayCode();
+//        auto amplitude = rays[i].computeAmplitude();
+        rays[i].computePathWithRayCode();
   }
   auto end = std::chrono::steady_clock::now();
   std::chrono::duration<double> elapsed_seconds = end - start;

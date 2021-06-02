@@ -357,6 +357,26 @@ namespace ray_tracing {
         //////////// End EXS Block
     }
 
+    void Ray::createDefaultRayCode(WaveType type) {
+        const int wave_type = type == WaveType::PWave ? 0 : 1;
+        const int layers_count = velocity_model->getLayersCount();
+
+        ray_code.clear();
+        ray_code.reserve((layers_count * 2));
+
+//        for (int i = 0; i < layers_count - 1; i++) {
+//            ray_code.emplace_back(Code(i, Direction::DOWN, type));
+//        }
+
+        for (int i = 0; i < layers_count - 2; i++) {
+            ray_code.emplace_back(Code(i, Direction::DOWN, type));
+        }
+
+        for (int i = layers_count - 2; i >= 1; i--) {
+            ray_code.emplace_back(Code(i, Direction::UP, type));
+        }
+    }
+
     Vector3f Ray::rt_coeffs_iso(Vector3f inc_slow, Vector3f inc_polariz,
                                 Vector3f ez, Vector3f ey, int rt_sign,
                                 Layer::Properties lr_props_1,

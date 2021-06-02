@@ -37,23 +37,23 @@ message(status, ${rapidjson_FOUND})
 add_executable(tprt main.cpp
         Ray/RayData.cpp
         Ray/RayData.h
-        Source.cpp
-        Source.hpp
+        Data/Source.cpp
+        Data/Source.hpp
         Ray/Ray.cpp
         Ray/Ray.hpp
-        Layer.hpp
-        Receiver.cpp
-        Receiver.hpp
-        Horizon/FlatHorizon.cpp
-        Horizon/FlatHorizon.hpp
-        Layer.cpp
-        VelocityModel.cpp
-        VelocityModel.hpp
-        Horizon/Horizon.h
-        Horizon/GridHorizon.cpp
-        Horizon/GridHorizon.h
+        Data/Layer.hpp
+        Data/Receiver.cpp
+        Data/Receiver.hpp
+        Data/Horizon/FlatHorizon.cpp
+        Data/Horizon/FlatHorizon.hpp
+        Data/Layer.cpp
+        Data/VelocityModel.cpp
+        Data/VelocityModel.hpp
+        Data/Horizon/Horizon.h
+        Data/Horizon/GridHorizon.cpp
+        Data/Horizon/GridHorizon.h
         Math/Derivative.h
-        Optimize.h
+        Math/Optimize.h
         Ray/WaveType.h
         Math/C_IJ_Matrix.h
         )

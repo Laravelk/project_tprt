@@ -10,9 +10,9 @@
 #include <Eigen/Dense>
 
 #include "../Layer.hpp"
-#include "../Receiver.hpp"
-#include "../Source.hpp"
-#include "../VelocityModel.hpp"
+#include "../Data/Receiver.hpp"
+#include "../Data/Source.hpp"
+#include "../Data/VelocityModel.hpp"
 #include "WaveType.h"
 
 using namespace Eigen;
@@ -55,7 +55,7 @@ private:
   void computeSegmentsRay();
 
   void generateCode(std::vector<std::array<int, 3>> ray_code);
-
+  void createDefaultRayCode(WaveType);
 public:
   std::vector<std::array<float, 3>> &getTrajectory() { return trajectory; }
   std::vector<Code> &getRayCodeVector() { return ray_code; }
@@ -98,6 +98,13 @@ public:
         timeP(INFINITY) /*amplitudeP(1), timeS(INFINITY), amplitudeS(1)*/ {
     generateCode(iray_code);
   }
+
+    Ray(Source source, Receiver receiver, VelocityModel *_model, bool isNeedDefaultRayCode, WaveType type):
+            source(source), receiver(receiver), velocity_model(_model), timeP(INFINITY) {
+        if (isNeedDefaultRayCode) {
+            createDefaultRayCode(type);
+        }
+    }
 
   Ray(std::vector<Source> _sources, std::vector<Receiver> _receivers,
       VelocityModel *_model, const std::vector<std::array<int, 3>>& iray_code)

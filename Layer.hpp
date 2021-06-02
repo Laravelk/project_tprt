@@ -7,8 +7,8 @@
 #include "rapidjson/document.h"
 
 #include "Ray/WaveType.h"
-#include "Horizon/FlatHorizon.hpp"
-#include "Horizon/GridHorizon.h"
+#include "Data/Horizon/FlatHorizon.hpp"
+#include "Data/Horizon/GridHorizon.h"
 
 namespace ray_tracing {
 class Layer {

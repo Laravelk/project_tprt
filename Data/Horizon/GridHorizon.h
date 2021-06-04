@@ -12,7 +12,7 @@
 namespace ray_tracing {
 class GridHorizon : public Horizon {
 private:
-  _2D::BicubicInterpolator<float> interpolator;
+  _2D::BicubicInterpolator<double> interpolator;
   std::vector<std::tuple<float, float, float>> points;
 
   float gradient_step = 0.0f;
@@ -65,8 +65,8 @@ public:
 
   std::string getName() const { return name; }
 
-  _2D::BicubicInterpolator<float> getInterpolator() const;
-  void setInterpolator(const _2D::BicubicInterpolator<float> &value);
+  _2D::BicubicInterpolator<double> getInterpolator() const;
+  void setInterpolator(const _2D::BicubicInterpolator<double> &value);
 
   std::vector<std::tuple<float, float, float>> getPoints() const;
 

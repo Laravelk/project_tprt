@@ -17,7 +17,7 @@ FlatHorizon::FlatHorizon(float depth, float dip, float azimuth,
 
   name = _name;
   normal.push_back(sin(dip * M_PI / 180) * cos(azimuth * M_PI / 180));
-  normal.push_back((dip * M_PI / 180) * sin(azimuth * M_PI / 180));
+  normal.push_back(sin(dip * M_PI / 180) * sin(azimuth * M_PI / 180));
   normal.push_back((-1.0f) * cos(dip * M_PI / 180));
   D = (-1.0f) *
       (normal[0] * anchor[0] + normal[1] * anchor[1] + normal[2] * depth);
@@ -53,6 +53,7 @@ FlatHorizon::getGradientInPoint(std::array<double, 2> cord) const {
 
 std::array<float, 2> FlatHorizon::getGradientInPoint(double x,
                                                       double y) const {
+//    std::cerr << normal[0] << " " << normal[1] << " " << normal[2] << std::endl;
   return {(-1) * normal[0] / normal[2], (-1) * normal[1] / normal[2]};
 }
 

@@ -126,12 +126,12 @@ GridHorizon::GridHorizon(std::string _name,
 
 }
 
-_2D::BicubicInterpolator<float> GridHorizon::getInterpolator() const {
+_2D::BicubicInterpolator<double> GridHorizon::getInterpolator() const {
   return interpolator;
 }
 
 void GridHorizon::setInterpolator(
-    const _2D::BicubicInterpolator<float> &value) {
+    const _2D::BicubicInterpolator<double> &value) {
   interpolator = value;
 }
 

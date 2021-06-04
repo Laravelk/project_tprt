@@ -35,7 +35,6 @@ include_directories(${RapidJSON_INCLUDE_DIRS})
 
 message(status, ${rapidjson_FOUND})
 add_executable(tprt main.cpp
-        Ray/RayData.cpp
         Ray/RayData.h
         Data/Source.cpp
         Data/Source.hpp

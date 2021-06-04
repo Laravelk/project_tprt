@@ -32,7 +32,7 @@ public:
   FlatHorizon(FlatHorizon &copy)
       : dip(copy.getDip()), azimuth(copy.getAzimuth()),
         depth(copy.getDepthValue()), anchor(copy.getAnchor()),
-        normal(copy.getNormal({0, 0})), region(copy.region) {
+        normal(copy.normal), region(copy.region) {
     this->name = copy.getName();
   }
 

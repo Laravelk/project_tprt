@@ -30,7 +30,7 @@
 
     "Source": {
         "Location": [
-            5.0,
+            0.0,
             0.0,
             0.0
         ],
@@ -58,6 +58,30 @@
     },
 
     "Velocity model": [
+    {
+        "LType": "ISO",
+        "Vp": 2100.0,
+        "Vs": 2100.0,
+        "Density": 2600.0,
+        "HType": "flat",
+        "Top": {
+            "Dip": 0.0,
+            "Azimuth": 0.0,
+            "Depth": -10000000.0,
+            "Anchor": [
+                0.0,
+                0.0,
+                1.0
+            ],
+            "Region": [
+                [-1000, -1000],
+                [1000, 1000]
+            ],
+            "Cardinal": "END",
+            "Name": "Usf-200"
+        },
+        "Name": "Usf-200"
+    },
     {
             "LType": "ISO",
             "Vp": 2500.0,

@@ -57,6 +57,8 @@ private:
   void generateCode(std::vector<std::array<int, 3>> ray_code);
   void createDefaultRayCode(WaveType);
 public:
+    float traveltime = 0;
+
   std::vector<std::array<float, 3>> &getTrajectory() { return trajectory; }
   std::vector<Code> &getRayCodeVector() { return ray_code; }
   VelocityModel *getModel() { return velocity_model; }
